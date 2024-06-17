@@ -11,9 +11,4 @@
     <ProjectReference Include="..\MTM.Entities\MTM.Entities.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="IRepository\" />
-    <Folder Include="Repository\" />
-  </ItemGroup>
-
 </Project>
