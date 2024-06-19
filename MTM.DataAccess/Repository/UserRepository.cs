@@ -1,4 +1,6 @@
-﻿using MTM.CommonLibrary;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using MTM.CommonLibrary;
 using MTM.DataAccess.IRepository;
 using MTM.Entities.Data;
 using MTM.Entities.DTO;
@@ -184,6 +186,39 @@ namespace MTM.DataAccess.Repository
 										user.IsActive
 									}).FirstOrDefault();
 
+            return response;
+        }
+        #endregion
+
+        #region EmailExits
+        public ResponseModel EmailExists(string email)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var context = new MTMContext())
+                {
+                    var emailExist = context.Users.Any(u => u.Email == email);
+                    if(emailExist != true)
+                    {
+                        response.ResponseType = Message.FAILURE;
+                        response.ResponseMessage = string.Format(Message.NOT_EXIST,email);
+                    }
+                    else
+                    {
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = ex.Message;
+            }
+            return response;
+        }
+        #endregion
+    }
 					if (userData != null)
 					{
 						response.Data = new Dictionary<string, string>

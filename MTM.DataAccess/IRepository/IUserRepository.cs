@@ -10,6 +10,7 @@ namespace MTM.DataAccess.IRepository
         UserViewModel GetUser(string id);
         ResponseModel Update(User category);
         ResponseModel Delete(string id, string userId);
+        ResponseModel EmailExists(string email);
         ResponseModel Login(string email, string password);
     }
 }
