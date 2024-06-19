@@ -8,14 +8,8 @@
 
   <ItemGroup>
     <Compile Remove="Helper\**" />
-    <Compile Remove="IService\**" />
-    <Compile Remove="Service\**" />
     <EmbeddedResource Remove="Helper\**" />
-    <EmbeddedResource Remove="IService\**" />
-    <EmbeddedResource Remove="Service\**" />
     <None Remove="Helper\**" />
-    <None Remove="IService\**" />
-    <None Remove="Service\**" />
   </ItemGroup>
 
   <ItemGroup>
