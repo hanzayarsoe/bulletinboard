@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
 
 namespace MTM.Entities.Data
 {
@@ -16,6 +17,14 @@ namespace MTM.Entities.Data
         public MTMContext(DbContextOptions<MTMContext> options)
             : base(options)
         {
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            var configBuiler = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            var configSection = configBuiler.GetSection("ConnectionStrings");
+            var connectionStrings = configSection["DefaultConnection"] ?? null;
+            optionsBuilder.UseSqlServer(connectionStrings);
         }
 
         public virtual DbSet<Post> Posts { get; set; }
