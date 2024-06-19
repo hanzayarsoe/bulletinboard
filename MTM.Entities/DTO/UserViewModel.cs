@@ -52,8 +52,6 @@ namespace MTM.Entities.DTO
             this.DeletedDate = DateTime.Now;
             this.DeletedUserId = string.Empty;
 
-            //virtual 
-            this.UserNameEmail = string.Empty;
         }
 
         #region Properties
@@ -101,10 +99,6 @@ namespace MTM.Entities.DTO
         public string UpdatedUserId { get; set; }
         public DateTime DeletedDate { get; set; }
         public string DeletedUserId { get; set; }
-
-		// Virutal Properties
-		[DisplayName("User Name or Email")]
-		public string UserNameEmail {  get; set; }
 
 
         #endregion

@@ -16,30 +16,29 @@ namespace MTM.Services.Service
             this._userRepository = userRepository;
             this._mapper = mapper;
         }
-
         public ResponseModel Create(UserViewModel model)
         {
             return this._userRepository.Create(this._mapper.Map<User>(model));
         }
-
         public UserListViewModel Data()
         {
             return _userRepository.Data();
         }
-
         public UserViewModel GetCategory(string id)
         {
             return this._userRepository.GetUser(id);
         }
-
         public ResponseModel Update(UserViewModel model)
         {
            return this._userRepository.Update(this._mapper.Map<User>(model));
         }
-
         public ResponseModel Delete(string id, string userId)
         {
             return this._userRepository.Delete(id, userId);
+        }
+        public ResponseModel Login(string email, string password)
+        {
+            return this._userRepository.Login(email, password);
         }
     }
 }

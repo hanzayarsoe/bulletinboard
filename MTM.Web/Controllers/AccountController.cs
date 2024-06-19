@@ -2,7 +2,8 @@
 using MTM.CommonLibrary;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
-using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace MTM.Web.Controllers
 {
@@ -34,6 +35,7 @@ namespace MTM.Web.Controllers
 					ModelState.AddModelError("PasswordConfirm", "Password and confirmation password do not match.");
 					return View(model);
                 }
+                model.PasswordHash = HashPassword(model.PasswordHash);
                 model.Id = Guid.NewGuid().ToString();
                 model.CreatedUserId = Guid.NewGuid().ToString();
                 model.CreatedDate = DateTime.Now;
@@ -54,19 +56,14 @@ namespace MTM.Web.Controllers
 		[ValidateAntiForgeryToken]
 		public IActionResult Login(UserViewModel model)
 		{
-			if (ModelState.IsValid)
-			{
-				if (model.PasswordHash != model.PasswordConfirm)
-				{
-					ModelState.AddModelError("PasswordConfirm", "Password and confirmation password do not match.");
-					return View(model);
-				}
-				model.Id = Guid.NewGuid().ToString();
-				model.CreatedUserId = Guid.NewGuid().ToString();
-				model.CreatedDate = DateTime.Now;
-				ResponseModel response = _userService.Create(model);
-				AlertMessage(response);
-			}
+			//if (ModelState.IsValid)
+			//{
+			//	model.Id = Guid.NewGuid().ToString();
+			//	model.CreatedUserId = Guid.NewGuid().ToString();
+			//	model.CreatedDate = DateTime.Now;
+			//	ResponseModel response = _userService.Create(model);
+			//	AlertMessage(response);
+			//}
 			return View(model);
 		}
 		#endregion
@@ -90,6 +87,24 @@ namespace MTM.Web.Controllers
                     break;
             }
         }
-        #endregion
-    }
+		private static string HashPassword(string password)
+		{
+			using (MD5 md5 = MD5.Create())
+			{
+				// Convert the input string to a byte array and compute the hash.
+				byte[] inputBytes = Encoding.UTF8.GetBytes(password);
+				byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+				// Convert the byte array to a hexadecimal string.
+				StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < hashBytes.Length; i++)
+				{
+					sb.Append(hashBytes[i].ToString("x2"));
+				}
+				return sb.ToString();
+			}
+		}
+
+		#endregion
+	}
 }

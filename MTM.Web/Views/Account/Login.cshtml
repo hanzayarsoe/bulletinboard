@@ -9,10 +9,10 @@
 	<form asp-action="Login" method="post" id="loginFrm">
 		<div class="mt-3">
 			<div class="form-floating">
-				<input asp-for="UserNameEmail" type="text" class="form-control" id="userNameEmail" name="UserNameEmail" placeholder="User Name Or Email">
-				<label asp-for="UserNameEmail" for="lastName">User Name or Email</label>
+				<input asp-for="Email" type="text" class="form-control" id="userEmail" name="Email" placeholder="Email">
+				<label asp-for="Email" for="lastName">Email</label>
 			</div>
-			<span asp-validation-for="UserNameEmail" class="text-danger input-err"></span>
+			<span asp-validation-for="Email" class="text-danger input-err"></span>
 		</div>
 		<div class="mt-3 ">
 			<div class="form-floating">

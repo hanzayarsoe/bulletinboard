@@ -9,5 +9,6 @@ namespace MTM.Services.IService
         UserViewModel GetCategory(string id);
         ResponseModel Update(UserViewModel category);
         ResponseModel Delete(string id, string userId);
+        ResponseModel Login(string email, string password);
     }
 }
