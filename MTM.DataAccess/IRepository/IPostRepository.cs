@@ -5,10 +5,10 @@ namespace MTM.DataAccess.IRepository
 {
     public interface IPostRepository
     {
-        PostListViewModel Data();
-        PostViewModel Create(Post post);
-        PostViewModel GetPost(string id);
-        PostViewModel Update(Post post);
-        PostViewModel Delete(string id, string userId);
+        //PostListViewModel Data();
+        //PostViewModel Create(Post post);
+        //PostViewModel GetPost(string id);
+        //PostViewModel Update(Post post);
+        //PostViewModel Delete(string id, string userId);
     }
 }

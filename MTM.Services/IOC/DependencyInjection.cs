@@ -15,13 +15,13 @@ namespace MTM.Services.IOC
             // Mapper
             services.AddAutoMapper(typeof(AutoMapperProfile));
 
-            // Category
+            // User
             services.AddScoped<IUserService,UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
 
-            // Category
+            // Post
             services.AddScoped<IPostService, PostService>();
-            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPostRepository, PostRepository>();
 
         }
     }
