@@ -7,7 +7,7 @@ namespace MTM.Services.IService
         UserListViewModel Data();
         ResponseModel Create(UserViewModel model);
         UserViewModel GetUser(string id);
-        ResponseModel Update(UserViewModel category);
+        ResponseModel Update(UserViewModel user);
         ResponseModel Delete(string id, string userId);
         ResponseModel EmailExists(string email);
         ResponseModel Login(string email, string password);

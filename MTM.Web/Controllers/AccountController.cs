@@ -2,104 +2,67 @@
 using MTM.CommonLibrary;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
-using MTM.CommonLibrary;
-using MTM.Entities.DTO;
-using MTM.Services.IService;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace MTM.Web.Controllers
 {
-    public class AccountController : Controller
-    {
-        private readonly IUserService _userService;
+	public class AccountController : Controller
+	{
+		private readonly IUserService _userService;
 
-        public AccountController(IUserService userService)
-        {
-            this._userService = userService;
-        }
-
-        public IActionResult ForgetPassword()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult ForgetPassword(string email)
-        {
-            if (ModelState.IsValid)
-            {
-                ResponseModel response = _userService.EmailExists(email);
-                AlertMessage(response);
-            }
-
-            return View();
-
-        }
-
-        public IActionResult ResetPassword()
-        private readonly IUserService _userService;
-        public AccountController(IUserService userService)
-        {
-            _userService = userService;
-        }
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        #region Common
-        /// <summary>
-        /// Alert message with viewData
-        /// </summary>
-        /// <param name="response"></param>
-        private void AlertMessage(ResponseModel response)
-        {
-            ViewData["AlertMessage"] = response.ResponseMessage;
-            switch (response.ResponseType)
-            {
-                case 1:
-                    ViewData["AlertType"] = AlertType.Success.ToString().ToLower();
-                    break;
-                case 2:
-                    ViewData["AlertType"] = AlertType.Error.ToString().ToLower();
-                    break;
-                case 3:
-                    ViewData["AlertType"] = AlertType.Warning.ToString().ToLower();
-                    break;
-                default:
-                    break;
-            }
-        }
-        #endregion
-    }
-        #region Create
-        [HttpGet]
-        public IActionResult Register()
-        {
+		public AccountController(IUserService userService)
+		{
+			this._userService = userService;
+		}
+		#region Auth/Forget Password
+		public IActionResult ForgetPassword()
+		{
 			return View();
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Register(UserViewModel model)
-        {
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult ForgetPassword(string email)
+		{
 			if (ModelState.IsValid)
-            {
-                if(model.PasswordHash != model.PasswordConfirm)
-                {
+			{
+				ResponseModel response = _userService.EmailExists(email);
+				AlertMessage(response);
+			}
+
+			return View();
+
+		}
+		#endregion
+
+		#region Create
+		[HttpGet]
+		public IActionResult Register()
+		{
+			return View();
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult Register(UserViewModel model)
+		{
+			if (ModelState.IsValid)
+			{
+				if (model.PasswordHash != model.PasswordConfirm)
+				{
 					ModelState.AddModelError("PasswordConfirm", "Password and confirmation password do not match.");
 					return View(model);
-                }
-                model.PasswordHash = HashPassword(model.PasswordHash);
-                model.Id = Guid.NewGuid().ToString();
-                model.CreatedUserId = Guid.NewGuid().ToString();
-                model.CreatedDate = DateTime.Now;
-                ResponseModel response = _userService.Create(model);
-                AlertMessage(response);
-            }
-            return View(model);
-        }
+				}
+				model.PasswordHash = HashPassword(model.PasswordHash);
+				model.Id = Guid.NewGuid().ToString();
+				model.CreatedUserId = Guid.NewGuid().ToString();
+				model.CreatedDate = DateTime.Now;
+				ResponseModel response = _userService.Create(model);
+				AlertMessage(response);
+			}
+			return View(model);
+		}
 		#endregion
 
 		#region Login
@@ -108,6 +71,7 @@ namespace MTM.Web.Controllers
 		{
 			return View();
 		}
+
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public IActionResult Login(UserViewModel model)
@@ -126,23 +90,24 @@ namespace MTM.Web.Controllers
 
 		#region Common
 		private void AlertMessage(ResponseModel response)
-        {
-            ViewData["AlertMessage"] = response.ResponseMessage;
-            switch (response.ResponseType)
-            {
-                case 1:
-                    ViewData["AlertType"] = AlertType.Success.ToString().ToLower();
-                    break;
-                case 2:
-                    ViewData["AlertType"] = AlertType.Error.ToString().ToLower();
-                    break;
-                case 3:
-                    ViewData["AlertType"] = AlertType.Warning.ToString().ToLower();
-                    break;
-                default:
-                    break;
-            }
-        }
+		{
+			ViewData["AlertMessage"] = response.ResponseMessage;
+			switch (response.ResponseType)
+			{
+				case 1:
+					ViewData["AlertType"] = AlertType.Success.ToString().ToLower();
+					break;
+				case 2:
+					ViewData["AlertType"] = AlertType.Error.ToString().ToLower();
+					break;
+				case 3:
+					ViewData["AlertType"] = AlertType.Warning.ToString().ToLower();
+					break;
+				default:
+					break;
+			}
+		}
+
 		private static string HashPassword(string password)
 		{
 			using (MD5 md5 = MD5.Create())
@@ -160,7 +125,6 @@ namespace MTM.Web.Controllers
 				return sb.ToString();
 			}
 		}
-
 		#endregion
 	}
 }

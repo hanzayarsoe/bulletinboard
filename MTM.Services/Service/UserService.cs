@@ -24,9 +24,7 @@ namespace MTM.Services.Service
         {
             return _userRepository.Data();
         }
-
         public UserViewModel GetUser(string id)
-        public UserViewModel GetCategory(string id)
         {
             return this._userRepository.GetUser(id);
         }
@@ -42,7 +40,6 @@ namespace MTM.Services.Service
         public ResponseModel EmailExists(string email)
         {
             return this._userRepository.EmailExists(email);
-            return this._userRepository.Delete(id, userId);
         }
         public ResponseModel Login(string email, string password)
         {
