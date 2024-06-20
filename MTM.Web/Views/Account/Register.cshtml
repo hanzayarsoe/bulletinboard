@@ -1,0 +1,76 @@
+﻿@model MTM.Entities.DTO.UserViewModel
+@{
+	ViewData["Title"] = "Register";
+}
+
+<div class="auth-container mt-5 col-12 col-md-8 mx-auto ">
+	<h2>Register</h2>
+	<partial name="_Notify" />
+	<form class="row" asp-action="Register" method="post" id="registerFrm">
+		<div class="col-md-6 mt-3 text-end">
+			<div class="form-floating">
+				<input asp-for="FirstName" type="text" class="form-control" id="firstName" name="FirstName" placeholder="First Name">
+				<label asp-for="FirstName" for="firstName">First Name</label>
+			</div>
+			<span asp-validation-for="FirstName" class="text-danger input-err"></span>
+		</div>
+		<div class="col-md-6 mt-3 text-end">
+			<div class="form-floating">
+				<input asp-for="LastName" type="text" class="form-control" id="lastName" name="LastName" placeholder="Last Name">
+				<label asp-for="LastName" for="lastName" >Last Name</label>
+			</div>
+			<span asp-validation-for="LastName" class="text-danger input-err"></span>
+		</div>
+		<div class="col-md-6 mt-3 text-end">
+			<div class="form-floating">
+				<input asp-for="PasswordHash" type="password" class="form-control" id="password" name="PasswordHash" placeholder="Password">
+				<label asp-for="PasswordHash" for="password" >Password</label>
+			</div>
+			<span asp-validation-for="PasswordHash" class="text-danger input-err"></span>
+		</div>
+		<div class="col-md-6 mt-3 text-end">
+			<div class="form-floating">
+				<input asp-for="PasswordConfirm" type="password" class="form-control" id="confirmPassword" name="PasswordConfirm"
+					   placeholder="Confirm Password">
+				<label asp-for="PasswordConfirm" for="confirmPassword" >Confirm Password</label>
+			</div>
+			<span asp-validation-for="PasswordConfirm" class="text-danger input-err"></span>
+		</div>
+		<div class="col-md-6 mt-3 text-end">
+			<div class="form-floating">
+				<input asp-for="Email" type="email" class="form-control" id="email" name="Email" placeholder="Email">
+				<label asp-for="Email" for="email">Email</label>
+			</div>
+			<span asp-validation-for="Email" class="text-danger input-err"></span>
+		</div>
+		<div class="col-md-6 mt-3 text-end">
+			<div class="form-floating">
+				<input asp-for="PhoneNumber" type="text" class="form-control" id="phoneNumber" name="PhoneNumber" placeholder="Phone Number">
+				<label asp-for="PhoneNumber" for="phoneNumber">Phone Number</label>
+			</div>
+			<span asp-validation-for="PhoneNumber" class="text-danger input-err"></span>
+		</div>
+		<div class="col-md-6 mt-3 text-end">
+			<div class="form-floating">
+				<select asp-for="Role" class="form-select">
+					<option value="1" selected>Admin</option>
+					<option value="2">User</option>
+					
+				</select>
+				<label asp-for="Role" for="role" >Role</label>
+			</div>
+			<span asp-validation-for="Role" class="text-danger input-err"></span>
+		</div>
+		<div class="col-md-6 mt-3 text-end">
+			<div class="form-floating">
+				<input asp-for="DOB" type="date" class="form-control" id="dob" name="DOB" placeholder="mm/dd/yyyy">
+				<label asp-for="DOB" for="dob" >DOB</label>
+			</div>
+			<span asp-validation-for="DOB" class="text-danger input-err"></span>
+		</div>
+		<div class="text-md-center mx-auto mt-3">
+			<button type="button" class="btn btn-outline-danger">Cancel</button>
+			<button type="submit" class="btn btn-outline-success" asp-action="Register" asp-controller="Account">Create</button>
+		</div>
+	</form>
+</div>

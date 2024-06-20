@@ -32,6 +32,7 @@ namespace MTM.Entities.DTO
             this.NormalizedEmail = string.Empty;
             this.EmailConfirmed = false;
             this.PasswordHash = string.Empty;
+            this.PasswordConfirm = string.Empty;
             this.SecurityStamp = string.Empty;
             this.ConcurrencyStamp = string.Empty;
             this.PhoneNumber = string.Empty;
@@ -41,7 +42,6 @@ namespace MTM.Entities.DTO
             this.LockoutEnabled = false;
             this.AccessFailedCount = 0;
             this.Address = string.Empty;
-            this.DOB = DateTime.Now;
             this.Role = 0;
             this.IsActive = true;
             this.IsDeleted = false;
@@ -51,35 +51,31 @@ namespace MTM.Entities.DTO
             this.UpdatedUserId = string.Empty;
             this.DeletedDate = DateTime.Now;
             this.DeletedUserId = string.Empty;
+
         }
 
         #region Properties
         [DisplayName("No")]
         public string Id { get; set; }
-
-        [Required(ErrorMessage = "Category name is required.")]
-        [StringLength(50, MinimumLength = 3, ErrorMessage = "Category name must be less than 3")]
-        public string UserName { get; set; }
-
+		//[Required(ErrorMessage = "User name is required.")]
+		//[StringLength(50, ErrorMessage = "User name must be less than 3")]
+		[DisplayName("User Name")]
+		public string UserName { get; set; }
         public string NormalizedUserName { get; set; }
-
-        public string Email { get; set; }
-
-        public string FirstName { get; set; }
-
-        [DisplayName("Created Date")]
+		[DisplayName("Email")]
+		public string Email { get; set; }
+		[DisplayName("First Name")]
+		public string FirstName { get; set; }
+        [DisplayName("Last Name")]
         public string LastName { get; set; }
-
-        [DisplayName("Created User")]
+        [DisplayName("Normalized Email")]
         public string NormalizedEmail { get; set; }
         public bool EmailConfirmed { get; set; }
-
-        [DisplayName("Updated Date")]
+        [DisplayName("Password")]
         public string PasswordHash { get; set; }
-
-        [DisplayName("Updated User")]
+		[DisplayName("Confirm Password")]
+		public virtual string PasswordConfirm { get; set; }
         public string SecurityStamp { get; set; }
-
         public string ConcurrencyStamp { get; set; }
         [DisplayName("Phone Number")]
         public string PhoneNumber { get; set; }
@@ -88,9 +84,13 @@ namespace MTM.Entities.DTO
         public DateTime LockoutEnd { get; set; }
         public bool LockoutEnabled { get; set; }
         public int AccessFailedCount { get; set; }
-        public string Address { get; set; }
-        public DateTime DOB { get; set; }
-        public int Role { get; set; }
+		[DisplayName("Address")]
+		public string Address { get; set; }
+		[DisplayName("Date Of Birth")]
+		[AdultPersonOnly(ErrorMessage = "The year must be greater than 2002.")]
+		public DateTime DOB { get; set; }
+		[DisplayName("Role")]
+		public int Role { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime CreatedDate { get; set; }
@@ -103,6 +103,34 @@ namespace MTM.Entities.DTO
 
         #endregion
     }
+}
+
+// Custom Validation 
+public class AdultPersonOnly : ValidationAttribute
+{
+	protected override ValidationResult? IsValid(object? value, ValidationContext? validationContext)
+	{
+		if (value is DateTime dateTime)
+		{
+			var today = DateTime.Today;
+			var age = today.Year - dateTime.Year;
+
+			if (dateTime.Date > today.AddYears(-age))
+			{
+				age--;
+			}
+
+			if (age >= 18)
+			{
+				return ValidationResult.Success;
+			}
+			else
+			{
+				return new ValidationResult("Sorry, under 18 is not allowed.");
+			}
+		}
+		return new ValidationResult("Invalid date of birth.");
+	}
 }
 
 

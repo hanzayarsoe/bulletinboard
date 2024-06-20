@@ -21,7 +21,7 @@ namespace MTM.Services.IOC
 
             // Post
             services.AddScoped<IPostService, PostService>();
-            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPostRepository, PostRepository>();
 
         }
     }

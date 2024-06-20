@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using MTM.CommonLibrary;
+﻿using MTM.CommonLibrary;
 using MTM.DataAccess.IRepository;
 using MTM.Entities.Data;
 using MTM.Entities.DTO;
@@ -10,10 +8,6 @@ namespace MTM.DataAccess.Repository
     public class UserRepository : IUserRepository
     {
         #region List
-        /// <summary>
-        ///  Get all data from category table
-        /// </summary>
-        /// <returns></returns>
         public UserListViewModel Data()
         {
             UserListViewModel list = new UserListViewModel();
@@ -21,13 +15,15 @@ namespace MTM.DataAccess.Repository
             {
                 using (var context = new MTMContext())
                 {
-                    list.UserList = (from data in context.Users where data.IsActive == true & data.IsDeleted == false
-                            select new UserViewModel {
-                                Id = data.Id,
-                                FirstName = data.FirstName,
-                                IsActive = data.IsActive ? true : false,
-                                CreatedDate = data.CreatedDate,
-                            }).ToList();
+                    list.UserList = (from data in context.Users
+                                     where data.IsActive == true & data.IsDeleted == false
+                                     select new UserViewModel
+                                     {
+                                         Id = data.Id,
+                                         FirstName = data.FirstName,
+                                         IsActive = data.IsActive ? true : false,
+                                         CreatedDate = data.CreatedDate,
+                                     }).ToList();
                 }
             }
             catch (Exception ex)
@@ -40,11 +36,6 @@ namespace MTM.DataAccess.Repository
         #endregion
 
         #region Create
-        /// <summary>
-        /// New category creation.
-        /// </summary>
-        /// <param name="category"></param>
-        /// <returns></returns>
         public ResponseModel Create(User user)
         {
             ResponseModel response = new ResponseModel();
@@ -52,11 +43,11 @@ namespace MTM.DataAccess.Repository
             {
                 using (var context = new MTMContext())
                 {
-                    var checkExist = context.Users.FirstOrDefault(c => c.FirstName == user.FirstName);
+                    var checkExist = context.Users.FirstOrDefault(c => c.Email == user.Email);
                     if (checkExist != null)
                     {
                         response.ResponseType = Message.EXIST;
-                        response.ResponseMessage = string.Format(Message.ALREADY_EXIST, user.FirstName);
+                        response.ResponseMessage = string.Format(Message.ALREADY_EXIST, user.Email);
                     }
                     else
                     {
@@ -72,27 +63,22 @@ namespace MTM.DataAccess.Repository
                 response.ResponseType = Message.FAILURE;
                 response.ResponseMessage = ex.Message;
             }
-
             return response;
         }
         #endregion
 
-        #region GetCategory
-        /// <summary>
-        /// To get a specific category data
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        #region GetUser
         public UserViewModel GetUser(string id)
         {
             UserViewModel model = new UserViewModel();
             try
             {
-                using(var context = new MTMContext())
+                using (var context = new MTMContext())
                 {
-                    model = (from data in context.Users where 
-                             data.Id == id & 
-                             data.IsActive == true & 
+                    model = (from data in context.Users
+                             where
+                             data.Id == id &
+                             data.IsActive == true &
                              data.IsDeleted == false
                              select new UserViewModel
                              {
@@ -101,22 +87,16 @@ namespace MTM.DataAccess.Repository
                                  IsActive = data.IsActive
                              }).First();
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-
             return model;
         }
         #endregion
 
         #region Update
-        /// <summary>
-        /// Update specific category data
-        /// </summary>
-        /// <param name="category"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public ResponseModel Update(User user)
         {
             ResponseModel response = new ResponseModel();
@@ -124,11 +104,12 @@ namespace MTM.DataAccess.Repository
             {
                 using (var context = new MTMContext())
                 {
-                    User isExist = (from data in context.Users where 
-                                        data.Id != user.Id & 
+                    User isExist = (from data in context.Users
+                                    where
+                                        data.Id != user.Id &
                                         data.FirstName == user.FirstName &
                                         data.IsDeleted == false
-                                        select data
+                                    select data
                                        ).First();
 
                     if (isExist != null)
@@ -141,7 +122,7 @@ namespace MTM.DataAccess.Repository
                     else
                     {
                         response.ResponseType = Message.SUCCESS;
-                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, user.FirstName,"updated");
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, user.FirstName, "updated");
                     }
                 }
             }
@@ -150,27 +131,20 @@ namespace MTM.DataAccess.Repository
                 response.ResponseType = Message.FAILURE;
                 response.ResponseMessage = ex.Message;
             }
-
             return response;
         }
         #endregion
 
         #region Delete
-        /// <summary>
-        /// Delete specific data to update deleteFlag
-        /// </summary>
-        /// <param name="category"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public ResponseModel Delete(string id, string userId)
         {
             ResponseModel response = new ResponseModel();
             try
             {
-                using(var context = new MTMContext())
+                using (var context = new MTMContext())
                 {
                     var userModel = context.Users.FirstOrDefault(c => c.Id == id);
-                    if(userModel == null)
+                    if (userModel == null)
                     {
                         response.ResponseType = Message.FAILURE;
                         response.ResponseMessage = string.Format(Message.NOT_EXIST, userModel?.FirstName);
@@ -182,7 +156,6 @@ namespace MTM.DataAccess.Repository
                         userModel.DeletedDate = DateTime.Now;
                         context.Users.Update(userModel);
                         context.SaveChanges();
-
                         response.ResponseType = Message.SUCCESS;
                         response.ResponseMessage = string.Format(Message.SAVE_SUCCESS);
                     }
@@ -193,9 +166,52 @@ namespace MTM.DataAccess.Repository
                 response.ResponseType = Message.FAILURE;
                 response.ResponseMessage = e.Message;
             }
-
             return response;
         }
+        #endregion
+        #region Login
+        public ResponseModel Login(string email, string password)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var context = new MTMContext())
+                {
+                    var userData = (from user in context.Users
+                                    where user.Email == email &&
+                                          user.IsActive == true &&
+                                          user.IsDeleted == false &&
+                                          user.PasswordHash == password
+                                    select new
+                                    {
+                                        user.Id,
+                                        user.FirstName,
+                                        user.IsActive
+                                    }).FirstOrDefault();
+                    if (userData != null)
+                    {
+                        response.Data = new Dictionary<string, string>
+                        {
+                            { "Id", userData.Id.ToString() },
+                            { "FirstName", userData.FirstName },
+                            { "IsActive", userData.IsActive.ToString() }
+                        };
+                    }
+                    else
+                    {
+                        response.ResponseType = Message.FAILURE;
+                        response.ResponseMessage = "User not found or login credentials are incorrect.";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = ex.Message;
+            }
+            return response;
+        }
+
         #endregion
 
         #region EmailExits
@@ -207,10 +223,10 @@ namespace MTM.DataAccess.Repository
                 using (var context = new MTMContext())
                 {
                     var emailExist = context.Users.Any(u => u.Email == email);
-                    if(emailExist != true)
+                    if (emailExist != true)
                     {
                         response.ResponseType = Message.FAILURE;
-                        response.ResponseMessage = string.Format(Message.NOT_EXIST,email);
+                        response.ResponseMessage = string.Format(Message.NOT_EXIST, email);
                     }
                     else
                     {
@@ -228,3 +244,6 @@ namespace MTM.DataAccess.Repository
         #endregion
     }
 }
+
+				
+
