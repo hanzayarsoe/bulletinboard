@@ -90,7 +90,7 @@ namespace MTM.Entities.DTO
 		[AdultPersonOnly(ErrorMessage = "The year must be greater than 2002.")]
 		public DateTime DOB { get; set; }
 		[DisplayName("Role")]
-		public int Role { get; set; }
+		public int? Role { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime CreatedDate { get; set; }

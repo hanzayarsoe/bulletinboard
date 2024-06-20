@@ -1,5 +1,125 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<MTM.Entities.DTO.UserViewModel>;
+
 @{
+    ViewData["Title"] = "User List";
+    int index = 1;
 }
+
+<div class="container">
+    <h2>User List</h2>
+    <div class="btn-container">
+        <button class="btn btn-primary" > Create New User </button>
+        <button  class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal"> Import </button>
+        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#export-modal">Export</button>
+    </div>
+
+
+    <table class="table table-striped" id="userTable">
+    <thead>
+        <tr>
+            <th> No  </th>
+            <th>Full Name </th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Created Date</th>
+            <th>Created By</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+          @foreach (var item in Model)
+            {
+                <tr>
+                    <th>@index</th>
+            <th>
+               @item.FirstName +" "+ @item.LastName
+            </th>
+            <th>
+               @item.Email
+            </th>
+            <th>
+               @item.Role
+            </th>
+            <th>
+               @item.CreatedDate
+            </th>
+             <th>
+               @item.CreatedUserId
+            </th>
+            <th>
+                <button class="btn-primary btn">Edit</button>
+            </th>
+        </tr>
+        index++;
+        }
+    </tbody>
+</table>
+
+<!--Import Modal -->
+<div class="modal fade" id="import-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">File Upload</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="uploadForm" asp-controller="Rent" asp-action="SingleFileUpload" enctype="multipart/form-data">
+                    <dl>
+                        <dt>
+                            <label for="formFile" class="form-label">Please Upload File ( .csv, .xlsx )</label>
+                        </dt>
+                        <dd>
+                            <input class="form-control" type="file" name="SingleFile" id="formFile" accept=".xlsx,.csv">
+                            <div asp-validation-summary="All" class="text-danger err-msg"></div>
+                        </dd>
+                    </dl>
+                    <div class="text-start">
+                        <input name="Upload" class="btn btn-primary" type="submit" value="Upload" />
+                        <button type="button"  class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Export Modal -->
+<div class="modal fade" id="export-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Export As</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="importForm">
+                    <select class="form-select" id="select-format">
+                        <option value="csv">Comma Separated Values</option>
+                        <option value="xlsx">Excel Spreadsheet</option>
+                    </select>
+                    <label for="file-name" class="form-label">Save As</label>
+                    <input type="text" name="name" id="file-name" class="form-control"/>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button name="Upload" class="btn btn-primary" id="export-btn" data-bs-dismiss="modal">Export</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+@section Scripts {
+    <script>
+        var dataTable = $('#userTable').dataTable();
+    </script>
+}
+
+    

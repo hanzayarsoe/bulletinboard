@@ -11,6 +11,33 @@ namespace MTM.DataAccess.Repository
         #region List
         public UserListViewModel Data()
         {
+           
+            UserListViewModel list = new UserListViewModel();
+            try
+            {
+                using (var context = new MTMContext())
+                {
+                    list.UserList = (from data in context.Users
+                                     where data.IsActive == true & data.IsDeleted == false 
+                                     select new UserViewModel
+                                     {
+                                         Id = data.Id,
+                                         FirstName = data.FirstName,
+                                         IsActive = data.IsActive ? true : false,
+                                         CreatedDate = data.CreatedDate,
+                                     }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return list;
+        }
+        public UserListViewModel GetList()
+        {
+
             UserListViewModel list = new UserListViewModel();
             try
             {
@@ -22,8 +49,11 @@ namespace MTM.DataAccess.Repository
                                      {
                                          Id = data.Id,
                                          FirstName = data.FirstName,
-                                         IsActive = data.IsActive ? true : false,
+                                         LastName = data.LastName,
+                                         Role = data.Role,
                                          CreatedDate = data.CreatedDate,
+                                         CreatedUserId = data.CreatedUserId,
+                                         IsActive = data.IsActive ? true : false,
                                      }).ToList();
                 }
             }
@@ -187,17 +217,22 @@ namespace MTM.DataAccess.Repository
                                         user.FirstName,
                                         user.LastName,
                                         user.IsActive,
-                                        user.IsDeleted
+                                        user.IsDeleted,
+                                        user.LoockoutEnabled
                                     }).FirstOrDefault();
                     if (userData != null)
                     {
                         if(userData.IsDeleted == true || userData.IsActive == false)
                         {
                             response.ResponseType = Message.FAILURE;
-                            response.ResponseMessage = "User was not activate";
+                            response.ResponseMessage = "Your account was Deactivate";
                         }
-                        else
+                        else if(userData.LoockoutEnabled == true)
                         {
+                            response.ResponseType = Message.FAILURE;
+                            response.ResponseMessage = "Your account was Locked";
+                        }
+                        else {
 							response.ResponseType = Message.SUCCESS;
 							response.Data = new Dictionary<string, string>
 						    {

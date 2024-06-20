@@ -137,11 +137,11 @@ namespace MTM.Web.Controllers
                 }
                 else
                 {
-                    AlertMessage(new ResponseModel
-                    {
-                        ResponseType = Message.FAILURE,
-                        ResponseMessage = "Password must be at least one lowercase letter, one uppercase letter, one digit, and one special character."
-                    });
+					AlertMessage(new ResponseModel
+					{
+						ResponseType = Message.FAILURE,
+						ResponseMessage = Message.PASSWORD_FORMAT_ERROR
+					});
                 }
             }
             else
@@ -192,7 +192,16 @@ namespace MTM.Web.Controllers
 					ModelState.AddModelError("PasswordConfirm", "Password and confirmation password do not match.");
 					return View(model);
 				}
-				model.PasswordHash = HashPassword(model.PasswordHash);
+                if (!IsPasswordValid(model.PasswordHash))
+                {
+                    AlertMessage(new ResponseModel
+                    {
+                        ResponseType = Message.FAILURE,
+                        ResponseMessage = Message.PASSWORD_FORMAT_ERROR
+                    });
+                    return View(model);
+                }
+                model.PasswordHash = HashPassword(model.PasswordHash);
 				model.Id = Guid.NewGuid().ToString();
 				model.CreatedUserId = Guid.NewGuid().ToString();
 				model.CreatedDate = DateTime.Now;
@@ -221,9 +230,12 @@ namespace MTM.Web.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-				String PasswordHash = HashPassword(model.PasswordHash);
-				ResponseModel response = _userService.Login(model.Email, PasswordHash);
-				if(response.ResponseType == Message.SUCCESS)
+				ResponseModel response = new ResponseModel();
+                String PasswordHash = HashPassword(model.PasswordHash);
+				response = _userService.Login(model.Email, PasswordHash);
+				
+
+                if (response.ResponseType == Message.SUCCESS)
 				{
 					string Id = response.Data["Id"];
 					string Email = response.Data["Email"];
