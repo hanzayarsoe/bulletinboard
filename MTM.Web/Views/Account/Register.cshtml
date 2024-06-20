@@ -68,9 +68,18 @@
 			</div>
 			<span asp-validation-for="DOB" class="text-danger input-err"></span>
 		</div>
+		<div class="col-12 mt-3 text-end">
+			<div class="form-floating">
+				<input asp-for="Address" type="text" class="form-control" id="address" name="Address" placeholder="Address">
+				<label asp-for="Address" for="address">Address</label>
+			</div>
+			<span asp-validation-for="Address" class="text-danger input-err"></span>
+		</div>
 		<div class="text-md-center mx-auto mt-3">
-			<button type="button" class="btn btn-outline-danger">Cancel</button>
-			<button type="submit" class="btn btn-outline-success" asp-action="Register" asp-controller="Account">Create</button>
+			<button type="submit" class="btn btn-success w-100" asp-action="Register" asp-controller="Account">Create</button>
+		</div>
+		<div class="text-md-center mx-auto mt-2">
+			Already have an account ? <a asp-action="Login" asp-controller="Account" class="text-primary text-decoration-none fw-bolder"> Login </a>
 		</div>
 	</form>
 </div>

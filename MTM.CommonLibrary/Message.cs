@@ -4,7 +4,8 @@
     {
         Success,
         Error,
-        Warning
+        Warning,
+        Danger
     }
 
     public static class Message

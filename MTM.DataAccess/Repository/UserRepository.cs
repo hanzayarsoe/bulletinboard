@@ -179,28 +179,38 @@ namespace MTM.DataAccess.Repository
                 {
                     var userData = (from user in context.Users
                                     where user.Email == email &&
-                                          user.IsActive == true &&
-                                          user.IsDeleted == false &&
                                           user.PasswordHash == password
                                     select new
                                     {
                                         user.Id,
+                                        user.Email,
                                         user.FirstName,
-                                        user.IsActive
+                                        user.LastName,
+                                        user.IsActive,
+                                        user.IsDeleted
                                     }).FirstOrDefault();
                     if (userData != null)
                     {
-                        response.Data = new Dictionary<string, string>
+                        if(userData.IsDeleted == true || userData.IsActive == false)
                         {
-                            { "Id", userData.Id.ToString() },
-                            { "FirstName", userData.FirstName },
-                            { "IsActive", userData.IsActive.ToString() }
-                        };
+                            response.ResponseType = Message.FAILURE;
+                            response.ResponseMessage = "User was not activate";
+                        }
+                        else
+                        {
+							response.ResponseType = Message.SUCCESS;
+							response.Data = new Dictionary<string, string>
+						    {
+							    { "Id", userData.Id.ToString() },
+							    { "Email", userData.Email },
+                                { "FullName", userData.FirstName + " " + userData.LastName },
+						    };
+						}
                     }
                     else
                     {
                         response.ResponseType = Message.FAILURE;
-                        response.ResponseMessage = "User not found or login credentials are incorrect.";
+                        response.ResponseMessage = "Incorrect Email or Password";
                     }
                 }
             }

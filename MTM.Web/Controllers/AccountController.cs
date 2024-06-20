@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using MTM.CommonLibrary;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -40,7 +42,8 @@ namespace MTM.Web.Controllers
 		[HttpGet]
 		public IActionResult Register()
 		{
-			return View();
+            if (User.Identity != null && User.Identity.IsAuthenticated) return RedirectToAction("Index", "Home");
+            return View();
 		}
 
 		[HttpPost]
@@ -59,32 +62,60 @@ namespace MTM.Web.Controllers
 				model.CreatedUserId = Guid.NewGuid().ToString();
 				model.CreatedDate = DateTime.Now;
 				ResponseModel response = _userService.Create(model);
+				if(response.ResponseType == Message.SUCCESS)
+				{
+					return RedirectToAction("Login");
+				}
 				AlertMessage(response);
 			}
 			return View(model);
 		}
 		#endregion
 
-		#region Login
+		#region Login And Logout
 		[HttpGet]
 		public IActionResult Login()
 		{
-			return View();
+            if (User.Identity != null && User.Identity.IsAuthenticated) return RedirectToAction("Index", "Home");
+            return View();
 		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Login(UserViewModel model)
+		public async Task<IActionResult> Login(UserViewModel model)
 		{
-			//if (ModelState.IsValid)
-			//{
-			//	model.Id = Guid.NewGuid().ToString();
-			//	model.CreatedUserId = Guid.NewGuid().ToString();
-			//	model.CreatedDate = DateTime.Now;
-			//	ResponseModel response = _userService.Create(model);
-			//	AlertMessage(response);
-			//}
+			if (ModelState.IsValid)
+			{
+				String PasswordHash = HashPassword(model.PasswordHash);
+				ResponseModel response = _userService.Login(model.Email, PasswordHash);
+				if(response.ResponseType == Message.SUCCESS)
+				{
+					string Id = response.Data["Id"];
+					string Email = response.Data["Email"];
+					List<Claim> Claims = new List<Claim>
+					{
+					new Claim(ClaimTypes.Name, Email),
+					new Claim(ClaimTypes.NameIdentifier, Id),
+					};
+					var ClaimsIdentity = new ClaimsIdentity(Claims, "CookieAuth");
+					var AuthProperties = new AuthenticationProperties
+					{
+						IsPersistent = true,
+						ExpiresUtc = DateTime.UtcNow.AddMinutes(30)
+					};
+					await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(ClaimsIdentity), AuthProperties);
+					TempData["FullName"] = response.Data["FullName"]; // Temporary Code To Delete
+					return RedirectToAction("Index", "Home");
+				}
+				AlertMessage(response);
+			}
 			return View(model);
+		}
+
+		public async Task<ActionResult> Logout()
+		{
+			await HttpContext.SignOutAsync("CookieAuth");
+			return RedirectToAction("Login", "Account");
 		}
 		#endregion
 
@@ -98,7 +129,7 @@ namespace MTM.Web.Controllers
 					ViewData["AlertType"] = AlertType.Success.ToString().ToLower();
 					break;
 				case 2:
-					ViewData["AlertType"] = AlertType.Error.ToString().ToLower();
+					ViewData["AlertType"] = AlertType.Danger.ToString().ToLower();
 					break;
 				case 3:
 					ViewData["AlertType"] = AlertType.Warning.ToString().ToLower();
@@ -112,11 +143,9 @@ namespace MTM.Web.Controllers
 		{
 			using (MD5 md5 = MD5.Create())
 			{
-				// Convert the input string to a byte array and compute the hash.
 				byte[] inputBytes = Encoding.UTF8.GetBytes(password);
 				byte[] hashBytes = md5.ComputeHash(inputBytes);
 
-				// Convert the byte array to a hexadecimal string.
 				StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < hashBytes.Length; i++)
 				{
