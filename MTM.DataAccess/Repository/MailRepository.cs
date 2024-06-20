@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MTM.Services.MailService
+namespace MTM.DataAccess.Repository
 {
-    internal class IMailService
+    internal class MailRepository
     {
     }
 }

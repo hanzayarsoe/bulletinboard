@@ -23,6 +23,10 @@ namespace MTM.Services.IOC
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<IPostRepository, PostRepository>();
 
+            // Mail
+            services.AddScoped<IMailService, MailService>();
+
+
         }
     }
 }

@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MTM.Services.MailService
+namespace MTM.DataAccess.IRepository
 {
-    internal class MailSetting
+    public interface IMailRepository
     {
+        bool sendMail(string email, string resetLink);
     }
 }
