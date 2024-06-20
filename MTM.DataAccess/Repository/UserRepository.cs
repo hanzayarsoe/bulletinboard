@@ -2,6 +2,7 @@
 using MTM.DataAccess.IRepository;
 using MTM.Entities.Data;
 using MTM.Entities.DTO;
+using System;
 
 namespace MTM.DataAccess.Repository
 {
@@ -169,6 +170,7 @@ namespace MTM.DataAccess.Repository
             return response;
         }
         #endregion
+
         #region Login
         public ResponseModel Login(string email, string password)
         {
@@ -230,7 +232,8 @@ namespace MTM.DataAccess.Repository
                     }
                     else
                     {
-
+                        response.ResponseType = Message.SUCCESS;
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS,"email","sent to"+email);
                     }
                 }
             }
@@ -242,6 +245,7 @@ namespace MTM.DataAccess.Repository
             return response;
         }
         #endregion
+
     }
 }
 

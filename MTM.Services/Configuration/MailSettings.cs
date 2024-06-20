@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MTM.Services.MailService
+namespace EmailService.Configuration
 {
-    internal class MailSetting
+    public class MailSettings
     {
         public string? Server { get; set; }
         public int Port { get; set; }

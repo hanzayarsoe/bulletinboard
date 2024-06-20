@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MTM.CommonLibrary;
+using MTM.Entities.Data;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
 using System.Security.Cryptography;
@@ -7,13 +8,16 @@ using System.Text;
 
 namespace MTM.Web.Controllers
 {
-	public class AccountController : Controller
+    public class AccountController : Controller
 	{
 		private readonly IUserService _userService;
+		private readonly IMailService _mailService;
+        static Dictionary<string, (string token, DateTime expiry)> resetTokens = new Dictionary<string, (string token, DateTime expiry)>();
 
-		public AccountController(IUserService userService)
+        public AccountController(IUserService userService, IMailService mailService)
 		{
 			this._userService = userService;
+			this._mailService = mailService;
 		}
 		#region Auth/Forget Password
 		public IActionResult ForgetPassword()
@@ -28,16 +32,47 @@ namespace MTM.Web.Controllers
 			if (ModelState.IsValid)
 			{
 				ResponseModel response = _userService.EmailExists(email);
-				AlertMessage(response);
+				if(response.ResponseType == Message.SUCCESS)
+				{
+                    var token = Guid.NewGuid().ToString();
+                    var expiry = DateTime.UtcNow.AddHours(1);
+                    resetTokens[email] = (token, expiry);
+                    var resetLink = Url.Action(nameof(ResetPassword), "Account", new { email, token }, Request.Scheme);
+
+                    HTMLMailData mailData = new HTMLMailData
+                    {
+                        EmailToId = "userid",
+                        EmailToName = email,
+                        EmailSubject = "Reset Password",
+                        ResetLink = $"{resetLink}"
+                    };
+
+                    _mailService.SendHTMLMail(mailData);
+                }
+                AlertMessage(response);
 			}
 
 			return View();
 
 		}
-		#endregion
+        #endregion
 
-		#region Create
-		[HttpGet]
+        #region Auth/ResetPassword
+		public IActionResult ResetPassword()
+		{
+			return View();
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult ResetPassword(string pw1,string pw2)
+		{
+			return View();
+		}
+        #endregion
+
+        #region Create
+        [HttpGet]
 		public IActionResult Register()
 		{
 			return View();

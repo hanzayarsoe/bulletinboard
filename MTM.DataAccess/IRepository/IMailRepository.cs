@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MTM.Services.MailService
+namespace MTM.DataAccess.IRepository
 {
-    internal class IMailService
+    public interface IMailRepository
     {
-        //bool SendHTMLMail(HTMLMailData htmlMailData);
+        bool sendMail(string email, string resetLink);
     }
 }
