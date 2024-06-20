@@ -43,17 +43,21 @@ namespace MTM.DataAccess.Repository
             {
                 using (var context = new MTMContext())
                 {
-                    list.UserList = (from data in context.Users
-                                     where data.IsActive == true & data.IsDeleted == false
+                    list.UserList = (from user in context.Users
+                                     join createdBy in context.Users 
+                                     on user.Id equals createdBy.Id
+                                     where user.IsActive == true & user.IsDeleted == false
+
                                      select new UserViewModel
                                      {
-                                         Id = data.Id,
-                                         FirstName = data.FirstName,
-                                         LastName = data.LastName,
-                                         Role = data.Role,
-                                         CreatedDate = data.CreatedDate,
-                                         CreatedUserId = data.CreatedUserId,
-                                         IsActive = data.IsActive ? true : false,
+                                         Id = user.Id,
+                                         FullName = user.FirstName + " "+ user.LastName,
+                                         Email = user.Email,
+                                         Role = user.Role,
+                                         RoleName = user.Role == 1 ? "admin" : "user",
+                                         CreatedDate = user.CreatedDate,
+                                         CreatedFullName = createdBy.FirstName + " "+createdBy.LastName,
+                                         IsActive = user.IsActive ? true : false,
                                      }).ToList();
                 }
             }

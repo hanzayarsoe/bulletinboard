@@ -40,3 +40,22 @@ body {
         font-size: 16px;
     }
 }
+
+.form-floating {
+    position: relative;
+}
+
+.eye-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    user-select: none;
+}
+
+.tbl-cell-center td,
+.tbl-cell-center th{
+    text-align:center!important;
+}
+

@@ -8,17 +8,15 @@
 <div class="container">
     <h2>User List</h2>
     <div class="btn-container">
-        <button class="btn btn-primary" > Create New User </button>
+        <a class="btn btn-primary" asp-action="Create" asp-controller="User" > Create New User </a>
         <button  class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal"> Import </button>
         <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#export-modal">Export</button>
     </div>
-
-
     <table class="table table-striped" id="userTable">
     <thead>
-        <tr>
-            <th> No  </th>
-            <th>Full Name </th>
+        <tr class="tbl-cell-center">
+            <th>No</th>
+            <th>Full Name</th>
             <th>Email</th>
             <th>Role</th>
             <th>Created Date</th>
@@ -27,28 +25,27 @@
         </tr>
     </thead>
     <tbody>
-          @foreach (var item in Model)
-            {
-                <tr>
-                    <th>@index</th>
-            <th>
-               @item.FirstName +" "+ @item.LastName
-            </th>
-            <th>
-               @item.Email
-            </th>
-            <th>
-               @item.Role
-            </th>
-            <th>
-               @item.CreatedDate
-            </th>
-             <th>
-               @item.CreatedUserId
-            </th>
-            <th>
-                <button class="btn-primary btn">Edit</button>
-            </th>
+     @foreach (var item in Model)
+        {
+        <tr class="tbl-cell-center">
+            <td>@index</td>
+            <td>@item.FullName</td>
+            <td>@item.Email</td>
+            <td>@item.RoleName</td>
+            <td class="dayjs" data-type="dmy" data-datetime="@item.CreatedDate">@item.CreatedDate</td>
+            <td>@item.CreatedFullName</td>
+            <td>
+               <div class="dropdown">
+                 <button class="btn btn-secondary dropdown-toggle" type="button" id="actionDropDown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                   Action
+                 </button>
+                 <div class="dropdown-menu" aria-labelledby="actionDropDown">
+                   <a class="dropdown-item text-success" asp-action="View" asp-controller="User">View</a>
+                   <a class="dropdown-item text-primary" asp-action="Edit" asp-controller="User">Edit</a>
+                   <a class="dropdown-item text-danger" asp-action="Delete" asp-controller="User">Delete</a>
+                 </div>
+                </div>
+            </td>
         </tr>
         index++;
         }

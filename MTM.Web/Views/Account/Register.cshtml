@@ -25,6 +25,7 @@
 			<div class="form-floating">
 				<input asp-for="PasswordHash" type="password" class="form-control" id="password" name="PasswordHash" placeholder="Password">
 				<label asp-for="PasswordHash" for="password" >Password</label>
+				<span class="eye-icon" data-toggle="#password">👁️</span>
 			</div>
 			<span asp-validation-for="PasswordHash" class="text-danger input-err"></span>
 		</div>
@@ -33,6 +34,7 @@
 				<input asp-for="PasswordConfirm" type="password" class="form-control" id="confirmPassword" name="PasswordConfirm"
 					   placeholder="Confirm Password">
 				<label asp-for="PasswordConfirm" for="confirmPassword" >Confirm Password</label>
+				<span class="eye-icon" data-toggle="#confirmPassword">👁️</span>
 			</div>
 			<span asp-validation-for="PasswordConfirm" class="text-danger input-err"></span>
 		</div>

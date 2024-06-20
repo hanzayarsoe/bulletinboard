@@ -52,6 +52,10 @@ namespace MTM.Entities.DTO
             this.DeletedDate = DateTime.Now;
             this.DeletedUserId = string.Empty;
 
+            //virtual
+            this.FullName = string.Empty;
+            this.CreatedFullName = string.Empty;
+            this.RoleName = string.Empty;
         }
 
         #region Properties
@@ -100,6 +104,10 @@ namespace MTM.Entities.DTO
         public DateTime DeletedDate { get; set; }
         public string DeletedUserId { get; set; }
 
+        //virtual
+        public virtual string FullName { get; set; }
+        public virtual string CreatedFullName { get; set; }
+        public virtual string RoleName { get; set; }
 
         #endregion
     }
