@@ -8,5 +8,6 @@ namespace MTM.Services.MailService
 {
     internal class IMailService
     {
+        //bool SendHTMLMail(HTMLMailData htmlMailData);
     }
 }
