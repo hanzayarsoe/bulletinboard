@@ -85,6 +85,8 @@ namespace MTM.DataAccess.Repository
                              {
                                  Id = data.Id,
                                  FirstName = data.FirstName,
+                                 LastName = data.LastName,
+                                 Email = data.Email,
                                  IsActive = data.IsActive
                              }).First();
                 }
