@@ -122,6 +122,10 @@ namespace MTM.Web.Controllers
                         user.Id = Id;
                         user.PasswordHash = hashedPassword;
                         ResponseModel response = _userService.Update(user);
+						if(response.ResponseType == Message.SUCCESS)
+						{
+							return RedirectToAction(nameof(Login));
+						}
                         AlertMessage(response);
                     }
                     else
