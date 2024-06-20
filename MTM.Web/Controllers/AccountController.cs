@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MTM.CommonLibrary;
 using MTM.Entities.Data;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
+using System.Diagnostics;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MTM.Web.Controllers
 {
@@ -24,7 +27,8 @@ namespace MTM.Web.Controllers
 		#region Auth/Forget Password
 		public IActionResult ForgetPassword()
 		{
-			return View();
+            if (User.Identity != null && User.Identity.IsAuthenticated) return RedirectToAction("Index", "Home");
+            return View();
 		}
 
 		[HttpPost]
@@ -60,17 +64,91 @@ namespace MTM.Web.Controllers
         #endregion
 
         #region Auth/ResetPassword
-		public IActionResult ResetPassword()
+		public IActionResult ResetPassword(string email,string token)
 		{
-			return View();
+            if (User.Identity != null && User.Identity.IsAuthenticated) return RedirectToAction("Index", "Home");
+
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            if (resetTokens.ContainsKey(email))
+            {
+                var storedToken = resetTokens[email].token;
+                var expiryTime = resetTokens[email].expiry;
+
+                if (storedToken == token && expiryTime > DateTime.UtcNow)
+                {
+                    ResetPasswordModel model = new ResetPasswordModel
+                    {
+                        email = email,
+                        token = token
+                    };
+                    return View(model);
+                }
+                else
+                {
+                    Debug.WriteLine("Token mismatch or token has expired.");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return RedirectToAction(nameof(ForgetPassword));
 		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult ResetPassword(string pw1,string pw2)
-		{
-			return View();
-		}
+        public IActionResult ResetPassword(ResetPasswordModel model)
+        {
+            UserViewModel user = new UserViewModel();
+            var password = model.password;
+            var confirmPassword = model.confirmPassword;
+
+            if (password == confirmPassword)
+            {
+                var email = model.email;
+                var isValidPassword = IsPasswordValid(password);
+                if (isValidPassword)
+                {
+                    ResponseModel idResponse = _userService.EmailExists(email);
+                    if (idResponse.ResponseType == Message.SUCCESS)
+                    {
+                        string Id = idResponse.Data["Id"];
+                        string hashedPassword = HashPassword(password);
+                        user.Id = Id;
+                        user.PasswordHash = hashedPassword;
+                        ResponseModel response = _userService.Update(user);
+                        AlertMessage(response);
+                    }
+                    else
+                    {
+                        AlertMessage(new ResponseModel { ResponseType = Message.FAILURE, ResponseMessage = "Email does not exist." });
+                    }
+                }
+                else
+                {
+                    AlertMessage(new ResponseModel
+                    {
+                        ResponseType = Message.FAILURE,
+                        ResponseMessage = "Password must be at least one lowercase letter, one uppercase letter, one digit, and one special character."
+                    });
+                }
+            }
+            else
+            {
+                AlertMessage(new ResponseModel
+                {
+                    ResponseType = Message.FAILURE,
+                    ResponseMessage = "Passwords do not match."
+                });
+            }
+
+            return View();
+        }
         #endregion
 
         #region Create
@@ -189,6 +267,17 @@ namespace MTM.Web.Controllers
 				return sb.ToString();
 			}
 		}
-		#endregion
-	}
+
+        private bool IsPasswordValid(string password)
+        {
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
+                return false;
+
+            // Regex to enforce at least one lowercase letter, one uppercase letter, one digit, and one special character
+            var passwordRegex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$");
+
+            return passwordRegex.IsMatch(password);
+        }
+        #endregion
+    }
 }
