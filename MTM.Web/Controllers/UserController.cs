@@ -14,19 +14,13 @@ namespace MTM.Web.Controllers
             this._userService = userService;
         }
 
-        #region GetAll
+        #region User List
         [HttpGet]
         public ActionResult Index()
         {
-            return View();
-        }
-        /// To get all Categories
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-                UserListViewModel data;
-                data = _userService.Data();
-                return Json(data);
+            UserListViewModel model;
+            model = _userService.GetList();
+            return View(model.UserList);
         }
         #endregion
     }

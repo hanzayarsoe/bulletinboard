@@ -49,8 +49,11 @@ namespace MTM.DataAccess.Repository
                                      {
                                          Id = data.Id,
                                          FirstName = data.FirstName,
-                                         IsActive = data.IsActive ? true : false,
+                                         LastName = data.LastName,
+                                         Role = data.Role,
                                          CreatedDate = data.CreatedDate,
+                                         CreatedUserId = data.CreatedUserId,
+                                         IsActive = data.IsActive ? true : false,
                                      }).ToList();
                 }
             }

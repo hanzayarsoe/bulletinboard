@@ -1,7 +1,8 @@
-﻿@model MTM.Entities.DTO.UserListViewModel
+﻿@model IEnumerable<MTM.Entities.DTO.UserViewModel>;
 
 @{
     ViewData["Title"] = "User List";
+    int index = 1;
 }
 
 <div class="container">
@@ -13,7 +14,7 @@
     </div>
 
 
-<table class="table table-striped" id="tbl-movie-rented">
+    <table class="table table-striped" id="userTable">
     <thead>
         <tr>
             <th> No  </th>
@@ -26,24 +27,31 @@
         </tr>
     </thead>
     <tbody>
-            <tr>
-                <th>1</th>
+          @foreach (var item in Model)
+            {
+                <tr>
+                    <th>@index</th>
             <th>
-                Aung Si Thu
+               @item.FirstName +" "+ @item.LastName
             </th>
             <th>
-                Yangon
+               @item.Email
             </th>
             <th>
-                HHH
+               @item.Role
             </th>
             <th>
-                 Mrs
+               @item.CreatedDate
+            </th>
+             <th>
+               @item.CreatedUserId
             </th>
             <th>
                 <button class="btn-primary btn">Edit</button>
             </th>
         </tr>
+        index++;
+        }
     </tbody>
 </table>
 
@@ -110,8 +118,7 @@
 
 @section Scripts {
     <script>
-        var dataTable = $('#userTable').DataTable();
-
+        var dataTable = $('#userTable').dataTable();
     </script>
 }
 
