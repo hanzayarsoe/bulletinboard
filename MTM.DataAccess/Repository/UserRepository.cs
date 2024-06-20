@@ -35,6 +35,32 @@ namespace MTM.DataAccess.Repository
 
             return list;
         }
+        public UserListViewModel GetList()
+        {
+
+            UserListViewModel list = new UserListViewModel();
+            try
+            {
+                using (var context = new MTMContext())
+                {
+                    list.UserList = (from data in context.Users
+                                     where data.IsActive == true & data.IsDeleted == false
+                                     select new UserViewModel
+                                     {
+                                         Id = data.Id,
+                                         FirstName = data.FirstName,
+                                         IsActive = data.IsActive ? true : false,
+                                         CreatedDate = data.CreatedDate,
+                                     }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return list;
+        }
         #endregion
 
         #region Create
