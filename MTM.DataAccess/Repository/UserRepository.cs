@@ -105,25 +105,20 @@ namespace MTM.DataAccess.Repository
             {
                 using (var context = new MTMContext())
                 {
-                    User isExist = (from data in context.Users
-                                    where
-                                        data.Id != user.Id &
-                                        data.FirstName == user.FirstName &
-                                        data.IsDeleted == false
-                                    select data
-                                       ).First();
+                    User isExist = context.Users.FirstOrDefault(u => u.Id == user.Id);
 
                     if (isExist != null)
                     {
-                        context.Users.Update(user);
+                        isExist.PasswordHash = user.PasswordHash; // Update only relevant fields
+                        context.Users.Update(isExist);
                         context.SaveChanges();
-                        response.ResponseType = Message.EXIST;
-                        response.ResponseMessage = string.Format(Message.ALREADY_EXIST, user.FirstName);
+                        response.ResponseType = Message.SUCCESS;
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS,"your password", "updated");
                     }
                     else
                     {
-                        response.ResponseType = Message.SUCCESS;
-                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, user.FirstName, "updated");
+                        response.ResponseType = Message.FAILURE;
+                        response.ResponseMessage = "User does not exist.";
                     }
                 }
             }
@@ -134,6 +129,7 @@ namespace MTM.DataAccess.Repository
             }
             return response;
         }
+
         #endregion
 
         #region Delete
@@ -234,16 +230,32 @@ namespace MTM.DataAccess.Repository
             {
                 using (var context = new MTMContext())
                 {
-                    var emailExist = context.Users.Any(u => u.Email == email);
-                    if (emailExist != true)
+                    var emailExist = (from user in context.Users 
+                                      where user.Email == email
+                                      select new
+                                      {
+                                          user.Id,
+                                          user.Email,
+                                          user.IsActive,
+                                          user.IsDeleted
+                                      }).FirstOrDefault() ;
+                    if (emailExist == null)
                     {
                         response.ResponseType = Message.FAILURE;
                         response.ResponseMessage = string.Format(Message.NOT_EXIST, email);
                     }
                     else
                     {
-                        response.ResponseType = Message.SUCCESS;
-                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS,"email","sent to"+email);
+                        if(emailExist.IsDeleted != true || emailExist.IsActive == true)
+                        {
+                            response.ResponseType = Message.SUCCESS;
+                            response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "email", "sent to" + email);
+                            response.Data = new Dictionary<string, string>
+                            {
+                                { "Id", emailExist.Id.ToString() },
+                                { "Email", emailExist.Email },
+                            };
+                        }
                     }
                 }
             }
