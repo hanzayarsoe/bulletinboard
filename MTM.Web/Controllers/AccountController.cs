@@ -121,8 +121,6 @@ namespace MTM.Web.Controllers
 
             if (password == confirmPassword)
             {
-                var isValidPassword = IsPasswordValid(password);
-                var email = model.email;
                 var isValidPassword = Helpers.IsPasswordValid(password);
                 if (isValidPassword)
                 {
@@ -199,7 +197,11 @@ namespace MTM.Web.Controllers
 			{
 				if (model.PasswordHash != model.PasswordConfirm)
 				{
-					ModelState.AddModelError("PasswordConfirm", "Password and confirmation password do not match.");
+					AlertMessage(new ResponseModel
+					{
+						ResponseType = Message.FAILURE,
+						ResponseMessage = String.Format(Message.NOT_MATCH, model.PasswordHash)
+					});
 					return View(model);
 				}
                 if (!Helpers.IsPasswordValid(model.PasswordHash))

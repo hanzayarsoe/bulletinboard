@@ -13,7 +13,6 @@ namespace MTM.DataAccess.IRepository
         ResponseModel Delete(string id, string userId);
         ResponseModel GetIdByEmail(string email);
         bool CheckEmail(string email);
-        ResponseModel EmailExists(string email);
         ResponseModel Register(User user);
         ResponseModel Login(string email, string password);
     }
