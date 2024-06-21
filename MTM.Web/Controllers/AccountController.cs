@@ -5,8 +5,6 @@ using MTM.Entities.DTO;
 using MTM.Services.IService;
 using System.Diagnostics;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MTM.Web.Controllers
@@ -124,13 +122,15 @@ namespace MTM.Web.Controllers
             if (password == confirmPassword)
             {
                 var isValidPassword = IsPasswordValid(password);
+                var email = model.email;
+                var isValidPassword = Helpers.IsPasswordValid(password);
                 if (isValidPassword)
                 {
                     ResponseModel idResponse = _userService.GetIdByEmail(email);
                     if (idResponse.ResponseType == Message.SUCCESS)
                     {
                         string Id = idResponse.Data["Id"];
-                        string hashedPassword = HashPassword(password);
+                        string hashedPassword = Helpers.HashPassword(password);
                         user.Id = Id;
                         user.PasswordHash = hashedPassword;
                         ResponseModel response = _userService.Update(user);
@@ -186,7 +186,7 @@ namespace MTM.Web.Controllers
 					ModelState.AddModelError("PasswordConfirm", "Password and confirmation password do not match.");
 					return View(model);
 				}
-                if (!IsPasswordValid(model.PasswordHash))
+                if (!Helpers.IsPasswordValid(model.PasswordHash))
                 {
                     AlertMessage(new ResponseModel
                     {
@@ -195,11 +195,10 @@ namespace MTM.Web.Controllers
                     });
                     return View(model);
                 }
-                model.PasswordHash = HashPassword(model.PasswordHash);
 				model.Id = Guid.NewGuid().ToString();
 				model.CreatedUserId = Guid.NewGuid().ToString();
 				model.CreatedDate = DateTime.Now;
-				ResponseModel response = _userService.Create(model);
+				ResponseModel response = _userService.Register(model);
 				if(response.ResponseType == Message.SUCCESS)
 				{
 					return RedirectToAction("Login");
@@ -225,10 +224,8 @@ namespace MTM.Web.Controllers
 			if (ModelState.IsValid)
 			{
 				ResponseModel response = new ResponseModel();
-                String PasswordHash = HashPassword(model.PasswordHash);
-				response = _userService.Login(model.Email, PasswordHash);
+				response = _userService.Login(model.Email, model.PasswordHash);
 				
-
                 if (response.ResponseType == Message.SUCCESS)
 				{
 					string Id = response.Data["Id"];
@@ -279,33 +276,6 @@ namespace MTM.Web.Controllers
 					break;
 			}
 		}
-
-		private static string HashPassword(string password)
-		{
-			using (MD5 md5 = MD5.Create())
-			{
-				byte[] inputBytes = Encoding.UTF8.GetBytes(password);
-				byte[] hashBytes = md5.ComputeHash(inputBytes);
-
-				StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < hashBytes.Length; i++)
-				{
-					sb.Append(hashBytes[i].ToString("x2"));
-				}
-				return sb.ToString();
-			}
-		}
-
-        private bool IsPasswordValid(string password)
-        {
-            if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
-                return false;
-
-            // Regex to enforce at least one lowercase letter, one uppercase letter, one digit, and one special character
-            var passwordRegex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$");
-
-            return passwordRegex.IsMatch(password);
-        }
         #endregion
     }
 }

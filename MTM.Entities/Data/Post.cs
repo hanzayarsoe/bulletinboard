@@ -7,10 +7,10 @@ namespace MTM.Entities.Data
         public string Title { get; set; }
         public string Description { get; set; }
         public bool IsPublished { get; set; }
-        /// <summary>
-        /// 0::Active 1::Deleted
-        /// </summary>
-        public bool IsDeleted { get; set; }
+		/// <summary>
+		/// 0::Active 1::Deleted
+		/// </summary>
+		public bool IsDeleted { get; set; }
         public DateTime CreatedDate { get; set; }
         public string CreatedUserId { get; set; }
         public DateTime? UpdatedDate { get; set; }

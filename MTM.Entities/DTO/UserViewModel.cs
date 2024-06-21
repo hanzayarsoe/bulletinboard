@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MTM.Entities.DTO
 {
@@ -38,18 +33,19 @@ namespace MTM.Entities.DTO
             this.PhoneNumber = string.Empty;
             this.PhoneNumberConfirmed = false;
             this.TwoFactorEnabled = false;
-            this.LockoutEnd = DateTime.Now;
+            this.LockoutEnd = null;
             this.LockoutEnabled = false;
             this.AccessFailedCount = 0;
             this.Address = string.Empty;
             this.Role = 0;
+            this.DOB = null;
             this.IsActive = true;
             this.IsDeleted = false;
             this.CreatedDate = DateTime.Now;
             this.CreatedUserId = string.Empty;
-            this.UpdatedDate = DateTime.Now;
+            this.UpdatedDate = null;
             this.UpdatedUserId = string.Empty;
-            this.DeletedDate = DateTime.Now;
+            this.DeletedDate = null;
             this.DeletedUserId = string.Empty;
 
             //virtual
@@ -70,7 +66,7 @@ namespace MTM.Entities.DTO
 		public string Email { get; set; }
 		[DisplayName("First Name")]
 		public string FirstName { get; set; }
-        [DisplayName("Last Name")]
+		[DisplayName("Last Name")]
         public string LastName { get; set; }
         [DisplayName("Normalized Email")]
         public string NormalizedEmail { get; set; }
@@ -85,23 +81,23 @@ namespace MTM.Entities.DTO
         public string PhoneNumber { get; set; }
         public bool PhoneNumberConfirmed { get; set; }
         public bool TwoFactorEnabled { get; set; }
-        public DateTime LockoutEnd { get; set; }
+        public DateTime? LockoutEnd { get; set; }
         public bool LockoutEnabled { get; set; }
         public int AccessFailedCount { get; set; }
 		[DisplayName("Address")]
 		public string Address { get; set; }
 		[DisplayName("Date Of Birth")]
 		[AdultPersonOnly(ErrorMessage = "The year must be greater than 2002.")]
-		public DateTime DOB { get; set; }
+		public DateTime? DOB { get; set; }
 		[DisplayName("Role")]
 		public int? Role { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime CreatedDate { get; set; }
         public string CreatedUserId { get; set; }
-        public DateTime UpdatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
         public string UpdatedUserId { get; set; }
-        public DateTime DeletedDate { get; set; }
+        public DateTime? DeletedDate { get; set; }
         public string DeletedUserId { get; set; }
 
         //virtual
@@ -118,6 +114,10 @@ public class AdultPersonOnly : ValidationAttribute
 {
 	protected override ValidationResult? IsValid(object? value, ValidationContext? validationContext)
 	{
+        if (value is null)
+        {
+            return ValidationResult.Success;
+        }
 		if (value is DateTime dateTime)
 		{
 			var today = DateTime.Today;

@@ -50,6 +50,11 @@ namespace MTM.Services.Service
         {
             return this._userRepository.CheckEmail(email);
         }
+
+        public ResponseModel Register(UserViewModel model)
+        {
+            return this._userRepository.Register(this._mapper.Map<User>(model));
+        }
         public ResponseModel Login(string email, string password)
         {
             return this._userRepository.Login(email, password);
