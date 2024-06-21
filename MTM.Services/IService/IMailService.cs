@@ -1,9 +1,9 @@
-﻿using MTM.Entities.Data;
+﻿using MTM.Entities.DTO;
 
 namespace MTM.Services.IService
 {
     public interface IMailService
     {
-        bool SendHTMLMail(HTMLMailData htmlMailData);
+        Task<bool> SendHTMLMail(HTMLMailData htmlMailData);
     }
 }

@@ -10,7 +10,8 @@ namespace MTM.Services.IService
         UserViewModel GetUser(string id);
         ResponseModel Update(UserViewModel user);
         ResponseModel Delete(string id, string userId);
-        ResponseModel EmailExists(string email);
+        ResponseModel GetIdByEmail(string email);
+        bool CheckEmail(string email);
         ResponseModel Login(string email, string password);
     }
 }

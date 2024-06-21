@@ -2,7 +2,7 @@
 using MimeKit;
 using MailKit.Net.Smtp;
 using System.Diagnostics;
-using MTM.Entities.Data;
+using MTM.Entities.DTO;
 using Microsoft.Extensions.Logging;
 using EmailService.Configuration;
 using MTM.Services.IService;
@@ -19,7 +19,7 @@ namespace MTM.Services.Service
             _mailSettings = mailSettingsOptions.Value;
             _logger = logger;
         }
-        public bool SendHTMLMail(HTMLMailData htmlMailData)
+        public async Task<bool> SendHTMLMail(HTMLMailData htmlMailData)
         {
             try
             {
@@ -31,7 +31,7 @@ namespace MTM.Services.Service
                     emailMessage.To.Add(emailTo);
                     emailMessage.Subject = "Password Reset Request";
                     string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "index.html");
-                    string emailTemplateText = File.ReadAllText(filePath);
+                    string emailTemplateText = await File.ReadAllTextAsync(filePath);
                     emailTemplateText = emailTemplateText.Replace("{RECIPIENT_NAME}", htmlMailData.EmailToName);
                     emailTemplateText = emailTemplateText.Replace("{CURRENT_DATE}", DateTime.Today.Date.ToShortDateString());
                     emailTemplateText = emailTemplateText.Replace("{RESET_LINK}", htmlMailData.ResetLink);
@@ -42,10 +42,10 @@ namespace MTM.Services.Service
 
                     using (var mailClient = new SmtpClient())
                     {
-                        mailClient.Connect(_mailSettings.Server, _mailSettings.Port, MailKit.Security.SecureSocketOptions.StartTls);
-                        mailClient.Authenticate(_mailSettings.UserName, _mailSettings.Password);
-                        mailClient.Send(emailMessage);
-                        mailClient.Disconnect(true);
+                        await mailClient.ConnectAsync(_mailSettings.Server, _mailSettings.Port, MailKit.Security.SecureSocketOptions.StartTls);
+                        await mailClient.AuthenticateAsync(_mailSettings.UserName, _mailSettings.Password);
+                        await mailClient.SendAsync(emailMessage);
+                        await mailClient.DisconnectAsync(true);
                     }
                 }
                 return true;
