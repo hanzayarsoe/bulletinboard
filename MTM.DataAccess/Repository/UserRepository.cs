@@ -155,7 +155,7 @@ namespace MTM.DataAccess.Repository
                         context.Users.Update(isExist);
                         context.SaveChanges();
                         response.ResponseType = Message.SUCCESS;
-                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS,"your password", "updated");
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS,"your info", "updated");
                     }
                     else
                     {
