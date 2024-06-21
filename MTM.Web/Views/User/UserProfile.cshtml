@@ -1,9 +1,9 @@
 ﻿@using MTM.Entities.DTO
 @model UserViewModel
-@{
-    ViewData["Title"] = "User Profile";
-}
+@using System.Security.Claims;
+
 <div class="container mt-5">
+    <partial name="_Notify" />
     <div class="row">
         <div class="col-md-4 d-flex flex-column">
             <img src="https://via.placeholder.com/150"
@@ -14,13 +14,15 @@
             </button>
         </div>
         <div class="col-md-6">
-            <form>
+            <form method="post" asp-action="UserProfile" asp-controller="User">
                 <div class="row mb-2">
                     <div class="col">
+                        <input type="hidden" name="Id" value="@Model.Id" />
                         <label for="firstName" class="form-label">First Name</label>
                         <input type="text"
                                class="form-control form-control-sm"
                                id="firstName"
+                               name="FirstName"
                                value="@Model.FirstName" />
                     </div>
                     <div class="col">
@@ -28,6 +30,7 @@
                         <input type="text"
                                class="form-control form-control-sm"
                                id="lastName"
+                               name="LastName"
                                value="@Model.LastName" />
                     </div>
                 </div>
@@ -36,25 +39,26 @@
                     <input type="email"
                            class="form-control form-control-sm"
                            id="email"
+                           name="Email"
                            value="@Model.Email" />
                 </div>
                 <div class="mb-2">
                     <label for="phoneNumber" class="form-label">Phone Number</label>
-                    <input type="text" class="form-control form-control-sm" id="phoneNumber" value="@Model.PhoneNumber" />
+                    <input type="text" class="form-control form-control-sm" id="phoneNumber" name="PhoneNumber" value="@Model.PhoneNumber" />
                 </div>
                 <div class="mb-2">
                     <label for="dob" class="form-label">DOB</label>
-                    <input type="date" class="form-control form-control-sm" id="dob"/>
+                    <input type="date" class="form-control form-control-sm" name="DOB" id="dob"/>
                 </div>
                 <div class="mb-2">
                     <label for="address" class="form-label">Address</label>
-                    <textarea class="form-control form-control-sm" id="address" rows="2">@Model.Address</textarea>
+                    <textarea class="form-control form-control-sm" id="address" name="Address" rows="2">@Model.Address</textarea>
                 </div>
                 <div class="d-flex justify-content-center">
-                    <button type="button"
+                    <a asp-action="Index" asp-controller="Home"
                             class="btn btn-outline-danger col-md-4 mx-2 btn-sm">
                         Cancel
-                    </button>
+                    </a>
                     <button type="submit"
                             class="btn btn-outline-success col-md-4 mx-2 btn-sm">
                         Update Profile
