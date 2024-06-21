@@ -121,8 +121,6 @@ namespace MTM.Web.Controllers
 
             if (password == confirmPassword)
             {
-                var isValidPassword = IsPasswordValid(password);
-                var email = model.email;
                 var isValidPassword = Helpers.IsPasswordValid(password);
                 if (isValidPassword)
                 {

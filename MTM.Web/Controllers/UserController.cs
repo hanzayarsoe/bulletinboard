@@ -25,9 +25,13 @@ namespace MTM.Web.Controllers
         #endregion
 
         #region UserProfile
-        public IActionResult UserProfile()
+        public IActionResult UserProfile(string userId)
         {
-            return View();
+            UserViewModel user = _userService.GetUser(userId);
+            Debug.WriteLine(user.FirstName);
+            Debug.WriteLine("LastName" , user.LastName);
+            Debug.WriteLine("Email" , user.Email);
+            return View(user);
         }
         #endregion
     }
