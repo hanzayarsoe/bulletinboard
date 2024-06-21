@@ -187,6 +187,14 @@ namespace MTM.DataAccess.Repository
 
                     if (isExist != null)
                     {
+                        isExist.FirstName = user.FirstName;
+                        isExist.LastName = user.LastName;
+                        isExist.Email = user.Email;
+                        isExist.PhoneNumber = user.PhoneNumber;
+                        isExist.Dob = user.Dob;
+                        isExist.Address = user.Address;
+                        isExist.PasswordHash = user.PasswordHash;
+                        context.Users.Update(isExist);
                         context.Users.Update(user);
                         context.SaveChanges();
                         response.ResponseType = Message.EXIST;
@@ -194,6 +202,8 @@ namespace MTM.DataAccess.Repository
                     }
                     else
                     {
+                        response.ResponseType = Message.FAILURE;
+                        response.ResponseMessage = string.Format(Message.NOT_EXIST,"your info");
                         response.ResponseType = Message.SUCCESS;
                         response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "Your Account", "updated");
                     }

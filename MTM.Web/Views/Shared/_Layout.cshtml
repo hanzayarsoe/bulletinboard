@@ -33,12 +33,12 @@
                             </li>
                             <li class="nav-item">
                                 <div class="dropdown">
-                                    <a class="btn dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <a class="btn dropdown-toggle text-light" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         @User.Identity.Name
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a asp-action="Profile" asp-controller="Account" class="dropdown-item text-dark">Profile</a></li>
-                                        <li><a asp-action="ChangePassword" asp-controller="User" class="dropdown-item text-dark">Change Password</a></li>
+                                        <li><a asp-action="UserProfile" asp-controller="User" class="dropdown-item text-dark">Profile</a></li>
+                                        <li><a asp-action="ChangePassword" asp-controller="Account" class="dropdown-item text-dark">Change Password</a></li>
                                         <li><a asp-action="Logout" asp-controller="Account" class="dropdown-item text-dark">Logout</a></li>
                                     </ul>
                                 </div>
@@ -47,7 +47,7 @@
                     </div>
                 </div>
             </nav>
-    </header>
+        </header>
     }
     <div class="container">
         <main role="main" class="pb-3">
