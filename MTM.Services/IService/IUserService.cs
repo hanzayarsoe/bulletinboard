@@ -11,6 +11,7 @@ namespace MTM.Services.IService
         ResponseModel Update(UserViewModel user);
         ResponseModel Delete(string id, string userId);
         ResponseModel EmailExists(string email);
+        ResponseModel Register(UserViewModel model);
         ResponseModel Login(string email, string password);
     }
 }

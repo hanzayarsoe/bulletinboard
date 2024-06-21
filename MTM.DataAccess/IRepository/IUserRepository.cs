@@ -7,11 +7,12 @@ namespace MTM.DataAccess.IRepository
     {
         UserListViewModel Data();
         UserListViewModel GetList();
-        ResponseModel Create(User category);
+        ResponseModel Create(User user);
         UserViewModel GetUser(string id);
-        ResponseModel Update(User category);
+        ResponseModel Update(User user);
         ResponseModel Delete(string id, string userId);
         ResponseModel EmailExists(string email);
+        ResponseModel Register(User user);
         ResponseModel Login(string email, string password);
     }
 }

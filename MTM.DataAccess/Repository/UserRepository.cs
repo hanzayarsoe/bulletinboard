@@ -2,7 +2,6 @@
 using MTM.DataAccess.IRepository;
 using MTM.Entities.Data;
 using MTM.Entities.DTO;
-using System;
 
 namespace MTM.DataAccess.Repository
 {
@@ -201,10 +200,44 @@ namespace MTM.DataAccess.Repository
             }
             return response;
         }
-        #endregion
+		#endregion
 
-        #region Login
-        public ResponseModel Login(string email, string password)
+		#region Register
+		public ResponseModel Register(User user)
+		{
+			ResponseModel response = new ResponseModel();
+			try
+			{
+				using (var context = new MTMContext())
+				{
+					var checkExist = context.Users.FirstOrDefault(c => c.Email == user.Email);
+					if (checkExist != null)
+					{
+						response.ResponseType = Message.EXIST;
+						response.ResponseMessage = string.Format(Message.ALREADY_EXIST, user.Email);
+					}
+					else
+					{
+						user.Role = context.Users.Count() == 0 ? 1 : 2;
+                        user.PasswordHash = Helpers.HashPassword(user.PasswordHash);
+						context.Users.Add(user);
+						context.SaveChanges();
+						response.ResponseType = Message.SUCCESS;
+						response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, user.FirstName, "created");
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				response.ResponseType = Message.FAILURE;
+				response.ResponseMessage = ex.Message;
+			}
+			return response;
+		}
+		#endregion
+
+		#region Login
+		public ResponseModel Login(string email, string password)
         {
             ResponseModel response = new ResponseModel();
             try
@@ -212,25 +245,33 @@ namespace MTM.DataAccess.Repository
                 using (var context = new MTMContext())
                 {
                     var userData = (from user in context.Users
-                                    where user.Email == email &&
-                                          user.PasswordHash == password
+                                    where user.Email == email 
                                     select new
                                     {
                                         user.Id,
                                         user.Email,
                                         user.FirstName,
                                         user.LastName,
+                                        user.PasswordHash,
                                         user.IsActive,
                                         user.IsDeleted,
                                         user.LoockoutEnabled
                                     }).FirstOrDefault();
                     if (userData != null)
                     {
-                        if(userData.IsDeleted == true || userData.IsActive == false)
+                        if(!Helpers.VerifyPassword(password, userData.PasswordHash)){
+							response.ResponseType = Message.FAILURE;
+							response.ResponseMessage = "Incorrect Email or Password";
+						}
+                        else if(userData.IsDeleted == true)
                         {
                             response.ResponseType = Message.FAILURE;
-                            response.ResponseMessage = "Your account was Deactivate";
-                        }
+                            response.ResponseMessage = "Your account was Deleted";
+                        }else if(userData.IsActive == false)
+                        {
+							response.ResponseType = Message.FAILURE;
+							response.ResponseMessage = "Your account was Deactivate";
+						}
                         else if(userData.LoockoutEnabled == true)
                         {
                             response.ResponseType = Message.FAILURE;
