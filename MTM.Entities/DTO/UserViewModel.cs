@@ -66,8 +66,8 @@ namespace MTM.Entities.DTO
 		public string Email { get; set; }
 		[DisplayName("First Name")]
 		public string FirstName { get; set; }
-		[DisplayName("Last Name")]
-        public string LastName { get; set; }
+        [DisplayName("Last Name")]
+        public string? LastName { get; set; } 
         [DisplayName("Normalized Email")]
         public string NormalizedEmail { get; set; }
         public bool EmailConfirmed { get; set; }

@@ -24,9 +24,9 @@ namespace MTM.Services.Service
         {
             return _userRepository.Data();
         }
-        public UserListViewModel GetList()
+        public UserListViewModel GetList(string LoginId)
         {
-            return _userRepository.GetList();
+            return _userRepository.GetList(LoginId);
         }
         public UserViewModel GetUser(string id)
         {

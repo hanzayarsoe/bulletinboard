@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MTM.CommonLibrary;
+﻿using MTM.CommonLibrary;
 using MTM.DataAccess.IRepository;
 using MTM.Entities.Data;
 using MTM.Entities.DTO;
+using System.Collections.Generic;
 
 namespace MTM.DataAccess.Repository
 {
@@ -35,7 +35,7 @@ namespace MTM.DataAccess.Repository
 
             return list;
         }
-        public UserListViewModel GetList()
+        public UserListViewModel GetList(String LoginId)
         {
 
             UserListViewModel list = new UserListViewModel();
@@ -47,6 +47,7 @@ namespace MTM.DataAccess.Repository
                                      join createdBy in context.Users 
                                      on user.Id equals createdBy.Id
                                      where user.IsActive == true & user.IsDeleted == false
+                                     & user.Id != LoginId
 
                                      select new UserViewModel
                                      {
@@ -133,6 +134,41 @@ namespace MTM.DataAccess.Repository
         }
         #endregion
 
+        //#region Update
+        //public ResponseModel Update(User user)
+        //{
+        //    ResponseModel response = new ResponseModel();
+        //    try
+        //    {
+        //        using (var context = new MTMContext())
+        //        {
+        //            User? isExist = context.Users.FirstOrDefault(u => u.Id == user.Id);
+
+        //            if (isExist != null)
+        //            {
+        //                isExist.PasswordHash = user.PasswordHash;
+        //                context.Users.Update(isExist);
+        //                context.SaveChanges();
+        //                response.ResponseType = Message.SUCCESS;
+        //                response.ResponseMessage = string.Format(Message.SAVE_SUCCESS,"your password", "updated");
+        //            }
+        //            else
+        //            {
+        //                response.ResponseType = Message.FAILURE;
+        //                response.ResponseMessage = "User does not exist.";
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        response.ResponseType = Message.FAILURE;
+        //        response.ResponseMessage = ex.Message;
+        //    }
+        //    return response;
+        //}
+
+        //#endregion
+
         #region Update
         public ResponseModel Update(User user)
         {
@@ -141,20 +177,25 @@ namespace MTM.DataAccess.Repository
             {
                 using (var context = new MTMContext())
                 {
-                    User? isExist = context.Users.FirstOrDefault(u => u.Id == user.Id);
+
+                    User isExist = (from data in context.Users
+                                        where
+                                        data.Id != user.Id &
+                                        data.IsDeleted == false
+                                        select data
+                                       ).First();
 
                     if (isExist != null)
                     {
-                        isExist.PasswordHash = user.PasswordHash;
-                        context.Users.Update(isExist);
+                        context.Users.Update(user);
                         context.SaveChanges();
-                        response.ResponseType = Message.SUCCESS;
-                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS,"your password", "updated");
+                        response.ResponseType = Message.EXIST;
+                        response.ResponseMessage = string.Format(Message.ALREADY_EXIST, "Your Account");
                     }
                     else
                     {
-                        response.ResponseType = Message.FAILURE;
-                        response.ResponseMessage = "User does not exist.";
+                        response.ResponseType = Message.SUCCESS;
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "Your Account", "updated");
                     }
                 }
             }
@@ -163,9 +204,9 @@ namespace MTM.DataAccess.Repository
                 response.ResponseType = Message.FAILURE;
                 response.ResponseMessage = ex.Message;
             }
+
             return response;
         }
-
         #endregion
 
         #region Delete

@@ -6,7 +6,7 @@ namespace MTM.DataAccess.IRepository
     public interface IUserRepository
     {
         UserListViewModel Data();
-        UserListViewModel GetList();
+        UserListViewModel GetList(String LoginId);
         ResponseModel Create(User user);
         UserViewModel GetUser(string id);
         ResponseModel Update(User user);
