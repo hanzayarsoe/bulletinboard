@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using MTM.CommonLibrary;
-using MTM.Entities.Data;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
 using System.Diagnostics;
@@ -33,27 +32,35 @@ namespace MTM.Web.Controllers
 		[ValidateAntiForgeryToken]
 		public IActionResult ForgetPassword(string email)
 		{
+			var response = new ResponseModel();
 			if (ModelState.IsValid)
 			{
-				ResponseModel response = _userService.EmailExists(email);
-				if(response.ResponseType == Message.SUCCESS)
+				bool isExist = _userService.CheckEmail(email);
+				if(isExist)
 				{
                     var token = Guid.NewGuid().ToString();
                     var expiry = DateTime.UtcNow.AddHours(1);
                     resetTokens[email] = (token, expiry);
                     var resetLink = Url.Action(nameof(ResetPassword), "Account", new { email, token }, Request.Scheme);
 
-                    HTMLMailData mailData = new HTMLMailData
-                    {
-                        EmailToId = "userid",
-                        EmailToName = email,
-                        EmailSubject = "Reset Password",
-                        ResetLink = $"{resetLink}"
-                    };
-
-                    _mailService.SendHTMLMail(mailData);
+					HTMLMailData mailData = new HTMLMailData
+					{
+						EmailToId = "anonymous",
+						EmailToName = email,
+						EmailSubject = "Reset Password",
+						ResetLink = $"{resetLink}"
+					};
+					_mailService.SendHTMLMail(mailData);
+					response.ResponseType = Message.SUCCESS;
+					response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "Email", "sent to " + email);
+					AlertMessage(response);
                 }
-                AlertMessage(response);
+				else
+				{
+                    response.ResponseType = Message.FAILURE;
+                    response.ResponseMessage = string.Format(Message.NOT_EXIST, "Your email");
+                    AlertMessage(response);
+                }
 			}
 
 			return View();
@@ -105,14 +112,21 @@ namespace MTM.Web.Controllers
             UserViewModel user = new UserViewModel();
             var password = model.password;
             var confirmPassword = model.confirmPassword;
+            var email = model.email;
+
+			if(email == null || password == null || confirmPassword == null)
+			{
+				return NotFound();
+			}
 
             if (password == confirmPassword)
             {
+                var isValidPassword = IsPasswordValid(password);
                 var email = model.email;
                 var isValidPassword = Helpers.IsPasswordValid(password);
                 if (isValidPassword)
                 {
-                    ResponseModel idResponse = _userService.EmailExists(email);
+                    ResponseModel idResponse = _userService.GetIdByEmail(email);
                     if (idResponse.ResponseType == Message.SUCCESS)
                     {
                         string Id = idResponse.Data["Id"];
@@ -128,7 +142,7 @@ namespace MTM.Web.Controllers
                     }
                     else
                     {
-                        AlertMessage(new ResponseModel { ResponseType = Message.FAILURE, ResponseMessage = "Email does not exist." });
+						AlertMessage(new ResponseModel { ResponseType = Message.FAILURE, ResponseMessage = string.Format(Message.NOT_EXIST,email) });
                     }
                 }
                 else
@@ -145,7 +159,7 @@ namespace MTM.Web.Controllers
                 AlertMessage(new ResponseModel
                 {
                     ResponseType = Message.FAILURE,
-                    ResponseMessage = "Passwords do not match."
+                    ResponseMessage = string.Format(Message.NOT_MATCH,"Your Password")
                 });
             }
 

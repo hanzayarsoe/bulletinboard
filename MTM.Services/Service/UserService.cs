@@ -41,9 +41,14 @@ namespace MTM.Services.Service
             return this._userRepository.Delete(id, userId);
         }
 
-        public ResponseModel EmailExists(string email)
+        public ResponseModel GetIdByEmail(string email)
         {
-            return this._userRepository.EmailExists(email);
+            return this._userRepository.GetIdByEmail(email);
+        }
+
+        public bool CheckEmail(string email)
+        {
+            return this._userRepository.CheckEmail(email);
         }
 
         public ResponseModel Register(UserViewModel model)

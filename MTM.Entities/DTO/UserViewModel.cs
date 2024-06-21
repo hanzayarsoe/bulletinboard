@@ -140,9 +140,3 @@ public class AdultPersonOnly : ValidationAttribute
 		return new ValidationResult("Invalid date of birth.");
 	}
 }
-
-
-
-
-
-
