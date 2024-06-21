@@ -191,15 +191,13 @@ namespace MTM.DataAccess.Repository
                         isExist.PasswordHash = user.PasswordHash;
                         context.Users.Update(isExist);
                         context.SaveChanges();
-                        response.ResponseType = Message.EXIST;
-                        response.ResponseMessage = string.Format(Message.ALREADY_EXIST, "Your Account");
+                        response.ResponseType = Message.SUCCESS;
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS,"your info", "updated");
                     }
                     else
                     {
                         response.ResponseType = Message.FAILURE;
                         response.ResponseMessage = string.Format(Message.NOT_EXIST,"your info");
-                        response.ResponseType = Message.SUCCESS;
-                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "Your Account", "updated");
                     }
                 }
             }
