@@ -178,12 +178,7 @@ namespace MTM.DataAccess.Repository
                 using (var context = new MTMContext())
                 {
 
-                    User isExist = (from data in context.Users
-                                        where
-                                        data.Id != user.Id &
-                                        data.IsDeleted == false
-                                        select data
-                                       ).First();
+                    User? isExist = context.Users.FirstOrDefault(u => u.Id == user.Id);
 
                     if (isExist != null)
                     {
@@ -195,7 +190,6 @@ namespace MTM.DataAccess.Repository
                         isExist.Address = user.Address;
                         isExist.PasswordHash = user.PasswordHash;
                         context.Users.Update(isExist);
-                        context.Users.Update(user);
                         context.SaveChanges();
                         response.ResponseType = Message.EXIST;
                         response.ResponseMessage = string.Format(Message.ALREADY_EXIST, "Your Account");
@@ -425,5 +419,5 @@ namespace MTM.DataAccess.Repository
     }
 }
 
-				
 
+				

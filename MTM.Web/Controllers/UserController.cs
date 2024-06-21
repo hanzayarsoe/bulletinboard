@@ -20,7 +20,7 @@ namespace MTM.Web.Controllers
         public ActionResult Index()
         {
             string Id = GetLoginId();
-			UserListViewModel model;
+            UserListViewModel model;
             model = _userService.GetList(Id);
             return View(model.UserList);
         }
@@ -45,6 +45,39 @@ namespace MTM.Web.Controllers
                 AlertMessage(response);
             }
 
+            return View(model);
+        }
+        #endregion
+
+        #region Change Password
+        public ActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ChangePassword(ResetPasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                string LoginUserId = GetLoginId();
+                UserViewModel user = new UserViewModel();
+                string oldpassword = model.oldPassword ?? string.Empty;
+                string password = model.oldPassword ?? string.Empty;
+                string confirmPassword = model.oldPassword ?? string.Empty;
+                if (string.IsNullOrEmpty(oldpassword) || string.IsNullOrEmpty(password))
+                {
+                    View(model);
+                }
+                // if (password != !)
+                user.Id = LoginUserId;
+                user.PasswordHash = password;
+                user.UpdatedDate = DateTime.Now;
+                user.UpdatedUserId = LoginUserId;
+                ResponseModel response = this._userService.Update(user);
+                return RedirectToAction("index", "Category");
+            }
             return View(model);
         }
         #endregion
