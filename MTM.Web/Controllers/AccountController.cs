@@ -167,22 +167,6 @@ namespace MTM.Web.Controllers
         }
         #endregion
 
-        #region User Profile
-		//public IActionResult Profile()
-		//{
-		//	var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-		//	if(userId == null)
-		//	{
-		//		return RedirectToAction(nameof(Login));
-		//	}
-
-		//	var model = _userService.GetUser(userId);
-			
-		//	return View(model);
-		//}
-        #endregion
-
         #region Create
         [HttpGet]
 		public IActionResult Register()

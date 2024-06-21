@@ -23,6 +23,13 @@ namespace MTM.Web.Controllers
             return View(model.UserList);
         }
         #endregion
+
+        #region UserProfile
+        public IActionResult UserProfile()
+        {
+            return View();
+        }
+        #endregion
     }
 }
     
