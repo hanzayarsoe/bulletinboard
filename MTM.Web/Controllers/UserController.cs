@@ -76,7 +76,7 @@ namespace MTM.Web.Controllers
                 user.UpdatedDate = DateTime.Now;
                 user.UpdatedUserId = LoginUserId;
                 ResponseModel response = this._userService.Update(user);
-                return RedirectToAction("index", "Category");
+                return RedirectToAction("Index", "Account");
             }
             return View(model);
         }

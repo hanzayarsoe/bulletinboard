@@ -127,9 +127,9 @@ namespace MTM.Web.Controllers
                     ResponseModel idResponse = _userService.GetIdByEmail(email);
                     if (idResponse.ResponseType == Message.SUCCESS)
                     {
-                        string Id = idResponse.Data["Id"];
+                        string id = idResponse.Data["Id"];
                         string hashedPassword = Helpers.HashPassword(password);
-                        user.Id = Id;
+                        user.Id = id;
                         user.PasswordHash = hashedPassword;
                         ResponseModel response = _userService.Update(user);
 						if(response.ResponseType == Message.SUCCESS)

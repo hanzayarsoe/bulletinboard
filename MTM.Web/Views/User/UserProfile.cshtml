@@ -1,13 +1,12 @@
 ﻿@using MTM.Entities.DTO
 @model UserViewModel
-@using System.Security.Claims;
 
 <div class="container mt-5">
     <partial name="_Notify" />
     <div class="row">
         <div class="col-md-4 d-flex flex-column">
-            <img src="https://via.placeholder.com/150"
-                 class="rounded-circle mb-3 align-self-center w-75"
+            <img src="/img/profile_icon.png"
+                 class="rounded-circle border mb-3 align-self-center w-75"
                  alt="User Image" />
             <button type="button" class="btn btn-outline-info align-self-center btn-sm">
                 Change Password
@@ -24,6 +23,7 @@
                                id="firstName"
                                name="FirstName"
                                value="@Model.FirstName" />
+                        <span asp-validation-for="FirstName" class="text-danger input-err"></span>
                     </div>
                     <div class="col">
                         <label for="lastName" class="form-label">Last Name</label>
@@ -33,6 +33,7 @@
                                name="LastName"
                                value="@Model.LastName" />
                     </div>
+                    <span asp-validation-for="LastName" class="text-danger input-err"></span>
                 </div>
                 <div class="mb-2">
                     <label for="email" class="form-label">Email</label>
@@ -41,16 +42,19 @@
                            id="email"
                            name="Email"
                            value="@Model.Email" />
+                    <span asp-validation-for="Email" class="text-danger input-err"></span>
                 </div>
                 <div class="mb-2">
                     <label for="phoneNumber" class="form-label">Phone Number</label>
                     <input type="text" class="form-control form-control-sm" id="phoneNumber" name="PhoneNumber" value="@Model.PhoneNumber" />
                 </div>
+                <span asp-validation-for="PhoneNumber" class="text-danger input-err"></span>
                 <div class="mb-2">
                     <label for="dob" class="form-label">DOB</label>
                     <input type="date" class="form-control form-control-sm" name="DOB" id="dob"/>
                 </div>
-                <div class="mb-2">
+                <span asp-validation-for="DOB" class="text-danger input-err"></span>
+                <div class="mb-4">
                     <label for="address" class="form-label">Address</label>
                     <textarea class="form-control form-control-sm" id="address" name="Address" rows="2">@Model.Address</textarea>
                 </div>

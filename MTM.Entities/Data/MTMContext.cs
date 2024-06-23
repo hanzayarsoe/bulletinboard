@@ -27,7 +27,7 @@ namespace MTM.Entities.Data
             var configBuiler = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
             var configSection = configBuiler.GetSection("ConnectionStrings");
             var connectionStrings = configSection["DefaultConnection"] ?? null;
-            optionsBuilder.UseSqlServer(connectionStrings);
+            optionsBuilder.UseSqlServer(connectionStrings).EnableSensitiveDataLogging();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

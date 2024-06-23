@@ -3,6 +3,7 @@ using MTM.DataAccess.IRepository;
 using MTM.Entities.Data;
 using MTM.Entities.DTO;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace MTM.DataAccess.Repository
 {
@@ -182,17 +183,67 @@ namespace MTM.DataAccess.Repository
 
                     if (isExist != null)
                     {
-                        isExist.FirstName = user.FirstName;
-                        isExist.LastName = user.LastName;
-                        isExist.Email = user.Email;
-                        isExist.PhoneNumber = user.PhoneNumber;
-                        isExist.Dob = user.Dob;
-                        isExist.Address = user.Address;
-                        isExist.PasswordHash = user.PasswordHash;
-                        context.Users.Update(isExist);
+                        if (!string.IsNullOrEmpty(user.UserName))
+                        {
+                            isExist.UserName = user.UserName;
+                            isExist.NormalizedUserName = user.UserName.ToUpper();
+                        }
+                        if (!string.IsNullOrEmpty(user.Email))
+                        {
+                            isExist.Email = user.Email;
+                            isExist.NormalizedEmail = user.Email.ToUpper();
+                        }
+                        if (!string.IsNullOrEmpty(user.FirstName))
+                        {
+                            isExist.FirstName = user.FirstName;
+                        }
+                        if (!string.IsNullOrEmpty(user.LastName))
+                        {
+                            isExist.LastName = user.LastName;
+                        }
+                        if (!string.IsNullOrEmpty(user.PasswordHash))
+                        {
+                            isExist.PasswordHash = user.PasswordHash;
+                        }
+                        if (!string.IsNullOrEmpty(user.SecurityStamp))
+                        {
+                            isExist.SecurityStamp = user.SecurityStamp;
+                        }
+                        if (!string.IsNullOrEmpty(user.ConcurrencyStamp))
+                        {
+                            isExist.ConcurrencyStamp = user.ConcurrencyStamp;
+                        }
+                        if (!string.IsNullOrEmpty(user.PhoneNumber))
+                        {
+                            isExist.PhoneNumber = user.PhoneNumber;
+                        }
+                        if (!string.IsNullOrEmpty(user.Address))
+                        {
+                            isExist.Address = user.Address;
+                        }
+                        if (user.Dob.HasValue)
+                        {
+                            isExist.Dob = user.Dob;
+                        }
+                        if (user.Role.HasValue)
+                        {
+                            isExist.Role = user.Role.Value;
+                        }
+
+                        isExist.EmailConfirmed = user.EmailConfirmed;
+                        isExist.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
+                        isExist.TwoFactorEnabled = user.TwoFactorEnabled;
+                        isExist.LockoutEnd = user.LockoutEnd;
+                        isExist.LoockoutEnabled = user.LoockoutEnabled;
+                        isExist.AccessFailedCount = user.AccessFailedCount;
+                        isExist.IsActive = user.IsActive;
+                        isExist.IsDeleted = user.IsDeleted;
+                        isExist.UpdatedDate = DateTime.Now;
+                        isExist.UpdatedUserId = user.Id;
+
                         context.SaveChanges();
                         response.ResponseType = Message.SUCCESS;
-                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS,"your info", "updated");
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "your info", "updated");
                     }
                     else
                     {
@@ -200,6 +251,13 @@ namespace MTM.DataAccess.Repository
                         response.ResponseMessage = string.Format(Message.NOT_EXIST,"your info");
                     }
                 }
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the inner exception details for diagnosis
+                var innerException = ex.InnerException?.Message ?? ex.Message;
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = $"An error occurred while saving the entity changes: {innerException}";
             }
             catch (Exception ex)
             {
