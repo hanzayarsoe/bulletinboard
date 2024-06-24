@@ -4,6 +4,7 @@ using MTM.Entities.Data;
 using MTM.Entities.DTO;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Globalization;
 using OfficeOpenXml;
 
 namespace MTM.DataAccess.Repository
@@ -508,7 +509,7 @@ namespace MTM.DataAccess.Repository
             var response = new ResponseModel();
             var errorMessages = new List<string>();
 
-            using(var context = new MTMContext())
+            using (var context = new MTMContext())
             {
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 using (var package = new ExcelPackage(new FileInfo(filePath)))
@@ -524,13 +525,13 @@ namespace MTM.DataAccess.Repository
                         var phone = worksheet.Cells[row, 4].Text;
                         var password = worksheet.Cells[row, 5].Text;
                         var confirmPassword = worksheet.Cells[row, 6].Text;
-                        var roleString = worksheet.Cells[row, 7].Text;
-                        var dobString = worksheet.Cells[row, 8].Text;
+                        var roleName = worksheet.Cells[row, 7].Text;
+                        // var dobString = worksheet.Cells[row, 8].Text;
                         var address = worksheet.Cells[row, 9].Text;
 
-                        if(firstName == null)
+                        if (string.IsNullOrEmpty(firstName))
                         {
-                            errorMessages.Add($"First Name is required");
+                            errorMessages.Add($"First Name is required at row {row}");
                             continue;
                         }
 
@@ -546,27 +547,28 @@ namespace MTM.DataAccess.Repository
                             continue;
                         }
 
-                        if (!int.TryParse(roleString, out int role))
-                        {
-                            errorMessages.Add($"Invalid role at row {row}");
-                            continue;
-                        }
+                        // DateTime? dob = null;
+                        // if (!string.IsNullOrEmpty(dobString))
+                        // {
+                        //     if (!DateTime.TryParseExact(dobString, "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDob))
+                        //     {
+                        //         errorMessages.Add($"Invalid date of birth format at row {row}. Use dd/MM/yyyy format.");
+                        //         continue;
+                        //     }
+                        //     dob = parsedDob;
+                        // }
 
-                        if (!DateTime.TryParse(dobString, out DateTime dob))
-                        {
-                            errorMessages.Add($"Invalid date of birth at row {row}");
-                            continue;
-                        }
+                        int? role = GetRoleValue(roleName);
 
                         var newUser = new User
                         {
+                            Id = Guid.NewGuid().ToString(),
                             FirstName = firstName,
                             LastName = lastName,
                             Email = email,
                             PhoneNumber = phone,
                             PasswordHash = Helpers.HashPassword(password),
                             Role = role,
-                            Dob = dob,
                             Address = address
                         };
 
@@ -582,12 +584,25 @@ namespace MTM.DataAccess.Repository
                     {
                         context.SaveChanges();
                         response.ResponseType = Message.SUCCESS;
-                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS,"User","Created");
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "User", "Created");
                     }
                 }
             }
 
             return response;
+        }
+
+        private int? GetRoleValue(string roleName)
+        {
+            switch (roleName?.ToLower())
+            {
+                case "admin":
+                    return 1;
+                case "user":
+                    return 2;
+                default:
+                    return null; // If roleName is not provided or doesn't match, return null
+            }
         }
         #endregion
     }

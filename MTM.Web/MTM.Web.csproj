@@ -19,7 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\NewFolder\" />
+    <_ContentIncludedByDefault Remove="wwwroot\Uploads\UserFile (1).xlsx" />
+    <_ContentIncludedByDefault Remove="wwwroot\Uploads\UserFile (2).xlsx" />
+    <_ContentIncludedByDefault Remove="wwwroot\Uploads\UserFile (3).xlsx" />
+    <_ContentIncludedByDefault Remove="wwwroot\Uploads\UserFile.xlsx" />
   </ItemGroup>
 
 </Project>
