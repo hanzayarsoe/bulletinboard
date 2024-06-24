@@ -31,7 +31,9 @@
             <td>@index</td>
             <td>@item.FullName</td>
             <td>@item.Email</td>
-            <td>@item.RoleName</td>
+            <td>
+                <span class="badge @(item.Role == 1 ? "bg-primary" : "bg-success")">@item.RoleName</span>
+            </td>
             <td class="dayjs" data-type="dmy" data-datetime="@item.CreatedDate">@item.CreatedDate</td>
             <td>@item.CreatedFullName</td>
             <td>
@@ -94,7 +96,9 @@
                          </tr>
                         <tr>
                             <th>Role</th>
-                            <td id="d-role"></td>
+                            <td>
+                                <span id="d-role" class="badge"></span>
+                            </td>
                         </tr>
                         <tr>
                             <th>Email</th>
@@ -206,15 +210,27 @@
                     success: function (result) {
                         console.log("Resule ", result)
                         $("#d-full-name").text(result.fullName);
+                        // role 
+                        console.log("result role name----", result.roleName);
+                        if (result.roleName == "admin") {
+                            $("#d-role").removeClass("bg-success");
+                            $("#d-role").addClass("bg-primary");
+                        } else {
+                            $("#d-role").removeClass("bg-primary");
+                            $("#d-role").addClass("bg-success");
+                        }
                         $("#d-role").text(result.roleName);
+
                         $("#d-email").text(result.email);
                         $("#d-phone").text(result.phoneNumber);
+                        // date of birth
                         $("#d-dob").data('datetime', result.dob);
                         if (result.dob) {
                             $("#d-dob").text(dayjs(result.dob).format('DD-MM-YYYY'));
                         } else {
                             $("#d-dob").text(''); 
                         }
+
                         $("#d-address").text(result.address);
                         $("#d-created-date").data('datetime', result.createdDate);
                         $("#d-created-by").text(result.createdFullName);

@@ -5,7 +5,6 @@ using MTM.Entities.DTO;
 using MTM.Services.IService;
 using System.Diagnostics;
 using System.Security.Claims;
-using System.Text.RegularExpressions;
 
 namespace MTM.Web.Controllers
 {

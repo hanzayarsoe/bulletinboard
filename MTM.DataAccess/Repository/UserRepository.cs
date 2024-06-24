@@ -2,9 +2,7 @@
 using MTM.DataAccess.IRepository;
 using MTM.Entities.Data;
 using MTM.Entities.DTO;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 
 namespace MTM.DataAccess.Repository
 {
