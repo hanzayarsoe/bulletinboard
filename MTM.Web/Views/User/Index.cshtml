@@ -41,7 +41,7 @@
                    Action
                  </button>
                  <div class="dropdown-menu" aria-labelledby="actionDropDown">
-                   <a class="dropdown-item text-success" asp-action="View" asp-controller="User">View</a>
+                   <button class="dropdown-item text-success view-detail" data-id="@item.Id">View</button>
                    <a class="dropdown-item text-primary" asp-action="Edit" asp-route-id="@item.Id" asp-controller="User">Edit</a>
                    <a class="dropdown-item text-danger" asp-action="Delete" asp-controller="User">Delete</a>
                  </div>
@@ -83,7 +83,7 @@
                         </tr>
                         <tr>
                             <th>Date Of Birth</th>
-                            <td id="d-dob"></td>
+                            <td id="d-dob" class="dayjs" data-type="dmy" data-datetime=""></td>
                         </tr>
                         <tr>
                             <th>Address</th>
@@ -91,7 +91,7 @@
                         </tr>
                           <tr>
                              <th>Created Date</th>
-                             <td id="d-created-date"></td>
+                            <td id="d-created-date" class="dayjs" data-type="dmy" data-datetime=""></td>
                          </tr>
                         <tr>
                             <th>Created By</th>
@@ -173,7 +173,7 @@
 
             var dataTable = $('#userTable').dataTable();
             
-            $(".view-detail").click(function(e){
+            $(".view-detail").on("click", function(e){
             let detailId = $(this).data('id');
 
             $.ajax({
@@ -181,7 +181,20 @@
                 type: 'GET',
                 data: { id: detailId }, 
                 success: function (result) {
-                    $("#d-full-name").text(result.FullName); 
+                    console.log("Resule ", result)
+                    $("#d-full-name").text(result.fullName);
+                    $("#d-role").text(result.roleName);
+                    $("#d-email").text(result.email);
+                    $("#d-phone").text(result.phone);
+                    $("#d-dob").data('datetime', result.dob);
+                    if (result.dob) {
+                        $("#d-dob").text(dayjs(result.dob).format('DD-MM-YYYY'));
+                    } else {
+                        $("#d-dob").text(''); 
+                    }
+                    $("#d-address").text(result.address);
+                    $("#d-created-date").data('datetime', result.createdDate);
+                    $("#d-created-by").text(result.createdFullName);
                     $('#detail-modal').modal('show'); 
                 },
                 error: function (err) {

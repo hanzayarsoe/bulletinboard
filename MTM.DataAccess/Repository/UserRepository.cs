@@ -130,6 +130,7 @@ namespace MTM.DataAccess.Repository
                                  LastName = data.LastName,
                                  FullName = data.FirstName + " " + data.LastName,
                                  Address = data.Address,
+                                 DOB = data.Dob,
                                  PhoneNumber = data.PhoneNumber,
                                  Role = data.Role,
                                  RoleName = data.Role == 1 ? "admin" : "user",
