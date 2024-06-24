@@ -214,10 +214,65 @@ namespace MTM.Web.Controllers
         #region Import User
         [HttpPost]
         [ValidateAntiForgeryToken]
-        //public IActionResult Import()
-        //{
-        //    return View();
-        //}
+        public IActionResult Upload(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return Json(new { success = false, message = "File is not Selected" });
+            }
+
+            var fileExtension = Path.GetExtension(file.FileName);
+
+            if (fileExtension != ".csv" && fileExtension != ".xlsx")
+            {
+                return Json(new { success = false, message = "Invalid File Format" });
+            }
+
+            var uploads = Path.Combine(_env.WebRootPath, "Uploads");
+
+            if (!Directory.Exists(uploads))
+            {
+                Directory.CreateDirectory(uploads);
+            }
+
+            var filePath = Path.Combine(uploads, file.FileName);
+
+            if (System.IO.File.Exists(filePath))
+            {
+                filePath = getUniqueFileName(filePath, uploads);
+            }
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                file.CopyTo(fileStream);
+            }
+
+            ResponseModel response = _userService.UploadUser(filePath);
+            if (response.ResponseType == Message.SUCCESS)
+            {
+                return Json(new { success = true, message = "File uploaded successfully" });
+            }
+            else
+            {
+                return Json(new { success = false, message = response.ResponseMessage });
+            }
+        }
+
+        private string getUniqueFileName(string filePath, string uploads)
+        {
+            string fileName = Path.GetFileNameWithoutExtension(filePath);
+            string extension = Path.GetExtension(filePath);
+
+            int count = 1;
+            string newFilePath;
+            do
+            {
+                newFilePath = Path.Combine(uploads, $"{fileName}_{count}{extension}");
+                count++;
+            } while (System.IO.File.Exists(newFilePath));
+            return newFilePath;
+        }
+
         #endregion
 
         #region Common

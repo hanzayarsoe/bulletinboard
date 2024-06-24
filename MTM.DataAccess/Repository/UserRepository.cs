@@ -5,6 +5,7 @@ using MTM.Entities.DTO;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using OfficeOpenXml;
 
 namespace MTM.DataAccess.Repository
 {
@@ -534,6 +535,70 @@ namespace MTM.DataAccess.Repository
             }
 
             return isExist;
+        }
+        #endregion
+
+        #region UploadUser
+        public ResponseModel UploadUser(string filePath)
+        {
+            var response = new ResponseModel();
+            var errorMessages = new List<string>();
+
+            using(var context = new MTMContext())
+            {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(new FileInfo(filePath)))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+                    int rowCount = worksheet.Dimension.Rows;
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        var name = worksheet.Cells[row, 1].Text;
+                        var email = worksheet.Cells[row, 1].Text;
+                        var password = worksheet.Cells[row, 2].Text;
+                        var confirmPassword = worksheet.Cells[row, 3].Text;
+                        var otherField = worksheet.Cells[row, 4].Text;
+
+                        if (context.Users.Any(u => u.Email == email))
+                        {
+                            errorMessages.Add($"Email {email} already exists at row {row}");
+                            continue;
+                        }
+
+                        if (password != confirmPassword)
+                        {
+                            errorMessages.Add($"Password and Confirm Password do not match at row {row}");
+                            continue;
+                        }
+
+                        // Add other validations as necessary
+
+                        var newUser = new User
+                        {
+                            Email = email,
+                            /*Password = HashPassword(password),*/ // Implement a proper password hashing method
+                                                               // Add other fields here
+                        };
+
+                        context.Users.Add(newUser);
+                    }
+
+                    if (errorMessages.Any())
+                    {
+                        response.ResponseType = Message.FAILURE;
+                        response.ResponseMessage = string.Join("; ", errorMessages);
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                        response.ResponseType = Message.SUCCESS;
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS,"User","Created");
+                    }
+                }
+            }
+
+            return response;
         }
         #endregion
     }
