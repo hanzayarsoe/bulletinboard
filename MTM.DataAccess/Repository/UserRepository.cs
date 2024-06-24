@@ -352,7 +352,7 @@ namespace MTM.DataAccess.Repository
                         context.Users.Update(userModel);
                         context.SaveChanges();
                         response.ResponseType = Message.SUCCESS;
-                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS);
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "User" , "Deleted");
                     }
                 }
             }
