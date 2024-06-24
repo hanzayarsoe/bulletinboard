@@ -9,8 +9,6 @@ namespace MTM.Web.Controllers
     {
         public IActionResult Index()
         {
-            var FullName = TempData["FullName"] as string ?? string.Empty; // Temporary Code To Delete
-            ViewData["FullName"] = FullName; // Temporary Code To Delete
             return View();
         }
 

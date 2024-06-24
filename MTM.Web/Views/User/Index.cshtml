@@ -12,6 +12,7 @@
         <button  class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal"> Import </button>
         <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#export-modal">Export</button>
     </div>
+    <p> @Model.ElementAt(2).FullName </p>
     <table class="table table-striped" id="userTable">
     <thead>
         <tr class="tbl-cell-center">
@@ -51,6 +52,60 @@
         }
     </tbody>
 </table>
+
+    <!--Detail Modal -->
+    <div class="modal fade" id="detail-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">User Detail</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                     <table class="table">
+                         <tr>
+                             <th>Full Name</th>
+                             <td id="d-full-name"></td>
+                         </tr>
+                        <tr>
+                            <th>Role</th>
+                            <td id="d-role"></td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td id="d-email"></td>
+                        </tr>
+                        <tr>
+                            <th>Phone</th>
+                            <td id="d-phone"></td>
+                        </tr>
+                        <tr>
+                            <th>Date Of Birth</th>
+                            <td id="d-dob"></td>
+                        </tr>
+                        <tr>
+                            <th>Address</th>
+                            <td id="d-address"></td>
+                        </tr>
+                          <tr>
+                             <th>Created Date</th>
+                             <td id="d-created-date"></td>
+                         </tr>
+                        <tr>
+                            <th>Created By</th>
+                            <td id="d-created-by"></td>
+                        </tr>
+                     </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 <!--Import Modal -->
 <div class="modal fade" id="import-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -115,7 +170,27 @@
 
 @section Scripts {
     <script>
-        var dataTable = $('#userTable').dataTable();
+
+            var dataTable = $('#userTable').dataTable();
+            
+            $(".view-detail").click(function(e){
+            let detailId = $(this).data('id');
+
+            $.ajax({
+                url: '@Url.Action("UserDetail", "User")', 
+                type: 'GET',
+                data: { id: detailId }, 
+                success: function (result) {
+                    $("#d-full-name").text(result.FullName); 
+                    $('#detail-modal').modal('show'); 
+                },
+                error: function (err) {
+                    console.error('Error fetching user details:', err);
+                }
+            });
+
+            })
+
     </script>
 }
 

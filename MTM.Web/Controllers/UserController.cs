@@ -49,6 +49,20 @@ namespace MTM.Web.Controllers
             return View(model);
         }
         #endregion
+        #region User Detail
+  
+        public IActionResult UserDetail(string Id)
+        {
+            var userId = GetLoginId();
+            UserViewModel user = _userService.GetUser(userId);
+            if (user != null)
+            {
+                return Json(user); 
+            }
+            return NotFound(); 
+        }
+        #endregion
+
 
         #region Change Password
         public ActionResult ChangePassword()
