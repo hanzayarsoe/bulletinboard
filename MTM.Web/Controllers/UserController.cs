@@ -10,9 +10,12 @@ namespace MTM.Web.Controllers
     public class UserController : Controller
     {
         private readonly IUserService _userService;
-		public UserController(IUserService userService)
+        private readonly IWebHostEnvironment _env;
+
+		public UserController(IUserService userService, IWebHostEnvironment env)
         {
 			this._userService = userService;
+            this._env = env;
 		}
 
         #region User List
@@ -49,6 +52,7 @@ namespace MTM.Web.Controllers
             return View(model);
         }
         #endregion
+
         #region User Detail
   
         public IActionResult UserDetail(string Id)
@@ -62,7 +66,6 @@ namespace MTM.Web.Controllers
             return NotFound(); 
         }
         #endregion
-
 
         #region Change Password
         public ActionResult ChangePassword()
@@ -137,6 +140,15 @@ namespace MTM.Web.Controllers
                 AlertMessage(response);
             }
             return View(model);
+        }
+        #endregion
+
+        #region Import User
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Import()
+        {
+            return View();
         }
         #endregion
 
