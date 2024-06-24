@@ -63,5 +63,9 @@ namespace MTM.Services.Service
         {
             return this._userRepository.UpdatePassword(id, oldPwd, newPwd);
         }
+        public ResponseModel UploadUser(string filePath)
+        {
+            return this._userRepository.UploadUser(filePath);
+        }
     }
 }

@@ -24,4 +24,57 @@ function DateFormatChange() {
 
 // For Moment Usage
 
+// For SwalAlert
+function showAlert(type, message, callback) {
+    Swal.fire({
+        icon: type,
+        title: message
+    }).then(function () {
+        if (typeof callback === 'function') {
+            callback();
+        }
+    });
+}
+
+//function confirmDelete(url) {
+//    Swal.fire({
+//        title: 'Are you sure?',
+//        text: "You won't be able to revert this!",
+//        icon: 'warning',
+//        showCancelButton: true,
+//        confirmButtonColor: '#3085d6',
+//        cancelButtonColor: '#d33',
+//        confirmButtonText: 'Yes, delete it!'
+//    }).then((result) => {
+//        if (result.isConfirmed) {
+//            window.location.href = url;
+//        }
+//    })
+//}
+
+$(function () {
+    $('#uploadForm').on('submit', function (event) {
+        event.preventDefault();
+        var formData = new FormData(this);
+        $.ajax({
+            url: '/User/Upload',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.success) {
+                    showAlert('success', response.message, function () {
+                        window.location.reload();
+                    });
+                } else {
+                    showAlert('error', response.message);
+                }
+            },
+            error: function () {
+                showAlert('error', 'An error occurred while processing the request.');
+            }
+        });
+    });
+});
 

@@ -16,5 +16,6 @@ namespace MTM.DataAccess.IRepository
         ResponseModel Register(User user);
         ResponseModel Login(string email, string password);
         ResponseModel UpdatePassword(string id, string oldPwd, string newPwd);
+        ResponseModel UploadUser(string filePath);
     }
 }

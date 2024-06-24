@@ -15,5 +15,6 @@ namespace MTM.Services.IService
         ResponseModel Register(UserViewModel model);
         ResponseModel Login(string email, string password);
         ResponseModel UpdatePassword(string id, string oldPwd, string newPwd);
+        ResponseModel UploadUser(string filePath);
     }
 }
