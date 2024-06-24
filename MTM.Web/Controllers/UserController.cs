@@ -63,20 +63,33 @@ namespace MTM.Web.Controllers
             {
                 string LoginUserId = GetLoginId();
                 UserViewModel user = new UserViewModel();
-                string oldpassword = model.oldPassword ?? string.Empty;
-                string password = model.oldPassword ?? string.Empty;
-                string confirmPassword = model.oldPassword ?? string.Empty;
-                if (string.IsNullOrEmpty(oldpassword) || string.IsNullOrEmpty(password))
+                string OldPassword = model.oldPassword ?? string.Empty;
+                string NewPassword = model.password ?? string.Empty;
+                string ConfirmPassword = model.confirmPassword ?? string.Empty;
+               
+                if(NewPassword != ConfirmPassword)
                 {
-                    View(model);
+                    AlertMessage(new ResponseModel
+                    {
+                        ResponseType = Message.FAILURE,
+                        ResponseMessage = string.Format(Message.NOT_MATCH, "Password")
+                    });
+                    return View(model);
                 }
-                // if (password != !)
-                user.Id = LoginUserId;
-                user.PasswordHash = password;
-                user.UpdatedDate = DateTime.Now;
-                user.UpdatedUserId = LoginUserId;
-                ResponseModel response = this._userService.Update(user);
-                return RedirectToAction("Index", "Account");
+
+                if (!Helpers.IsPasswordValid(NewPassword))
+                {
+                    AlertMessage(new ResponseModel
+                    {
+                        ResponseType = Message.FAILURE,
+                        ResponseMessage = Message.PASSWORD_FORMAT_ERROR
+                    });
+                    return View(model);
+                }
+ 
+                ResponseModel response = this._userService.UpdatePassword(LoginUserId, OldPassword, NewPassword);
+                AlertMessage(response);
+                return View(model);
             }
             return View(model);
         }
