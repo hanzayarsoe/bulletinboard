@@ -183,7 +183,7 @@ namespace MTM.Web.Controllers
 					AlertMessage(new ResponseModel
 					{
 						ResponseType = Message.FAILURE,
-						ResponseMessage = String.Format(Message.NOT_MATCH, model.PasswordHash)
+						ResponseMessage = String.Format(Message.NOT_MATCH, "Password")
 					});
 					return View(model);
 				}
