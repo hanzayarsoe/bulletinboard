@@ -47,7 +47,7 @@ namespace MTM.DataAccess.Repository
                 {
                     list.UserList = (from user in context.Users
                                      join createdBy in context.Users 
-                                     on user.Id equals createdBy.Id
+                                     on user.CreatedUserId equals createdBy.Id
                                      where user.IsActive == true & user.IsDeleted == false
                                      & user.Id != LoginId
 
@@ -118,7 +118,7 @@ namespace MTM.DataAccess.Repository
                 {
                     model = (from data in context.Users
                              join createdBy in context.Users
-                             on data.Id equals createdBy.Id
+                             on data.CreatedUserId equals createdBy.Id
                              where
                              data.Id == id &
                              data.IsActive == true &

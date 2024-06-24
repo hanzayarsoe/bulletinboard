@@ -147,6 +147,11 @@ namespace MTM.Web.Controllers
                 model.CreatedDate = DateTime.Now;
                 ResponseModel response = _userService.Register(model);
                 AlertMessage(response);
+                if(response.ResponseType == Message.SUCCESS)
+                {
+                    return RedirectToAction("Index");
+                }
+              
             }
             return View(model);
         }
@@ -158,9 +163,6 @@ namespace MTM.Web.Controllers
         {
             string LoginId = GetLoginId();
             ResponseModel response = _userService.Delete(id, LoginId);
-            
-            Debug.WriteLine("---------------------------"+response.ResponseType);
-            Debug.WriteLine("---------------------MEssage------" + response.ResponseMessage);
             if (response.ResponseType == Message.SUCCESS)
             {
                 return Json(new { status = 1 });
