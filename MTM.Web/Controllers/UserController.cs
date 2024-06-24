@@ -24,6 +24,16 @@ namespace MTM.Web.Controllers
         {
             string Id = GetLoginId();
             UserListViewModel model;
+            if (TempData["MessageType"] != null)
+            {
+                int ResponseType = Convert.ToInt32(TempData["MessageType"]);
+                string ResponseMessage = Convert.ToString(TempData["Message"]) ?? string.Empty;
+                AlertMessage(new ResponseModel
+                {
+                    ResponseType = ResponseType,
+                    ResponseMessage = ResponseMessage
+                });
+            }
             model = _userService.GetList(Id);
             return View(model.UserList);
         }
@@ -149,6 +159,8 @@ namespace MTM.Web.Controllers
                 AlertMessage(response);
                 if(response.ResponseType == Message.SUCCESS)
                 {
+                    TempData["MessageType"] = Message.SUCCESS;
+                    TempData["Message"] = string.Format(Message.SAVE_SUCCESS, "User", "Created");
                     return RedirectToAction("Index");
                 }
               
@@ -156,7 +168,6 @@ namespace MTM.Web.Controllers
             return View(model);
         }
         #endregion
-
 
         #region Delete
         public IActionResult Delete(string id)

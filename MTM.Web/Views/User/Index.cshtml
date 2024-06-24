@@ -200,7 +200,9 @@
 @section Scripts {
     <script>
 
-            var dataTable = $('#userTable').dataTable();
+        var dataTable = $('#userTable').dataTable({
+            responsive: true
+        });
             
             $(".view-detail").on("click", function(e){
                 let detailId = $(this).data('id');
