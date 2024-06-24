@@ -123,7 +123,10 @@ namespace MTM.DataAccess.Repository
                                  FirstName = data.FirstName,
                                  LastName = data.LastName,
                                  Email = data.Email,
-                                 IsActive = data.IsActive
+                                 IsActive = data.IsActive,
+                                 PhoneNumber = data.PhoneNumber,
+                                 Role = data.Role,
+                                 Address = data.Address
                              }).First();
                 }
             }
@@ -239,7 +242,7 @@ namespace MTM.DataAccess.Repository
                         isExist.IsActive = user.IsActive;
                         isExist.IsDeleted = user.IsDeleted;
                         isExist.UpdatedDate = DateTime.Now;
-                        isExist.UpdatedUserId = user.Id;
+                        isExist.UpdatedUserId = user.UpdatedUserId;
 
                         context.SaveChanges();
                         response.ResponseType = Message.SUCCESS;
@@ -254,7 +257,6 @@ namespace MTM.DataAccess.Repository
             }
             catch (DbUpdateException ex)
             {
-                // Log the inner exception details for diagnosis
                 var innerException = ex.InnerException?.Message ?? ex.Message;
                 response.ResponseType = Message.FAILURE;
                 response.ResponseMessage = $"An error occurred while saving the entity changes: {innerException}";
