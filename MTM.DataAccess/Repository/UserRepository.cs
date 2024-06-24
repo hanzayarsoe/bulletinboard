@@ -57,6 +57,9 @@ namespace MTM.DataAccess.Repository
                                          FullName = user.FirstName + " "+ user.LastName,
                                          Email = user.Email,
                                          Role = user.Role,
+                                         DOB = user.Dob,
+                                         Address = user.Address,
+                                         PhoneNumber = user.PhoneNumber,
                                          RoleName = user.Role == 1 ? "admin" : "user",
                                          CreatedDate = user.CreatedDate,
                                          CreatedFullName = createdBy.FirstName + " "+createdBy.LastName,
@@ -124,7 +127,8 @@ namespace MTM.DataAccess.Repository
                                  FirstName = data.FirstName,
                                  LastName = data.LastName,
                                  Email = data.Email,
-                                 IsActive = data.IsActive
+                                 IsActive = data.IsActive,
+                                 FullName = data.FirstName + " " + data.LastName
                              }).First();
                 }
             }
