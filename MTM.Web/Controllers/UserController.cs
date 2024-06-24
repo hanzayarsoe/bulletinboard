@@ -41,6 +41,7 @@ namespace MTM.Web.Controllers
             if (ModelState.IsValid)
             {
                 model.Id = GetLoginId();
+                model.UpdatedUserId = model.Id;
                 ResponseModel response = _userService.Update(model);
                 AlertMessage(response);
             }
@@ -102,6 +103,34 @@ namespace MTM.Web.Controllers
                 return View(model);
             }
             return View(model);
+        }
+        #endregion
+
+        #region Edit
+        public IActionResult Edit(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            UserViewModel user = _userService.GetUser(id);
+            return View(user);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(UserViewModel model)
+        {
+            if(model == null)
+            {
+                return NotFound();
+            }
+
+            model.UpdatedUserId = GetLoginId();
+            ResponseModel response = _userService.Update(model);
+            AlertMessage(response);
+            return View();
         }
         #endregion
 

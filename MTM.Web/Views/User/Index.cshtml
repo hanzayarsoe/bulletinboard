@@ -42,8 +42,8 @@
                    Action
                  </button>
                  <div class="dropdown-menu" aria-labelledby="actionDropDown">
-                                <button class="dropdown-item text-success view-detail" data-id="@(index - 1)">View</button>
-                   <a class="dropdown-item text-primary" asp-action="Edit" asp-controller="User">Edit</a>
+                   <a class="dropdown-item text-success" asp-action="View" asp-controller="User">View</a>
+                   <a class="dropdown-item text-primary" asp-action="Edit" asp-route-id="@item.Id" asp-controller="User">Edit</a>
                    <a class="dropdown-item text-danger" asp-action="Delete" asp-controller="User">Delete</a>
                  </div>
                 </div>
