@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace MTM.Entities.DTO
 {
@@ -37,7 +38,7 @@ namespace MTM.Entities.DTO
             this.LockoutEnabled = false;
             this.AccessFailedCount = 0;
             this.Address = string.Empty;
-            this.Role = 0;
+            this.Role = null;
             this.DOB = null;
             this.IsActive = true;
             this.IsDeleted = false;
@@ -63,13 +64,13 @@ namespace MTM.Entities.DTO
 		public string UserName { get; set; }
         public string NormalizedUserName { get; set; }
 		[DisplayName("Email")]
-		public string Email { get; set; }
+		public string? Email { get; set; }
 		[DisplayName("First Name")]
 		public string FirstName { get; set; }
         [DisplayName("Last Name")]
         public string? LastName { get; set; } 
         [DisplayName("Normalized Email")]
-        public string NormalizedEmail { get; set; }
+        public string? NormalizedEmail { get; set; }
         public bool EmailConfirmed { get; set; }
         [DisplayName("Password")]
         public string PasswordHash { get; set; }
@@ -78,20 +79,20 @@ namespace MTM.Entities.DTO
         public string SecurityStamp { get; set; }
         public string ConcurrencyStamp { get; set; }
         [DisplayName("Phone Number")]
-        public string PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
         public bool PhoneNumberConfirmed { get; set; }
         public bool TwoFactorEnabled { get; set; }
         public DateTime? LockoutEnd { get; set; }
         public bool LockoutEnabled { get; set; }
         public int AccessFailedCount { get; set; }
 		[DisplayName("Address")]
-		public string Address { get; set; }
+		public string? Address { get; set; }
 		[DisplayName("Date Of Birth")]
 		[AdultPersonOnly(ErrorMessage = "The year must be greater than 2002.")]
 		public DateTime? DOB { get; set; }
 		[DisplayName("Role")]
-        [Range(1, 2, ErrorMessage = "Role must be either 1 or 2.")]
-        public int? Role { get; set; }
+        [ValidRole]
+		public int? Role { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime CreatedDate { get; set; }
@@ -140,4 +141,23 @@ public class AdultPersonOnly : ValidationAttribute
 		}
 		return new ValidationResult("Invalid date of birth.");
 	}
+}
+
+public class ValidRoleAttribute : ValidationAttribute
+{
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+    {
+        if(value is null)
+        {
+            return ValidationResult.Success;
+        }
+        else if (value is int role && (role == 1 || role == 2))
+        {
+            return ValidationResult.Success;
+        }
+        else
+        {
+            return new ValidationResult("Role must be either 1 or 2.");
+        }
+    }
 }
