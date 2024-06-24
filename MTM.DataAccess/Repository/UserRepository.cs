@@ -518,11 +518,21 @@ namespace MTM.DataAccess.Repository
 
                     for (int row = 2; row <= rowCount; row++)
                     {
-                        var name = worksheet.Cells[row, 1].Text;
-                        var email = worksheet.Cells[row, 1].Text;
-                        var password = worksheet.Cells[row, 2].Text;
-                        var confirmPassword = worksheet.Cells[row, 3].Text;
-                        var otherField = worksheet.Cells[row, 4].Text;
+                        var firstName = worksheet.Cells[row, 1].Text;
+                        var lastName = worksheet.Cells[row, 2].Text;
+                        var email = worksheet.Cells[row, 3].Text;
+                        var phone = worksheet.Cells[row, 4].Text;
+                        var password = worksheet.Cells[row, 5].Text;
+                        var confirmPassword = worksheet.Cells[row, 6].Text;
+                        var roleString = worksheet.Cells[row, 7].Text;
+                        var dobString = worksheet.Cells[row, 8].Text;
+                        var address = worksheet.Cells[row, 9].Text;
+
+                        if(firstName == null)
+                        {
+                            errorMessages.Add($"First Name is required");
+                            continue;
+                        }
 
                         if (context.Users.Any(u => u.Email == email))
                         {
@@ -536,13 +546,28 @@ namespace MTM.DataAccess.Repository
                             continue;
                         }
 
-                        // Add other validations as necessary
+                        if (!int.TryParse(roleString, out int role))
+                        {
+                            errorMessages.Add($"Invalid role at row {row}");
+                            continue;
+                        }
+
+                        if (!DateTime.TryParse(dobString, out DateTime dob))
+                        {
+                            errorMessages.Add($"Invalid date of birth at row {row}");
+                            continue;
+                        }
 
                         var newUser = new User
                         {
+                            FirstName = firstName,
+                            LastName = lastName,
                             Email = email,
-                            /*Password = HashPassword(password),*/ // Implement a proper password hashing method
-                                                               // Add other fields here
+                            PhoneNumber = phone,
+                            PasswordHash = Helpers.HashPassword(password),
+                            Role = role,
+                            Dob = dob,
+                            Address = address
                         };
 
                         context.Users.Add(newUser);

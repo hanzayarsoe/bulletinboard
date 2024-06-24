@@ -58,14 +58,14 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="importModalLabel">Import Post</h5>
+                        <h5 class="modal-title" id="importModalLabel">Import User</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form method="post" id="uploadForm">
+                    <form id="uploadForm" method="post" enctype="multipart/form-data">
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="formFile" class="form-label">Default file input example</label>
-                                <input class="form-control" type="file" id="formFile" accept=".xls, .xlsx">
+                                <label for="formFile" class="form-label">Please import file here</label>
+                                <input class="form-control" type="file" id="formFile" name="file" accept=".xlsx, .xls">
                                 <div class="form-text text-danger mt-1">* Allowed file types: xlsx, xls.</div>
                             </div>
                         </div>
@@ -77,6 +77,7 @@
                 </div>
             </div>
         </div>
+
 </table>
 
     <!--Detail Modal -->

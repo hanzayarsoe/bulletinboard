@@ -213,7 +213,7 @@ namespace MTM.Web.Controllers
         }
         #endregion
 
-        #region Import User
+        #region
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Upload(IFormFile file)
@@ -241,7 +241,7 @@ namespace MTM.Web.Controllers
 
             if (System.IO.File.Exists(filePath))
             {
-                filePath = getUniqueFileName(filePath, uploads);
+                filePath = GetUniqueFileName(filePath, uploads);
             }
 
             using (var fileStream = new FileStream(filePath, FileMode.Create))
@@ -252,7 +252,7 @@ namespace MTM.Web.Controllers
             ResponseModel response = _userService.UploadUser(filePath);
             if (response.ResponseType == Message.SUCCESS)
             {
-                return Json(new { success = true, message = "File uploaded successfully" });
+                return Json(new { success = true, message = response.ResponseMessage });
             }
             else
             {
@@ -260,19 +260,20 @@ namespace MTM.Web.Controllers
             }
         }
 
-        private string getUniqueFileName(string filePath, string uploads)
+        private string GetUniqueFileName(string filePath, string uploads)
         {
-            string fileName = Path.GetFileNameWithoutExtension(filePath);
-            string extension = Path.GetExtension(filePath);
-
             int count = 1;
-            string newFilePath;
-            do
+            string fileNameOnly = Path.GetFileNameWithoutExtension(filePath);
+            string extension = Path.GetExtension(filePath);
+            string newFullPath = filePath;
+
+            while (System.IO.File.Exists(newFullPath))
             {
-                newFilePath = Path.Combine(uploads, $"{fileName}_{count}{extension}");
-                count++;
-            } while (System.IO.File.Exists(newFilePath));
-            return newFilePath;
+                string tempFileName = $"{fileNameOnly} ({count++})";
+                newFullPath = Path.Combine(uploads, tempFileName + extension);
+            }
+
+            return newFullPath;
         }
 
         #endregion
