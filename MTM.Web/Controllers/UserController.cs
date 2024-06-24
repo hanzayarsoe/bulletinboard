@@ -116,11 +116,13 @@ namespace MTM.Web.Controllers
             {
                 return NotFound();
             }
-
-            model.UpdatedUserId = GetLoginId();
-            ResponseModel response = _userService.Update(model);
-            AlertMessage(response);
-            return View();
+            if (ModelState.IsValid)
+            {
+                model.UpdatedUserId = GetLoginId();
+                ResponseModel response = _userService.Update(model);
+                AlertMessage(response);
+            }
+            return View(model);
         }
         #endregion
 

@@ -90,8 +90,8 @@ namespace MTM.Entities.DTO
 		[AdultPersonOnly(ErrorMessage = "The year must be greater than 2002.")]
 		public DateTime? DOB { get; set; }
 		[DisplayName("Role")]
-		public int? Role { get; set; }
-        [ValidRole]
+        [Range(1, 2, ErrorMessage = "Role must be either 1 or 2.")]
+        public int? Role { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime CreatedDate { get; set; }
@@ -140,16 +140,4 @@ public class AdultPersonOnly : ValidationAttribute
 		}
 		return new ValidationResult("Invalid date of birth.");
 	}
-}
-
-public class ValidRoleAttribute : ValidationAttribute
-{
-    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
-    {
-        if (value is int role && (role == 1 || role == 2))
-        {
-            return ValidationResult.Success;
-        }
-        return new ValidationResult("Role must be either 1 or 2.");
-    }
 }
