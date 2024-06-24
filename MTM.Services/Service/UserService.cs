@@ -59,5 +59,9 @@ namespace MTM.Services.Service
         {
             return this._userRepository.Login(email, password);
         }
+        public ResponseModel UpdatePassword(string id, string oldPwd, string newPwd)
+        {
+            return this._userRepository.UpdatePassword(id, oldPwd, newPwd);
+        }
     }
 }

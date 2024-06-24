@@ -15,5 +15,6 @@ namespace MTM.DataAccess.IRepository
         bool CheckEmail(string email);
         ResponseModel Register(User user);
         ResponseModel Login(string email, string password);
+        ResponseModel UpdatePassword(string id, string oldPwd, string newPwd);
     }
 }

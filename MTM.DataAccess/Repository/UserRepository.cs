@@ -4,6 +4,7 @@ using MTM.Entities.Data;
 using MTM.Entities.DTO;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace MTM.DataAccess.Repository
 {
@@ -267,6 +268,53 @@ namespace MTM.DataAccess.Repository
                 response.ResponseMessage = ex.Message;
             }
 
+            return response;
+        }
+        #endregion
+
+        #region Update Password 
+        public ResponseModel UpdatePassword(string id, string oldPwd, string newPwd)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var context = new MTMContext())
+                {
+                    User? isExist = context.Users.FirstOrDefault(u => u.Id == id);
+                    if (!Helpers.VerifyPassword(oldPwd, isExist?.PasswordHash ?? String.Empty))
+                    {
+                        response.ResponseType = Message.FAILURE;
+                        response.ResponseMessage = "Incorrect Old Password";
+                        return response;
+                    }
+
+                    if (isExist != null)
+                    {
+                        isExist.PasswordHash = Helpers.HashPassword(newPwd);
+                        isExist.UpdatedUserId = id;
+                        isExist.UpdatedDate = DateTime.Now;
+                        context.SaveChanges();
+                        response.ResponseType = Message.SUCCESS;
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "Password", "updated");
+                    }
+                    else
+                    {
+                        response.ResponseType = Message.FAILURE;
+                        response.ResponseMessage = string.Format(Message.NOT_EXIST, "Your Account");
+                    }
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                var innerException = ex.InnerException?.Message ?? ex.Message;
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = $"An error occurred while saving the entity changes: {innerException}";
+            }
+            catch (Exception ex)
+            {
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = ex.Message;
+            }
             return response;
         }
         #endregion
