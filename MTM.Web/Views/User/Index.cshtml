@@ -12,7 +12,6 @@
         <button  class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal"> Import </button>
         <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#export-modal">Export</button>
     </div>
-    <p> @Model.ElementAt(2).FullName </p>
     <table class="table table-striped" id="userTable">
     <thead>
         <tr class="tbl-cell-center">
@@ -43,7 +42,7 @@
                  <div class="dropdown-menu" aria-labelledby="actionDropDown">
                    <button class="dropdown-item text-success view-detail" data-id="@item.Id">View</button>
                    <a class="dropdown-item text-primary" asp-action="Edit" asp-route-id="@item.Id" asp-controller="User">Edit</a>
-                   <a class="dropdown-item text-danger" asp-action="Delete" asp-controller="User">Delete</a>
+                   <button class="dropdown-item text-danger btn-delete" data-id="@item.Id">Delete</button>
                  </div>
                 </div>
             </td>
@@ -198,35 +197,88 @@
             var dataTable = $('#userTable').dataTable();
             
             $(".view-detail").on("click", function(e){
-            let detailId = $(this).data('id');
+                let detailId = $(this).data('id');
 
-            $.ajax({
-                url: '@Url.Action("UserDetail", "User")', 
-                type: 'GET',
-                data: { id: detailId }, 
-                success: function (result) {
-                    console.log("Resule ", result)
-                    $("#d-full-name").text(result.fullName);
-                    $("#d-role").text(result.roleName);
-                    $("#d-email").text(result.email);
-                    $("#d-phone").text(result.phone);
-                    $("#d-dob").data('datetime', result.dob);
-                    if (result.dob) {
-                        $("#d-dob").text(dayjs(result.dob).format('DD-MM-YYYY'));
-                    } else {
-                        $("#d-dob").text(''); 
+                $.ajax({
+                    url: '@Url.Action("UserDetail", "User")', 
+                    type: 'GET',
+                    data: { id: detailId }, 
+                    success: function (result) {
+                        console.log("Resule ", result)
+                        $("#d-full-name").text(result.fullName);
+                        $("#d-role").text(result.roleName);
+                        $("#d-email").text(result.email);
+                        $("#d-phone").text(result.phoneNumber);
+                        $("#d-dob").data('datetime', result.dob);
+                        if (result.dob) {
+                            $("#d-dob").text(dayjs(result.dob).format('DD-MM-YYYY'));
+                        } else {
+                            $("#d-dob").text(''); 
+                        }
+                        $("#d-address").text(result.address);
+                        $("#d-created-date").data('datetime', result.createdDate);
+                        $("#d-created-by").text(result.createdFullName);
+                        $('#detail-modal').modal('show'); 
+                    },
+                    error: function (err) {
+                        console.error('Error fetching user details:', err);
                     }
-                    $("#d-address").text(result.address);
-                    $("#d-created-date").data('datetime', result.createdDate);
-                    $("#d-created-by").text(result.createdFullName);
-                    $('#detail-modal').modal('show'); 
-                },
-                error: function (err) {
-                    console.error('Error fetching user details:', err);
-                }
-            });
+                });
 
             })
+
+        $(".btn-delete").on("click", function (e) {
+            e.preventDefault();
+            let deleteId = $(this).data('id');
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to recover this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("Delete", "User")',
+                        type: 'GET',
+                        data: { id: deleteId },
+                        success: function (result) {
+                            console.log("result", result)
+                            if(result.status == 1){
+                                Swal.fire({
+                                    title: "Deleted!",
+                                    text: "Your record has been deleted.",
+                                    icon: "success"
+                                }).then(() => {
+                                    location.reload(); 
+                                });
+                            }else{
+                                Swal.fire({
+                                    title: "Can't Deleted!",
+                                    text: "Sorry, It can not deleted",
+                                    icon: "fail"
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            }
+                          
+                        },
+                        error: function (err) {
+                            console.error('Error deleting user:', err);
+                            Swal.fire({
+                                title: "Error!",
+                                text: "An error occurred while deleting.",
+                                icon: "error"
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
 
     </script>
 }

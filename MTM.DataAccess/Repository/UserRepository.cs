@@ -381,7 +381,10 @@ namespace MTM.DataAccess.Repository
 					}
 					else
 					{
-						user.Role = context.Users.Count() == 0 ? 1 : 2;
+                        if(user.Role == null)
+                        {
+                            user.Role = context.Users.Count() == 0 ? 1 : 2;
+                        }
                         user.PasswordHash = Helpers.HashPassword(user.PasswordHash);
 						context.Users.Add(user);
 						context.SaveChanges();

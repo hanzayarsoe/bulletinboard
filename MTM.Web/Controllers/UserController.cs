@@ -112,6 +112,75 @@ namespace MTM.Web.Controllers
         }
         #endregion
 
+        #region Create
+        public IActionResult Create(string id)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(UserViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (model.PasswordHash != model.PasswordConfirm)
+                {
+                    AlertMessage(new ResponseModel
+                    {
+                        ResponseType = Message.FAILURE,
+                        ResponseMessage = String.Format(Message.NOT_MATCH, model.PasswordHash)
+                    });
+                    return View(model);
+                }
+                if (!Helpers.IsPasswordValid(model.PasswordHash))
+                {
+                    AlertMessage(new ResponseModel
+                    {
+                        ResponseType = Message.FAILURE,
+                        ResponseMessage = Message.PASSWORD_FORMAT_ERROR
+                    });
+                    return View(model);
+                }
+                model.Id = Guid.NewGuid().ToString();
+                model.CreatedUserId = GetLoginId();
+                model.CreatedDate = DateTime.Now;
+                ResponseModel response = _userService.Register(model);
+                AlertMessage(response);
+            }
+            return View(model);
+        }
+        #endregion
+
+
+        #region Delete
+        public IActionResult Delete(string id)
+        {
+            string LoginId = GetLoginId();
+            ResponseModel response = _userService.Delete(id, LoginId);
+            
+            Debug.WriteLine("---------------------------"+response.ResponseType);
+            Debug.WriteLine("---------------------MEssage------" + response.ResponseMessage);
+            if (response.ResponseType == Message.SUCCESS)
+            {
+                return Json(new { status = 1 });
+            }
+            else
+            {
+                return Json(new { status = 0 });
+            }
+        }
+        #endregion
+
+        #region Import User
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Import()
+        {
+            return View();
+        }
+        #endregion
+
         #region Edit
         public IActionResult Edit(string id)
         {
@@ -145,10 +214,10 @@ namespace MTM.Web.Controllers
         #region Import User
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Import()
-        {
-            return View();
-        }
+        //public IActionResult Import()
+        //{
+        //    return View();
+        //}
         #endregion
 
         #region Common
