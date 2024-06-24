@@ -57,8 +57,7 @@ namespace MTM.Web.Controllers
   
         public IActionResult UserDetail(string Id)
         {
-            var userId = GetLoginId();
-            UserViewModel user = _userService.GetUser(userId);
+            UserViewModel user = _userService.GetUser(Id);
             if (user != null)
             {
                 return Json(user); 
