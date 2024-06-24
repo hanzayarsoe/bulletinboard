@@ -117,6 +117,8 @@ namespace MTM.DataAccess.Repository
                 using (var context = new MTMContext())
                 {
                     model = (from data in context.Users
+                             join createdBy in context.Users
+                             on data.Id equals createdBy.Id
                              where
                              data.Id == id &
                              data.IsActive == true &
@@ -126,11 +128,16 @@ namespace MTM.DataAccess.Repository
                                  Id = data.Id,
                                  FirstName = data.FirstName,
                                  LastName = data.LastName,
-                                 Email = data.Email,
-                                 IsActive = data.IsActive,
+                                 FullName = data.FirstName + " " + data.LastName,
+                                 Address = data.Address,
                                  PhoneNumber = data.PhoneNumber,
                                  Role = data.Role,
-                                 Address = data.Address
+                                 RoleName = data.Role == 1 ? "admin" : "user",
+                                 Email = data.Email,
+                                 IsActive = data.IsActive,
+                                 CreatedDate = data.CreatedDate,
+                                 CreatedFullName = createdBy.FirstName + " " + createdBy.LastName,
+
                              }).First();
                 }
             }

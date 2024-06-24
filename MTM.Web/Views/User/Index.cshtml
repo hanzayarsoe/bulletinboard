@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "User List";
     int index = 1;
-    int detailId = 0;
 }
 
 <div class="container">
@@ -175,9 +174,21 @@
             var dataTable = $('#userTable').dataTable();
             
             $(".view-detail").click(function(e){
-                @detailId = $(this).data('id');
-                $("#d-full-name").text("@Model.ElementAt(detailId).FullName");
-                $('#detail-modal').modal('show');
+            let detailId = $(this).data('id');
+
+            $.ajax({
+                url: '@Url.Action("UserDetail", "User")', 
+                type: 'GET',
+                data: { id: detailId }, 
+                success: function (result) {
+                    $("#d-full-name").text(result.FullName); 
+                    $('#detail-modal').modal('show'); 
+                },
+                error: function (err) {
+                    console.error('Error fetching user details:', err);
+                }
+            });
+
             })
 
     </script>

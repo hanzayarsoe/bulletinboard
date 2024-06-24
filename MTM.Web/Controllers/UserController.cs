@@ -55,7 +55,11 @@ namespace MTM.Web.Controllers
         {
             var userId = GetLoginId();
             UserViewModel user = _userService.GetUser(userId);
-            return View(user);
+            if (user != null)
+            {
+                return Json(user); 
+            }
+            return NotFound(); 
         }
         #endregion
 

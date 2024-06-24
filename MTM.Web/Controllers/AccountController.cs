@@ -223,9 +223,10 @@ namespace MTM.Web.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Login(UserViewModel model)
 		{
+			
 			if (ModelState.IsValid)
 			{
-				ResponseModel response = new ResponseModel();
+                ResponseModel response = new ResponseModel();
 				response = _userService.Login(model.Email, model.PasswordHash);
 				
                 if (response.ResponseType == Message.SUCCESS)
@@ -244,12 +245,11 @@ namespace MTM.Web.Controllers
 						ExpiresUtc = DateTime.UtcNow.AddMinutes(30)
 					};
 					await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(ClaimsIdentity), AuthProperties);
-					TempData["FullName"] = response.Data["FullName"];
 					return RedirectToAction("Index", "Home");
 				}
 				AlertMessage(response);
 			}
-			return View(model);
+            return View(model);
 		}
 
 		public async Task<ActionResult> Logout()
