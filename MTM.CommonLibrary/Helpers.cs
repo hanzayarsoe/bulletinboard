@@ -1,6 +1,4 @@
-﻿using System.Net.Http;
-using System.Security.Claims;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 
 namespace MTM.CommonLibrary

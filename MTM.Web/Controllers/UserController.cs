@@ -66,8 +66,23 @@ namespace MTM.Web.Controllers
             {
                 model.Id = GetLoginId();
                 model.UpdatedUserId = model.Id;
-                ResponseModel response = _userService.Update(model);
-                AlertMessage(response);
+                var isExist = _userService.CheckEmail(model.Email);
+                ResponseModel response = _userService.GetIdByEmail(model.Email);
+                string? emailId = response.Data != null && response.Data.ContainsKey("Id") ? response.Data["Id"] : null;
+                if ((isExist && model.Id == emailId) || !isExist)
+                {
+                    ResponseModel updateInfo = _userService.Update(model);
+                    AlertMessage(updateInfo);
+                }
+                else
+                {
+                    AlertMessage(new ResponseModel
+                    {
+                        ResponseType = Message.FAILURE,
+                        ResponseMessage = Message.EMAIL_FAIL
+                    });
+                    return View(model);
+                }
             }
 
             return View(model);
@@ -220,13 +235,27 @@ namespace MTM.Web.Controllers
             }
             if (ModelState.IsValid)
             {
-                model.UpdatedUserId = GetLoginId();
-                ResponseModel response = _userService.Update(model);
-                AlertMessage(response);
-                if(response.ResponseType == Message.SUCCESS)
+                var currentUserId = GetLoginId();
+                model.UpdatedUserId = currentUserId;
+                var isExist = _userService.CheckEmail(model.Email);
+                ResponseModel response = _userService.GetIdByEmail(model.Email);
+                string? emailId = response.Data != null && response.Data.ContainsKey("Id") ? response.Data["Id"] : null;
+                if ((isExist && currentUserId == emailId) || !isExist)
                 {
+                    ResponseModel updateInfo = _userService.Update(model);
+                    AlertMessage(updateInfo);
                     return RedirectToAction("Index", "User");
                 }
+                else
+                {
+                    AlertMessage(new ResponseModel
+                    {
+                        ResponseType = Message.FAILURE,
+                        ResponseMessage = Message.EMAIL_FAIL
+                    });
+                    return View(model);
+                }
+                
             }
             return View(model);
         }

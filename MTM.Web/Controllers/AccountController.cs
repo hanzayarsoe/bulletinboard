@@ -138,7 +138,7 @@ namespace MTM.Web.Controllers
                     }
                     else
                     {
-						AlertMessage(new ResponseModel { ResponseType = Message.FAILURE, ResponseMessage = string.Format(Message.NOT_EXIST,email) });
+						AlertMessage(idResponse);
                     }
                 }
                 else
