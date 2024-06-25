@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 
 namespace MTM.Entities.DTO
 {
@@ -80,7 +79,8 @@ namespace MTM.Entities.DTO
         public string SecurityStamp { get; set; }
         public string ConcurrencyStamp { get; set; }
         [DisplayName("Phone Number")]
-        public string? PhoneNumber { get; set; }
+		[RegularExpression(@"^09\d{7,9}$", ErrorMessage = "Phone number must start with 09 followed by 7 to 9 digits.")]
+		public string? PhoneNumber { get; set; }
         public bool PhoneNumberConfirmed { get; set; }
         public bool TwoFactorEnabled { get; set; }
         public DateTime? LockoutEnd { get; set; }

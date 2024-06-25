@@ -5,7 +5,6 @@ using MTM.Entities.DTO;
 using MTM.Services.IService;
 using System.Diagnostics;
 using System.Security.Claims;
-using System.Text.RegularExpressions;
 
 namespace MTM.Web.Controllers
 {
@@ -62,7 +61,6 @@ namespace MTM.Web.Controllers
                     AlertMessage(response);
                 }
 			}
-
 			return View();
 
 		}
@@ -165,7 +163,7 @@ namespace MTM.Web.Controllers
         }
         #endregion
 
-        #region Create
+        #region Register
         [HttpGet]
 		public IActionResult Register()
 		{
@@ -184,7 +182,7 @@ namespace MTM.Web.Controllers
 					AlertMessage(new ResponseModel
 					{
 						ResponseType = Message.FAILURE,
-						ResponseMessage = String.Format(Message.NOT_MATCH, model.PasswordHash)
+						ResponseMessage = String.Format(Message.NOT_MATCH, "Password")
 					});
 					return View(model);
 				}
@@ -198,7 +196,7 @@ namespace MTM.Web.Controllers
                     return View(model);
                 }
 				model.Id = Guid.NewGuid().ToString();
-				model.CreatedUserId = Guid.NewGuid().ToString();
+				model.CreatedUserId = model.Id;
 				model.CreatedDate = DateTime.Now;
 				ResponseModel response = _userService.Register(model);
 				if(response.ResponseType == Message.SUCCESS)
