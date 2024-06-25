@@ -21,7 +21,7 @@
 
         #region Account Message
         public const string ALREADY_EXIST = "{0} is already created.";
-        public const string NOT_EXIST = "{0} does not exist.";
+        public const string NOT_EXIST = "{0} was Not Exist or Deleted.";
         public const string NOT_MATCH = "{0} does not match";
         public const string PASSWORD_FORMAT_ERROR = "Password must be at least one lowercase letter, one uppercase letter, one digit, and one special character";
         public const string INCORRECT = "Incorrect {0} OR {1}";

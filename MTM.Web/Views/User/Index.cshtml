@@ -2,7 +2,6 @@
 @{
     ViewData["Title"] = "User List";
 }
-
 <div class="container">
     <h2>User List</h2>
     <partial name="_Notify" />
@@ -11,7 +10,7 @@
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
         <button class="btn btn-secondary" id="export" data-bs-toggle="modal" tabindex="3">Export</button>
     </div>
-    <table class="table table-striped" id="userTable">
+    <table class="table table-striped no-wrap datatable" style="width:100%" id="userTable">
     <thead>
         <tr class="tbl-cell-center">
             <th>No</th>
@@ -23,9 +22,7 @@
             <th>Actions</th>
         </tr>
     </thead>
-        <tbody class="tbl-cell-center">
-  
-    </tbody>
+        <tbody class="tbl-cell-center"></tbody>
 </table>
     <!-- Import Modal -->
     <div class="modal fade" id="import-modal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
@@ -143,6 +140,7 @@
 
         $(document).ready(function () {
             var dataTable = $('#userTable').dataTable({
+                responsive: true,
                 ajax: {
                     url: '@Url.Action("GetList", "User")',
                     type: 'GET',
@@ -234,7 +232,10 @@
                         }
 
                         $("#d-address").text(result.address);
+
                         $("#d-created-date").data('datetime', result.createdDate);
+                        $("#d-created-date").text(dayjs(result.createdDate).format('DD-MM-YYYY'));
+
                         $("#d-created-by").text(result.createdFullName);
                         $('#detail-modal').modal('show');
                     },
@@ -242,7 +243,6 @@
                         console.error('Error fetching user details:', err);
                     }
                 });
-
             })
 
             $("#userTable").on("click",".btn-delete", function (e) {
@@ -271,7 +271,7 @@
                                         text: result.responseMessage,
                                         icon: "success"
                                     }).then(() => {
-                                        dataTable.api().ajax.reload();
+                                        dataTable.api().ajax.reload(null, false);
                                     });
                                 } else {
                                     Swal.fire({

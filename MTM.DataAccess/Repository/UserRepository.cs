@@ -423,7 +423,7 @@ namespace MTM.DataAccess.Repository
                     else
                     {
                         response.ResponseType = Message.FAILURE;
-                        response.ResponseMessage = string.Format(Message.INCORRECT, "Email", "Password");
+                        response.ResponseMessage = string.Format(Message.NOT_EXIST, "Email");
                     }
                 }
             }
