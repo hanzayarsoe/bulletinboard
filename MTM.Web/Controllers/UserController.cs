@@ -267,6 +267,7 @@ namespace MTM.Web.Controllers
         public IActionResult Upload(IFormFile file)
         {
             var errorMessages = new List<string>();
+            var users = new List<UserViewModel>();
 
             if (file == null || file.Length == 0)
             {
@@ -326,20 +327,20 @@ namespace MTM.Web.Controllers
 
                         if (string.IsNullOrEmpty(firstName))
                         {
-                            errorMessages.Add($"First Name is required at row {row}");
+                            errorMessages.Add($"Row {row}: First Name is required");
                             continue;
                         }
 
                         var isEmailExist = _userService.CheckEmail(email);
                         if (isEmailExist)
                         {
-                            errorMessages.Add($"Email {email} already exists at row {row}");
+                            errorMessages.Add($"Row {row}: Email {email} already exists");
                             continue;
                         }
 
                         if (password != confirmPassword)
                         {
-                            errorMessages.Add($"Password and Confirm Password do not match at row {row}");
+                            errorMessages.Add($"Row {row}: Password and Confirm Password do not match");
                             continue;
                         }
 
@@ -348,7 +349,7 @@ namespace MTM.Web.Controllers
                         {
                             if (!DateTime.TryParseExact(dobString, "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDob))
                             {
-                                errorMessages.Add($"Invalid date of birth format at row {row}. Use d/M/yyyy format.");
+                                errorMessages.Add($"Row {row}: Invalid date of birth format. Use d/M/yyyy format.");
                                 continue;
                             }
                             dob = parsedDob;
@@ -370,11 +371,7 @@ namespace MTM.Web.Controllers
                             CreatedUserId = GetLoginId()
                         };
 
-                        var response = _userService.Register(user);
-                        if (response.ResponseType != Message.SUCCESS)
-                        {
-                            errorMessages.Add($"Error at row {row}: {response.ResponseMessage}");
-                        }
+                        users.Add(user);
                     }
                 }
             }
@@ -385,7 +382,23 @@ namespace MTM.Web.Controllers
 
             if (errorMessages.Any())
             {
-                return Json(new { success = false, message = string.Join("; ", errorMessages) });
+                var errorMessageHtml = $"<ul style='font-size:small; list-style-type:none;'>{string.Join("", errorMessages.Select(e => $"<li>{e}</li>"))}</ul>";
+                return Json(new { success = false, message = errorMessageHtml, errors = errorMessages });
+            }
+
+            foreach (var user in users)
+            {
+                var response = _userService.Register(user);
+                if (response.ResponseType != Message.SUCCESS)
+                {
+                    errorMessages.Add($"Error at row corresponding to {user.Email}: {response.ResponseMessage}");
+                }
+            }
+
+            if (errorMessages.Any())
+            {
+                var errorMessageHtml = $"<ul style='font-size:small; list-style-type:none;'>{string.Join("", errorMessages.Select(e => $"<li>{e}</li>"))}</ul>";
+                return Json(new { success = false, message = errorMessageHtml, errors = errorMessages });
             }
 
             return Json(new { success = true, message = "All users have been created successfully." });
