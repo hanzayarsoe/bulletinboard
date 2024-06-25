@@ -66,8 +66,23 @@ namespace MTM.Web.Controllers
             {
                 model.Id = GetLoginId();
                 model.UpdatedUserId = model.Id;
-                ResponseModel response = _userService.Update(model);
-                AlertMessage(response);
+                var isExist = _userService.CheckEmail(model.Email);
+                ResponseModel response = _userService.GetIdByEmail(model.Email);
+                string? emailId = response.Data != null && response.Data.ContainsKey("Id") ? response.Data["Id"] : null;
+                if ((isExist && model.Id == emailId) || !isExist)
+                {
+                    ResponseModel updateInfo = _userService.Update(model);
+                    AlertMessage(updateInfo);
+                }
+                else
+                {
+                    AlertMessage(new ResponseModel
+                    {
+                        ResponseType = Message.FAILURE,
+                        ResponseMessage = Message.EMAIL_FAIL
+                    });
+                    return View(model);
+                }
             }
 
             return View(model);
@@ -220,9 +235,27 @@ namespace MTM.Web.Controllers
             }
             if (ModelState.IsValid)
             {
-                model.UpdatedUserId = GetLoginId();
-                ResponseModel response = _userService.Update(model);
-                AlertMessage(response);
+                var currentUserId = GetLoginId();
+                model.UpdatedUserId = currentUserId;
+                var isExist = _userService.CheckEmail(model.Email);
+                ResponseModel response = _userService.GetIdByEmail(model.Email);
+                string? emailId = response.Data != null && response.Data.ContainsKey("Id") ? response.Data["Id"] : null;
+                if ((isExist && currentUserId == emailId) || !isExist)
+                {
+                    ResponseModel updateInfo = _userService.Update(model);
+                    AlertMessage(updateInfo);
+                    return RedirectToAction("Index", "User");
+                }
+                else
+                {
+                    AlertMessage(new ResponseModel
+                    {
+                        ResponseType = Message.FAILURE,
+                        ResponseMessage = Message.EMAIL_FAIL
+                    });
+                    return View(model);
+                }
+                
             }
             return View(model);
         }
@@ -265,7 +298,6 @@ namespace MTM.Web.Controllers
 
             try
             {
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 using (var package = new ExcelPackage(new FileInfo(filePath)))
                 {
                     var worksheet = package.Workbook.Worksheets.FirstOrDefault();
@@ -381,29 +413,22 @@ namespace MTM.Web.Controllers
         #region Export
         public IActionResult Export()
         {
-            var fileContent = ExportUsersToExcel();
-            var fileName = "users.xlsx";
-            var mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            var users = _userService.GetUserListData().UserList;
+            var stream = new MemoryStream();
 
-            return File(fileContent, mimeType, fileName);
-        }
-
-        public byte[] ExportUsersToExcel()
-        {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using (var package = new ExcelPackage())
+            using (var package = new ExcelPackage(stream))
             {
                 var worksheet = package.Workbook.Worksheets.Add("Users");
 
-                worksheet.Cells[1, 1].Value = "First Name";
-                worksheet.Cells[1, 2].Value = "Last Name";
-                worksheet.Cells[1, 3].Value = "Email";
-                worksheet.Cells[1, 4].Value = "Phone Number";
-                worksheet.Cells[1, 5].Value = "Address";
-                worksheet.Cells[1, 6].Value = "Created Date";
+                var headers = new string[]
+                {
+                "First Name", "Last Name", "Email", "Phone Number", "Address", "Created Date"
+                };
 
-                var userListViewModel = _userService.GetUserListData();
-                var users = userListViewModel.UserList;
+                for (int col = 1; col <= headers.Length; col++)
+                {
+                    worksheet.Cells[1, col].Value = headers[col - 1];
+                }
 
                 int row = 2;
                 foreach (var user in users)
@@ -414,13 +439,16 @@ namespace MTM.Web.Controllers
                     worksheet.Cells[row, 4].Value = user.PhoneNumber;
                     worksheet.Cells[row, 5].Value = user.Address;
                     worksheet.Cells[row, 6].Value = user.CreatedDate.ToString("yyyy-MM-dd");
+
                     row++;
                 }
 
-                return package.GetAsByteArray();
+                package.Save();
             }
+            stream.Position = 0;
+            var mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            return File(stream, mimeType);
         }
-
         #endregion
 
         #region Common

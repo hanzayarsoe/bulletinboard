@@ -27,6 +27,7 @@
         public const string INCORRECT = "Incorrect {0} OR {1}";
         public const string INCORRECT_SINGLE = "Incorrect {0}";
         public const string ACCOUNT_ERROR = "{0} was {1}";
+        public const string EMAIL_FAIL = "Your update email is already used by other user";
         #endregion
     }
 }

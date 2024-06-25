@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EPPlus" Version="7.2.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MTM.CommonLibrary\MTM.CommonLibrary.csproj" />
     <ProjectReference Include="..\MTM.Entities\MTM.Entities.csproj" />
   </ItemGroup>
