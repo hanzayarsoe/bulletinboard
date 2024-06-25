@@ -5,13 +5,14 @@ using MTM.Entities.DTO;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using OfficeOpenXml;
+using System.Globalization;
 
 namespace MTM.DataAccess.Repository
 {
     public class UserRepository : IUserRepository
     {
         #region List
-        public UserListViewModel Data()
+        public UserListViewModel GetUserListData()
         {
            
             UserListViewModel list = new UserListViewModel();
@@ -23,9 +24,11 @@ namespace MTM.DataAccess.Repository
                                      where data.IsActive == true & data.IsDeleted == false 
                                      select new UserViewModel
                                      {
-                                         Id = data.Id,
                                          FirstName = data.FirstName,
-                                         IsActive = data.IsActive ? true : false,
+                                         LastName = data.LastName,
+                                         Email = data.Email,
+                                         PhoneNumber = data.PhoneNumber,
+                                         Address = data.Address,
                                          CreatedDate = data.CreatedDate,
                                      }).ToList();
                 }
@@ -502,94 +505,6 @@ namespace MTM.DataAccess.Repository
         }
         #endregion
 
-        #region UploadUser
-        public ResponseModel UploadUser(string filePath)
-        {
-            var response = new ResponseModel();
-            var errorMessages = new List<string>();
-
-            using(var context = new MTMContext())
-            {
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                using (var package = new ExcelPackage(new FileInfo(filePath)))
-                {
-                    var worksheet = package.Workbook.Worksheets[0];
-                    int rowCount = worksheet.Dimension.Rows;
-
-                    for (int row = 2; row <= rowCount; row++)
-                    {
-                        var firstName = worksheet.Cells[row, 1].Text;
-                        var lastName = worksheet.Cells[row, 2].Text;
-                        var email = worksheet.Cells[row, 3].Text;
-                        var phone = worksheet.Cells[row, 4].Text;
-                        var password = worksheet.Cells[row, 5].Text;
-                        var confirmPassword = worksheet.Cells[row, 6].Text;
-                        var roleString = worksheet.Cells[row, 7].Text;
-                        var dobString = worksheet.Cells[row, 8].Text;
-                        var address = worksheet.Cells[row, 9].Text;
-
-                        if(firstName == null)
-                        {
-                            errorMessages.Add($"First Name is required");
-                            continue;
-                        }
-
-                        if (context.Users.Any(u => u.Email == email))
-                        {
-                            errorMessages.Add($"Email {email} already exists at row {row}");
-                            continue;
-                        }
-
-                        if (password != confirmPassword)
-                        {
-                            errorMessages.Add($"Password and Confirm Password do not match at row {row}");
-                            continue;
-                        }
-
-                        if (!int.TryParse(roleString, out int role))
-                        {
-                            errorMessages.Add($"Invalid role at row {row}");
-                            continue;
-                        }
-
-                        if (!DateTime.TryParse(dobString, out DateTime dob))
-                        {
-                            errorMessages.Add($"Invalid date of birth at row {row}");
-                            continue;
-                        }
-
-                        var newUser = new User
-                        {
-                            FirstName = firstName,
-                            LastName = lastName,
-                            Email = email,
-                            PhoneNumber = phone,
-                            PasswordHash = Helpers.HashPassword(password),
-                            Role = role,
-                            Dob = dob,
-                            Address = address
-                        };
-
-                        context.Users.Add(newUser);
-                    }
-
-                    if (errorMessages.Any())
-                    {
-                        response.ResponseType = Message.FAILURE;
-                        response.ResponseMessage = string.Join("; ", errorMessages);
-                    }
-                    else
-                    {
-                        context.SaveChanges();
-                        response.ResponseType = Message.SUCCESS;
-                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS,"User","Created");
-                    }
-                }
-            }
-
-            return response;
-        }
-        #endregion
     }
 }
 

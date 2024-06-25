@@ -29,6 +29,19 @@ namespace MTM.CommonLibrary
 
 			return passwordRegex.IsMatch(password);
 		}
-		#endregion
-	}
+
+        public static int? GetRoleValue(string roleName)
+        {
+            switch (roleName?.ToLower())
+            {
+                case "admin":
+                    return 1;
+                case "user":
+                    return 2;
+                default:
+                    return null;
+            }
+        }
+        #endregion
+    }
 }
