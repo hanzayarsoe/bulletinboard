@@ -50,7 +50,6 @@ namespace MTM.DataAccess.Repository
                                      on user.CreatedUserId equals createdBy.Id
                                      where user.IsActive == true & user.IsDeleted == false
                                      & user.Id != LoginId
-
                                      select new UserViewModel
                                      {
                                          Id = user.Id,
@@ -138,7 +137,6 @@ namespace MTM.DataAccess.Repository
                                  IsActive = data.IsActive,
                                  CreatedDate = data.CreatedDate,
                                  CreatedFullName = createdBy.FirstName + " " + createdBy.LastName,
-
                              }).First();
                 }
             }
@@ -260,7 +258,7 @@ namespace MTM.DataAccess.Repository
                     if (!Helpers.VerifyPassword(oldPwd, isExist?.PasswordHash ?? String.Empty))
                     {
                         response.ResponseType = Message.FAILURE;
-                        response.ResponseMessage = "Incorrect Old Password";
+                        response.ResponseMessage = string.Format(Message.INCORRECT_SINGLE, "Old Password");
                         return response;
                     }
 
@@ -284,7 +282,7 @@ namespace MTM.DataAccess.Repository
             {
                 var innerException = ex.InnerException?.Message ?? ex.Message;
                 response.ResponseType = Message.FAILURE;
-                response.ResponseMessage = $"An error occurred while saving the entity changes: {innerException}";
+                response.ResponseMessage = string.Format(Message.FAIL, "Update Password");
             }
             catch (Exception ex)
             {
@@ -392,21 +390,22 @@ namespace MTM.DataAccess.Repository
                     {
                         if(!Helpers.VerifyPassword(password, userData.PasswordHash)){
 							response.ResponseType = Message.FAILURE;
-							response.ResponseMessage = "Incorrect Email or Password";
+							response.ResponseMessage = String.Format(Message.INCORRECT, "Email", "Password");
 						}
                         else if(userData.IsDeleted == true)
                         {
                             response.ResponseType = Message.FAILURE;
-                            response.ResponseMessage = "Your account was Deleted";
-                        }else if(userData.IsActive == false)
+                            response.ResponseMessage = String.Format(Message.ACCOUNT_ERROR, "Your Account", "Deleted");
+                        }
+                        else if(userData.IsActive == false)
                         {
 							response.ResponseType = Message.FAILURE;
-							response.ResponseMessage = "Your account was Deactivate";
-						}
+                            response.ResponseMessage = String.Format(Message.ACCOUNT_ERROR, "Your Account", "Deactivated");
+                        }
                         else if(userData.LoockoutEnabled == true)
                         {
                             response.ResponseType = Message.FAILURE;
-                            response.ResponseMessage = "Your account was Locked";
+                            response.ResponseMessage = String.Format(Message.ACCOUNT_ERROR, "Your Account", "Locked");
                         }
                         else {
 							response.ResponseType = Message.SUCCESS;
@@ -421,7 +420,7 @@ namespace MTM.DataAccess.Repository
                     else
                     {
                         response.ResponseType = Message.FAILURE;
-                        response.ResponseMessage = "Incorrect Email or Password";
+                        response.ResponseMessage = String.Format(Message.INCORRECT, "Email", "Password");
                     }
                 }
             }

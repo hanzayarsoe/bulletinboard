@@ -9,9 +9,9 @@
     <h2>User List</h2>
     <partial name="_Notify" />
     <div class="btn-container">
-        <a class="btn btn-primary" asp-action="Create" asp-controller="User" > Create New User </a>
-        <button  class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal"> Import </button>
-        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#export-modal">Export</button>
+        <a class="btn btn-primary" asp-action="Create" asp-controller="User" tabindex="1"> Create New User </a>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
+        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#export-modal" tabindex="3">Export</button>
     </div>
     <table class="table table-striped" id="userTable">
     <thead>
@@ -39,7 +39,7 @@
             <td>@item.CreatedFullName</td>
             <td>
                <div class="dropdown">
-                 <button class="btn btn-secondary dropdown-toggle" type="button" id="actionDropDown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                 <button class="btn btn-secondary dropdown-toggle" type="button" id="actionDropDown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tabindex="@(index+3)">
                    Action
                  </button>
                  <div class="dropdown-menu" aria-labelledby="actionDropDown">
@@ -135,38 +135,6 @@
         </div>
     </div>
 
-
-@* <!--Import Modal -->
-<div class="modal fade" id="import-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">File Upload</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form method="post" id="uploadForm" asp-controller="Rent" asp-action="SingleFileUpload" enctype="multipart/form-data">
-                    <dl>
-                        <dt>
-                            <label for="formFile" class="form-label">Please Upload File ( .csv, .xlsx )</label>
-                        </dt>
-                        <dd>
-                            <input class="form-control" type="file" name="SingleFile" id="formFile" accept=".xlsx,.csv">
-                            <div asp-validation-summary="All" class="text-danger err-msg"></div>
-                        </dd>
-                    </dl>
-                    <div class="text-start">
-                        <input name="Upload" class="btn btn-primary" type="submit" value="Upload" />
-                        <button type="button"  class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
- *@
 <!--Export Modal -->
 <div class="modal fade" id="export-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -267,10 +235,10 @@
                         data: { id: deleteId },
                         success: function (result) {
                             console.log("result", result)
-                            if(result.status == 1){
+                            if(result.responseType == 1){
                                 Swal.fire({
                                     title: "Deleted!",
-                                    text: "Your record has been deleted.",
+                                    text: result.responseMessage,
                                     icon: "success"
                                 }).then(() => {
                                     location.reload(); 
@@ -278,7 +246,7 @@
                             }else{
                                 Swal.fire({
                                     title: "Can't Deleted!",
-                                    text: "Sorry, It can not deleted",
+                                    text: result.responseMessage,
                                     icon: "fail"
                                 }).then(() => {
                                     location.reload();

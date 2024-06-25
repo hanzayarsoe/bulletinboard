@@ -23,7 +23,7 @@ namespace MTM.Web.Controllers
         public ActionResult Index()
         {
             string Id = GetLoginId();
-            UserListViewModel model;
+            UserListViewModel model = _userService.GetList(Id);
             if (TempData["MessageType"] != null)
             {
                 int ResponseType = Convert.ToInt32(TempData["MessageType"]);
@@ -34,7 +34,6 @@ namespace MTM.Web.Controllers
                     ResponseMessage = ResponseMessage
                 });
             }
-            model = _userService.GetList(Id);
             return View(model.UserList);
         }
         #endregion
@@ -174,14 +173,7 @@ namespace MTM.Web.Controllers
         {
             string LoginId = GetLoginId();
             ResponseModel response = _userService.Delete(id, LoginId);
-            if (response.ResponseType == Message.SUCCESS)
-            {
-                return Json(new { status = 1 });
-            }
-            else
-            {
-                return Json(new { status = 0 });
-            }
+            return Json(response);
         }
         #endregion
 

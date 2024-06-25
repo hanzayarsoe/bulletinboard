@@ -9,7 +9,7 @@
 	<form class="row" asp-action="Register" method="post" id="registerFrm">
 		<div class="col-md-12 mt-3">
 			<div class="form-floating">
-				<input asp-for="FirstName" type="text" class="form-control" id="firstName" name="FirstName" placeholder="First Name">
+				<input asp-for="FirstName" type="text" class="form-control" id="firstName" name="FirstName" placeholder="First Name" required tabindex="1">
 				<label asp-for="FirstName" for="firstName">First Name</label>
 			</div>
 			<span asp-validation-for="FirstName" class="text-danger input-err"></span>
@@ -23,14 +23,14 @@
 		</div>
 		<div class="col-md-12 mt-3">
 			<div class="form-floating">
-				<input asp-for="Email" type="email" class="form-control" id="email" name="Email" placeholder="Email">
+				<input asp-for="Email" type="email" class="form-control" id="email" name="Email" placeholder="Email" required tabindex="2">
 				<label asp-for="Email" for="email">Email</label>
 			</div>
 			<span asp-validation-for="Email" class="text-danger input-err"></span>
 		</div>
 		<div class="col-md-12 mt-3">
 			<div class="form-floating">
-				<input asp-for="PasswordHash" type="password" class="form-control" id="password" name="PasswordHash" placeholder="Password">
+				<input asp-for="PasswordHash" type="password" class="form-control" id="password" name="PasswordHash" placeholder="Password" required tabindex="3">
 				<label asp-for="PasswordHash" for=" password">Password</label>
 				<span class="eye-icon" data-toggle="#password">👁️</span>
 			</div>
@@ -38,17 +38,17 @@
 		</div>
 		<div class="col-md-12 mt-3">
 			<div class="form-floating">	
-				<input asp-for="PasswordConfirm" type=" password" class="form-control" id="confirmPassword" name="PasswordConfirm" placeholder="Confirm Password">
+				<input asp-for="PasswordConfirm" type="password" class="form-control" id="confirmPassword" name="PasswordConfirm" placeholder="Confirm Password" required tabindex="4">
 				<label asp-for="PasswordConfirm" for="confirmPassword">Confirm Password</label>
 				<span class="eye-icon" data-toggle="#confirmPassword">👁️</span>
 			</div>
 			<span asp-validation-for="PasswordConfirm" class="text-danger input-err"></span>
 		</div>
 		<div class="text-md-center mx-auto mt-3">
-			<button type="submit" class="btn btn-primary w-100" asp-action="Register" asp-controller="Account">Sign Up</button>
+			<button type="submit" class="btn btn-primary w-100" asp-action="Register" asp-controller="Account" tabindex="5">Sign Up</button>
 		</div>
 		<div class="text-md-center mx-auto mt-2">
-			Already have an account ? <a asp-action="Login" asp-controller="Account" class="text-primary text-decoration-none fw-bolder"> Login </a>
+			Already have an account ? <a asp-action="Login" asp-controller="Account" class="text-primary text-decoration-none fw-bolder" tabindex="6"> Login </a>
 		</div>
 	</form>
 </div>

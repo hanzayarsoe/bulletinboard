@@ -5,24 +5,24 @@
             <form method="post" asp-action="Create" asp-controller="User">
                 <div class="row mb-3">
                     <div class="form-floating col-md-6">
-                        <input asp-for="FirstName" type="text" class="form-control" id="firstName" placeholder="First Name">
+                        <input asp-for="FirstName" type="text" class="form-control" id="firstName" placeholder="First Name" required tabindex="1">
                         <label asp-for="FirstName" >First Name</label>
                 <span asp-validation-for="FirstName" class="text-danger input-err"></span>
                     </div>
                     <div class="form-floating col-md-6">
-                        <input asp-for="LastName" type="text" class="form-control" id="lastName" placeholder="Last Name">
+                <input asp-for="LastName" type="text" class="form-control" id="lastName" placeholder="Last Name" tabindex="2">
                         <label asp-for="LastName" >Last Name</label>
                         <span asp-validation-for="LastName" class="text-danger input-err"></span>
                     </div>
                 </div>
                 <div class="row mb-3">
                     <div class="form-floating col-md-6">
-                        <input asp-for="Email" type="email" class="form-control" id="email" placeholder="Email">
+                <input asp-for="Email" type="email" class="form-control" id="email" placeholder="Email" required tabindex="3">
                         <label asp-for="Email" >Email</label>
                         <span asp-validation-for="Email" class="text-danger input-err"></span>
                     </div>
                     <div class="form-floating col-md-6">
-                        <input asp-for="PhoneNumber" type="number" class="form-control"  id="phoneNumber" placeholder="Phone Number">
+                <input asp-for="PhoneNumber" type="number" class="form-control" id="phoneNumber" placeholder="Phone Number" tabindex="4">
                         <label asp-for="PhoneNumber" >Phone Number</label>  
                         <span asp-validation-for="PhoneNumber" class="text-danger input-err"></span>
                     </div>
@@ -30,7 +30,7 @@
                 <div class="row mb-3">
                      <div class="col-md-6">
                         <div class="form-floating">
-                            <input type="password" class="form-control" id="password" name="PasswordHash" placeholder="Password">
+                    <input type="password" class="form-control" id="password" name="PasswordHash" placeholder="Password" required tabindex="5">
                             <label for="password">Password</label>
                             <span class="eye-icon" data-toggle="#password">👁️</span>
                   
@@ -39,7 +39,7 @@
                      </div>
                      <div class="col-md-6">
                             <div class="form-floating">
-                            <input type="password" class="form-control" id="confirmPassword" name="PasswordConfirm" placeholder="Confirm Password">
+                    <input type="password" class="form-control" id="confirmPassword" name="PasswordConfirm" placeholder="Confirm Password" required tabindex="6">
                             <label for="confirmPassword">Confirm Password</label>
                             <span class="eye-icon" data-toggle="#confirmPassword">👁️</span>
                             </div>
@@ -48,7 +48,7 @@
                 </div>
                 <div class="row mb-3">
                     <div class="form-floating col-md-6">
-                        <select asp-for="Role" class="form-control" id="role">
+                <select asp-for="Role" class="form-control" id="role" required tabindex="7">
                             <option value="">Select Role</option>
                             <option value="1">Admin</option>
                             <option value="2">User</option>
@@ -57,19 +57,19 @@
                         <span asp-validation-for="Role" class="text-danger input-err"></span>
                     </div>
                     <div class="form-floating col-md-6">
-                        <input asp-for="DOB" type="date" class="form-control" id="dob" placeholder="mm/dd/yyyy">
+                <input asp-for="DOB" type="date" class="form-control" id="dob" placeholder="mm/dd/yyyy" tabindex="8">
                         <label asp-for="DOB" >DOB</label>
                         <span asp-validation-for="DOB" class="text-danger input-err"></span>
                     </div>
                 </div>
                 <div class="form-floating mb-3">
-                    <textarea asp-for="Address" class="form-control" id="address" rows="3" placeholder="Address"></textarea>
+            <textarea asp-for="Address" class="form-control" id="address" rows="3" placeholder="Address" tabindex="9"></textarea>
                     <label asp-for="Address">Address</label>
                     <span asp-validation-for="Address" class="text-danger input-err"></span>
                 </div>
                 <div class="text-md-center mb-3">
-                    <button type="button" onclick="location.href='@Url.Action("index","User")'" class="btn btn-outline-danger col-md-2">Cancel</button>
-                    <button type="submit" class="btn btn-outline-success col-md-2">Create</button>
+            <button type="button" onclick="location.href='@Url.Action("index","User")'" class="btn btn-outline-danger col-md-2" tabindex="11">Cancel</button>
+            <button type="submit" class="btn btn-outline-success col-md-2" tabindex="10">Create</button>
                 </div>
             </form>
 </div>
