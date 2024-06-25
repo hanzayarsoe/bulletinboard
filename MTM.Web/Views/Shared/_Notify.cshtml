@@ -1,0 +1,7 @@
+﻿@if (ViewData["AlertMessage"] != null)
+{
+    <div class="alert alert-@ViewData["AlertType"] alert-dismissible fade show" role="alert">
+        @ViewData["AlertMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}

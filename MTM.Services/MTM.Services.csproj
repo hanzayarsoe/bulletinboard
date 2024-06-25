@@ -7,20 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Helper\**" />
+    <EmbeddedResource Remove="Helper\**" />
+    <None Remove="Helper\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="MailKit" Version="4.6.0" />
+    <PackageReference Include="MimeKit" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MTM.CommonLibrary\MTM.CommonLibrary.csproj" />
     <ProjectReference Include="..\MTM.DataAccess\MTM.DataAccess.csproj" />
     <ProjectReference Include="..\MTM.Entities\MTM.Entities.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="IService\" />
-    <Folder Include="Helper\" />
-    <Folder Include="Service\" />
   </ItemGroup>
 
 </Project>

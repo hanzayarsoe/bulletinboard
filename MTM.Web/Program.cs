@@ -1,7 +1,21 @@
+using MTM.Entities.Data;
+using MTM.Services.IOC;
+using EmailService.Configuration;
+using MTM.Services.IService;
+using MTM.Services.Service;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.InjectDependencies(builder.Configuration);
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+
+builder.Services.AddAuthentication("CookieAuth")
+	.AddCookie("CookieAuth", options =>
+	{
+		options.LoginPath = "/Account/Login";
+	});
 
 var app = builder.Build();
 
@@ -10,10 +24,13 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
 }
+
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
