@@ -20,9 +20,9 @@ namespace MTM.Services.Service
         {
             return this._userRepository.Create(this._mapper.Map<User>(model));
         }
-        public UserListViewModel Data()
+        public UserListViewModel GetUserListData()
         {
-            return _userRepository.Data();
+            return _userRepository.GetUserListData();
         }
         public UserListViewModel GetList(string LoginId)
         {
@@ -62,10 +62,6 @@ namespace MTM.Services.Service
         public ResponseModel UpdatePassword(string id, string oldPwd, string newPwd)
         {
             return this._userRepository.UpdatePassword(id, oldPwd, newPwd);
-        }
-        public ResponseModel UploadUser(string filePath)
-        {
-            return this._userRepository.UploadUser(filePath);
         }
     }
 }

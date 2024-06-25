@@ -60,4 +60,7 @@ $(function () {
             }
         });
     });
+    $('#export').on('click',function () {
+        window.location.href = `/User/Export`;
+    });
 });

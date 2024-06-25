@@ -4,7 +4,7 @@ namespace MTM.Services.IService
 {
     public interface IUserService
     {
-        UserListViewModel Data();
+        UserListViewModel GetUserListData();
         UserListViewModel GetList(string LoginId);
         ResponseModel Create(UserViewModel model);
         UserViewModel GetUser(string id);
@@ -15,6 +15,5 @@ namespace MTM.Services.IService
         ResponseModel Register(UserViewModel model);
         ResponseModel Login(string email, string password);
         ResponseModel UpdatePassword(string id, string oldPwd, string newPwd);
-        ResponseModel UploadUser(string filePath);
     }
 }
