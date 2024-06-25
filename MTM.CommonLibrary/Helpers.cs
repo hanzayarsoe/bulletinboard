@@ -30,6 +30,9 @@ namespace MTM.CommonLibrary
 			return passwordRegex.IsMatch(password);
 		}
 
+        #endregion
+
+        #region GetRole
         public static int? GetRoleValue(string roleName)
         {
             switch (roleName?.ToLower())

@@ -53,32 +53,31 @@
         index++;
         }
     </tbody>
-        <!-- Import Modal -->
-        <div class="modal fade" id="import-modal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="importModalLabel">Import User</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form id="uploadForm" method="post" enctype="multipart/form-data">
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="formFile" class="form-label">Please import file here</label>
-                                <input class="form-control" type="file" id="formFile" name="file" accept=".xlsx, .xls">
-                                <div class="form-text text-danger mt-1">* Allowed file types: xlsx, xls.</div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-success">Upload</button>
-                        </div>
-                    </form>
+</table>
+    <!-- Import Modal -->
+    <div class="modal fade" id="import-modal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">Import User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <form id="uploadForm" method="post" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="formFile" class="form-label">Please import file here</label>
+                            <input class="form-control" type="file" id="formFile" name="file" accept=".xlsx, .xls">
+                            <div class="form-text text-danger mt-1">* Allowed file types: xlsx, xls.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Upload</button>
+                    </div>
+                </form>
             </div>
         </div>
-
-</table>
+    </div>
 
     <!--Detail Modal -->
     <div class="modal fade" id="detail-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
