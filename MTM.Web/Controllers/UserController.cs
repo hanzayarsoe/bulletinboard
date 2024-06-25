@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MTM.CommonLibrary;
 using MTM.Entities.Data;
@@ -11,6 +12,7 @@ using System.Security.Claims;
 
 namespace MTM.Web.Controllers
 {
+    [Authorize]
     public class UserController : Controller
     {
         private readonly IUserService _userService;
@@ -26,8 +28,6 @@ namespace MTM.Web.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            string Id = GetLoginId();
-            UserListViewModel model = _userService.GetList(Id);
             if (TempData["MessageType"] != null)
             {
                 int ResponseType = Convert.ToInt32(TempData["MessageType"]);
@@ -38,7 +38,15 @@ namespace MTM.Web.Controllers
                     ResponseMessage = ResponseMessage
                 });
             }
-            return View(model.UserList);
+            return View();
+        }
+
+        public ActionResult GetList()
+        {
+            string Id = GetLoginId();
+            UserListViewModel model = _userService.GetList(Id);
+            return Json(model);
+
         }
         #endregion
 
@@ -330,7 +338,7 @@ namespace MTM.Web.Controllers
                             CreatedUserId = GetLoginId()
                         };
 
-                        var response = _userService.Create(user);
+                        var response = _userService.Register(user);
                         if (response.ResponseType != Message.SUCCESS)
                         {
                             errorMessages.Add($"Error at row {row}: {response.ResponseMessage}");
