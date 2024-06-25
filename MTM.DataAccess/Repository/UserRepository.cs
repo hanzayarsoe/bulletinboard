@@ -8,6 +8,7 @@ using System.Globalization;
 
 namespace MTM.DataAccess.Repository
 {
+
     public class UserRepository : IUserRepository
     {
         #region List
@@ -365,64 +366,63 @@ namespace MTM.DataAccess.Repository
 			}
 			return response;
 		}
-		#endregion
+        #endregion
 
-		#region Login
-		public ResponseModel Login(string email, string password)
+        #region Login
+        public ResponseModel Login(string email, string password)
         {
             ResponseModel response = new ResponseModel();
+            UserViewModel? userData = null;
             try
             {
                 using (var context = new MTMContext())
                 {
-                    var userData = (from user in context.Users
-                                    where user.Email == email 
-                                    select new
-                                    {
-                                        user.Id,
-                                        user.Email,
-                                        user.FirstName,
-                                        user.LastName,
-                                        user.PasswordHash,
-                                        user.IsActive,
-                                        user.IsDeleted,
-                                        user.LoockoutEnabled
-                                    }).FirstOrDefault();
+                    userData = (from user in context.Users
+                                where user.Email == email && !user.IsDeleted
+                                select new UserViewModel
+                                {
+                                    Id = user.Id,
+                                    Email = user.Email,
+                                    FirstName = user.FirstName,
+                                    LastName = user.LastName,
+                                    PasswordHash = user.PasswordHash,
+                                    IsActive = user.IsActive,
+                                    IsDeleted = user.IsDeleted,
+                                    LockoutEnabled = user.LoockoutEnabled
+                                }).FirstOrDefault();
+
                     if (userData != null)
                     {
-                        if(!Helpers.VerifyPassword(password, userData.PasswordHash)){
-							response.ResponseType = Message.FAILURE;
-							response.ResponseMessage = String.Format(Message.INCORRECT, "Email", "Password");
-						}
-                        else if(userData.IsDeleted == true)
+                        if (!Helpers.VerifyPassword(password, userData.PasswordHash))
                         {
                             response.ResponseType = Message.FAILURE;
-                            response.ResponseMessage = String.Format(Message.ACCOUNT_ERROR, "Your Account", "Deleted");
+                            response.ResponseMessage = string.Format(Message.INCORRECT, "Email", "Password");
                         }
-                        else if(userData.IsActive == false)
-                        {
-							response.ResponseType = Message.FAILURE;
-                            response.ResponseMessage = String.Format(Message.ACCOUNT_ERROR, "Your Account", "Deactivated");
-                        }
-                        else if(userData.LoockoutEnabled == true)
+                        else if (!userData.IsActive)
                         {
                             response.ResponseType = Message.FAILURE;
-                            response.ResponseMessage = String.Format(Message.ACCOUNT_ERROR, "Your Account", "Locked");
+                            response.ResponseMessage = string.Format(Message.ACCOUNT_ERROR, "Your Account", "Deactivated");
                         }
-                        else {
-							response.ResponseType = Message.SUCCESS;
-							response.Data = new Dictionary<string, string>
-						    {
-							    { "Id", userData.Id.ToString() },
-							    { "Email", userData.Email },
-                                { "FullName", userData.FirstName + " " + userData.LastName },
-						    };
-						}
+                        else if (userData.LockoutEnabled)
+                        {
+                            response.ResponseType = Message.FAILURE;
+                            response.ResponseMessage = string.Format(Message.ACCOUNT_ERROR, "Your Account", "Locked");
+                        }
+                        else
+                        {
+                            response.ResponseType = Message.SUCCESS;
+                            response.Data = new Dictionary<string, string>
+                            {
+                                { "Id", userData.Id.ToString() },
+                                { "Email", userData.Email },
+                                { "FullName", $"{userData.FirstName} {userData.LastName}" }
+                            };
+                        }
                     }
                     else
                     {
                         response.ResponseType = Message.FAILURE;
-                        response.ResponseMessage = String.Format(Message.INCORRECT, "Email", "Password");
+                        response.ResponseMessage = string.Format(Message.INCORRECT, "Email", "Password");
                     }
                 }
             }
@@ -433,7 +433,6 @@ namespace MTM.DataAccess.Repository
             }
             return response;
         }
-
         #endregion
 
         #region GetIdByEmail
@@ -495,14 +494,13 @@ namespace MTM.DataAccess.Repository
             if (email != null)
             {
                 using var context = new MTMContext();
-                isExist = context.Users.Any(user => user.Email == email);
+                isExist = context.Users.Any(user => user.Email == email && user.IsDeleted == false);
                 return isExist;
             }
 
             return isExist;
         }
         #endregion
-
     }
 }
 
