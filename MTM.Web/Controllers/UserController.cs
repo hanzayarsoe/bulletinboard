@@ -240,7 +240,7 @@ namespace MTM.Web.Controllers
                 var isExist = _userService.CheckEmail(model.Email);
                 ResponseModel response = _userService.GetIdByEmail(model.Email);
                 string? emailId = response.Data != null && response.Data.ContainsKey("Id") ? response.Data["Id"] : null;
-                if ((isExist && currentUserId == emailId) || !isExist)
+                if ((isExist && emailId == model.Id))
                 {
                     ResponseModel updateInfo = _userService.Update(model);
                     AlertMessage(updateInfo);

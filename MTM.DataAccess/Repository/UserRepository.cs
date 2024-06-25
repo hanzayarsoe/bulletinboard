@@ -164,15 +164,9 @@ namespace MTM.DataAccess.Repository
 
                     if (isExist != null)
                     {
-                        if (!string.IsNullOrEmpty(user.UserName))
-                        {
-                            isExist.UserName = user.UserName;
-                            isExist.NormalizedUserName = user.UserName.ToUpper();
-                        }
                         if (!string.IsNullOrEmpty(user.Email))
                         {
                             isExist.Email = user.Email;
-                            isExist.NormalizedEmail = user.Email.ToUpper();
                         }
                         if (!string.IsNullOrEmpty(user.FirstName))
                         {
@@ -185,14 +179,6 @@ namespace MTM.DataAccess.Repository
                         if (!string.IsNullOrEmpty(user.PasswordHash))
                         {
                             isExist.PasswordHash = user.PasswordHash;
-                        }
-                        if (!string.IsNullOrEmpty(user.SecurityStamp))
-                        {
-                            isExist.SecurityStamp = user.SecurityStamp;
-                        }
-                        if (!string.IsNullOrEmpty(user.ConcurrencyStamp))
-                        {
-                            isExist.ConcurrencyStamp = user.ConcurrencyStamp;
                         }
                         if (!string.IsNullOrEmpty(user.PhoneNumber))
                         {
@@ -210,15 +196,6 @@ namespace MTM.DataAccess.Repository
                         {
                             isExist.Role = user.Role.Value;
                         }
-
-                        isExist.EmailConfirmed = user.EmailConfirmed;
-                        isExist.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
-                        isExist.TwoFactorEnabled = user.TwoFactorEnabled;
-                        isExist.LockoutEnd = user.LockoutEnd;
-                        isExist.LoockoutEnabled = user.LoockoutEnabled;
-                        isExist.AccessFailedCount = user.AccessFailedCount;
-                        isExist.IsActive = user.IsActive;
-                        isExist.IsDeleted = user.IsDeleted;
                         isExist.UpdatedDate = DateTime.Now;
                         isExist.UpdatedUserId = user.UpdatedUserId;
 
