@@ -5,31 +5,32 @@
             <form method="post" asp-action="Edit" asp-controller="User">
                 <div class="row mb-3">
                     <div class="form-floating col-md-6">
-                        <input asp-for="FirstName" type="text" class="form-control" id="firstName" placeholder="First Name">
+                        <input asp-for="Id" hidden/>
+                        <input asp-for="FirstName" tabindex="1" type="text" class="form-control" id="firstName" placeholder="First Name" required>
                         <label asp-for="FirstName" >First Name</label>
                         <span asp-validation-for="FirstName"></span>
                     </div>
                     <div class="form-floating col-md-6">
-                        <input asp-for="LastName" type="text" class="form-control" id="lastName" placeholder="Last Name">
+                        <input asp-for="LastName" tabindex="2" type="text" class="form-control" id="lastName" placeholder="Last Name">
                         <label asp-for="LastName" >Last Name</label>
                         <span asp-validation-for="LastName" class="text-danger input-err"></span>
                     </div>
                 </div>
                 <div class="row mb-3">
                     <div class="form-floating col-md-6">
-                        <input asp-for="Email" type="email" class="form-control" id="email" placeholder="Email">
+                        <input asp-for="Email" tabindex="3" type="email" class="form-control" id="email" placeholder="Email" required>
                         <label asp-for="Email" >Email</label>
                         <span asp-validation-for="Email" class="text-danger input-err"></span>
                     </div>
                     <div class="form-floating col-md-6">
-                        <input asp-for="PhoneNumber" type="text" class="form-control" id="phoneNumber" placeholder="Phone Number">
+                        <input asp-for="PhoneNumber" tabindex="4" type="number" class="form-control" id="phoneNumber" placeholder="Phone Number">
                         <label asp-for="PhoneNumber" >Phone Number</label>
                         <span asp-validation-for="PhoneNumber" class="text-danger input-err"></span>
                     </div>
                 </div>
                 <div class="row mb-3">
                     <div class="form-floating col-md-6">
-                        <select asp-for="Role" class="form-control" id="role">
+                <select asp-for="Role" tabindex="5" class="form-control" id="role">
                             <option value="">Select Role</option>
                             <option value="1">Admin</option>
                             <option value="2">User</option>
@@ -38,19 +39,19 @@
                         <span asp-validation-for="Role" class="text-danger input-err"></span>
                     </div>
                     <div class="form-floating col-md-6">
-                        <input asp-for="DOB" type="date" class="form-control" id="dob" placeholder="mm/dd/yyyy">
+                        <input asp-for="DOB" tabindex="6" type="date" class="form-control" id="dob" placeholder="mm/dd/yyyy">
                         <label asp-for="DOB" >DOB</label>
                         <span asp-validation-for="DOB" class="text-danger input-err"></span>
                     </div>
                 </div>
                 <div class="form-floating mb-3">
-                    <textarea asp-for="Address" class="form-control" id="address" rows="3" placeholder="Address"></textarea>
+                    <textarea asp-for="Address" tabindex="7" class="form-control" id="address" rows="3" placeholder="Address"></textarea>
                     <label asp-for="Address">Address</label>
                     <span asp-validation-for="Address" class="text-danger input-err"></span>
                 </div>
                 <div class="text-md-center mb-3">
-                    <button type="button" onclick="location.href='@Url.Action("index","User")'" class="btn btn-outline-danger col-md-2">Cancel</button>
-                    <button type="submit" class="btn btn-outline-success col-md-2">Edit</button>
+                    <button type="button" tabindex="8" onclick="location.href='@Url.Action("index","User")'" class="btn btn-outline-danger col-md-2">Cancel</button>
+                    <button type="submit" tabindex="9" class="btn btn-outline-success col-md-2">Update</button>
                 </div>
             </form>
 </div>

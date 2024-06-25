@@ -61,7 +61,6 @@ namespace MTM.Web.Controllers
                     AlertMessage(response);
                 }
 			}
-
 			return View();
 
 		}
@@ -139,7 +138,7 @@ namespace MTM.Web.Controllers
                     }
                     else
                     {
-						AlertMessage(new ResponseModel { ResponseType = Message.FAILURE, ResponseMessage = string.Format(Message.NOT_EXIST,email) });
+						AlertMessage(idResponse);
                     }
                 }
                 else
@@ -164,7 +163,7 @@ namespace MTM.Web.Controllers
         }
         #endregion
 
-        #region Create
+        #region Register
         [HttpGet]
 		public IActionResult Register()
 		{
@@ -197,7 +196,7 @@ namespace MTM.Web.Controllers
                     return View(model);
                 }
 				model.Id = Guid.NewGuid().ToString();
-				model.CreatedUserId = Guid.NewGuid().ToString();
+				model.CreatedUserId = model.Id;
 				model.CreatedDate = DateTime.Now;
 				ResponseModel response = _userService.Register(model);
 				if(response.ResponseType == Message.SUCCESS)

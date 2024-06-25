@@ -1,12 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MTM.CommonLibrary;
+using MTM.Entities.Data;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
+using OfficeOpenXml;
 using System.Diagnostics;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace MTM.Web.Controllers
 {
+    [Authorize]
     public class UserController : Controller
     {
         private readonly IUserService _userService;
@@ -22,10 +28,25 @@ namespace MTM.Web.Controllers
         [HttpGet]
         public ActionResult Index()
         {
+            if (TempData["MessageType"] != null)
+            {
+                int ResponseType = Convert.ToInt32(TempData["MessageType"]);
+                string ResponseMessage = Convert.ToString(TempData["Message"]) ?? string.Empty;
+                AlertMessage(new ResponseModel
+                {
+                    ResponseType = ResponseType,
+                    ResponseMessage = ResponseMessage
+                });
+            }
+            return View();
+        }
+
+        public ActionResult GetList()
+        {
             string Id = GetLoginId();
-            UserListViewModel model;
-            model = _userService.GetList(Id);
-            return View(model.UserList);
+            UserListViewModel model = _userService.GetList(Id);
+            return Json(model);
+
         }
         #endregion
 
@@ -45,8 +66,23 @@ namespace MTM.Web.Controllers
             {
                 model.Id = GetLoginId();
                 model.UpdatedUserId = model.Id;
-                ResponseModel response = _userService.Update(model);
-                AlertMessage(response);
+                var isExist = _userService.CheckEmail(model.Email);
+                ResponseModel response = _userService.GetIdByEmail(model.Email);
+                string? emailId = response.Data != null && response.Data.ContainsKey("Id") ? response.Data["Id"] : null;
+                if ((isExist && model.Id == emailId) || !isExist)
+                {
+                    ResponseModel updateInfo = _userService.Update(model);
+                    AlertMessage(updateInfo);
+                }
+                else
+                {
+                    AlertMessage(new ResponseModel
+                    {
+                        ResponseType = Message.FAILURE,
+                        ResponseMessage = Message.EMAIL_FAIL
+                    });
+                    return View(model);
+                }
             }
 
             return View(model);
@@ -149,6 +185,8 @@ namespace MTM.Web.Controllers
                 AlertMessage(response);
                 if(response.ResponseType == Message.SUCCESS)
                 {
+                    TempData["MessageType"] = Message.SUCCESS;
+                    TempData["Message"] = string.Format(Message.SAVE_SUCCESS, "User", "Created");
                     return RedirectToAction("Index");
                 }
               
@@ -157,20 +195,12 @@ namespace MTM.Web.Controllers
         }
         #endregion
 
-
         #region Delete
         public IActionResult Delete(string id)
         {
             string LoginId = GetLoginId();
             ResponseModel response = _userService.Delete(id, LoginId);
-            if (response.ResponseType == Message.SUCCESS)
-            {
-                return Json(new { status = 1 });
-            }
-            else
-            {
-                return Json(new { status = 0 });
-            }
+            return Json(response);
         }
         #endregion
 
@@ -205,40 +235,57 @@ namespace MTM.Web.Controllers
             }
             if (ModelState.IsValid)
             {
-                model.UpdatedUserId = GetLoginId();
-                ResponseModel response = _userService.Update(model);
-                AlertMessage(response);
+                var currentUserId = GetLoginId();
+                model.UpdatedUserId = currentUserId;
+                var isExist = _userService.CheckEmail(model.Email);
+                ResponseModel response = _userService.GetIdByEmail(model.Email);
+                string? emailId = response.Data != null && response.Data.ContainsKey("Id") ? response.Data["Id"] : null;
+                if ((isExist && emailId == model.Id))
+                {
+                    ResponseModel updateInfo = _userService.Update(model);
+                    AlertMessage(updateInfo);
+                    return RedirectToAction("Index", "User");
+                }
+                else
+                {
+                    AlertMessage(new ResponseModel
+                    {
+                        ResponseType = Message.FAILURE,
+                        ResponseMessage = Message.EMAIL_FAIL
+                    });
+                    return View(model);
+                }
+                
             }
             return View(model);
         }
         #endregion
 
-        #region
+        #region Upload
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Upload(IFormFile file)
         {
+            var errorMessages = new List<string>();
+
             if (file == null || file.Length == 0)
             {
-                return Json(new { success = false, message = "File is not Selected" });
+                return Json(new { success = false, message = "File is not selected" });
             }
 
             var fileExtension = Path.GetExtension(file.FileName);
-
             if (fileExtension != ".csv" && fileExtension != ".xlsx")
             {
-                return Json(new { success = false, message = "Invalid File Format" });
+                return Json(new { success = false, message = "Invalid file format" });
             }
 
             var uploads = Path.Combine(_env.WebRootPath, "Uploads");
-
             if (!Directory.Exists(uploads))
             {
                 Directory.CreateDirectory(uploads);
             }
 
             var filePath = Path.Combine(uploads, file.FileName);
-
             if (System.IO.File.Exists(filePath))
             {
                 filePath = GetUniqueFileName(filePath, uploads);
@@ -249,16 +296,101 @@ namespace MTM.Web.Controllers
                 file.CopyTo(fileStream);
             }
 
-            ResponseModel response = _userService.UploadUser(filePath);
-            if (response.ResponseType == Message.SUCCESS)
+            try
             {
-                return Json(new { success = true, message = response.ResponseMessage });
+                using (var package = new ExcelPackage(new FileInfo(filePath)))
+                {
+                    var worksheet = package.Workbook.Worksheets.FirstOrDefault();
+                    if (worksheet == null)
+                    {
+                        return Json(new { success = false, message = "Worksheet not found or the Excel file is empty." });
+                    }
+
+                    int rowCount = worksheet.Dimension?.Rows ?? 0;
+                    if (rowCount < 2)
+                    {
+                        return Json(new { success = false, message = "The Excel file does not contain any data." });
+                    }
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        var firstName = worksheet.Cells[row, 1].Text;
+                        var lastName = worksheet.Cells[row, 2].Text;
+                        var email = worksheet.Cells[row, 3].Text;
+                        var phone = worksheet.Cells[row, 4].Text;
+                        var password = worksheet.Cells[row, 5].Text;
+                        var confirmPassword = worksheet.Cells[row, 6].Text;
+                        var roleName = worksheet.Cells[row, 7].Text;
+                        var dobString = worksheet.Cells[row, 8].Text;
+                        var address = worksheet.Cells[row, 9].Text;
+
+                        if (string.IsNullOrEmpty(firstName))
+                        {
+                            errorMessages.Add($"First Name is required at row {row}");
+                            continue;
+                        }
+
+                        var isEmailExist = _userService.CheckEmail(email);
+                        if (isEmailExist)
+                        {
+                            errorMessages.Add($"Email {email} already exists at row {row}");
+                            continue;
+                        }
+
+                        if (password != confirmPassword)
+                        {
+                            errorMessages.Add($"Password and Confirm Password do not match at row {row}");
+                            continue;
+                        }
+
+                        DateTime? dob = null;
+                        if (!string.IsNullOrEmpty(dobString))
+                        {
+                            if (!DateTime.TryParseExact(dobString, "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDob))
+                            {
+                                errorMessages.Add($"Invalid date of birth format at row {row}. Use d/M/yyyy format.");
+                                continue;
+                            }
+                            dob = parsedDob;
+                        }
+
+                        int? role = Helpers.GetRoleValue(roleName);
+                        var user = new UserViewModel
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            FirstName = firstName,
+                            LastName = lastName,
+                            Email = email,
+                            PhoneNumber = phone,
+                            PasswordHash = Helpers.HashPassword(password),
+                            Role = role,
+                            DOB = dob,
+                            Address = address,
+                            CreatedDate = DateTime.Now,
+                            CreatedUserId = GetLoginId()
+                        };
+
+                        var response = _userService.Register(user);
+                        if (response.ResponseType != Message.SUCCESS)
+                        {
+                            errorMessages.Add($"Error at row {row}: {response.ResponseMessage}");
+                        }
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return Json(new { success = false, message = response.ResponseMessage });
+                return Json(new { success = false, message = $"An error occurred while processing the file. Details: {ex.Message}" });
             }
+
+            if (errorMessages.Any())
+            {
+                return Json(new { success = false, message = string.Join("; ", errorMessages) });
+            }
+
+            return Json(new { success = true, message = "All users have been created successfully." });
         }
+
 
         private string GetUniqueFileName(string filePath, string uploads)
         {
@@ -276,6 +408,47 @@ namespace MTM.Web.Controllers
             return newFullPath;
         }
 
+        #endregion
+
+        #region Export
+        public IActionResult Export()
+        {
+            var users = _userService.GetUserListData().UserList;
+            var stream = new MemoryStream();
+
+            using (var package = new ExcelPackage(stream))
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Users");
+
+                var headers = new string[]
+                {
+                "First Name", "Last Name", "Email", "Phone Number", "Address", "Created Date"
+                };
+
+                for (int col = 1; col <= headers.Length; col++)
+                {
+                    worksheet.Cells[1, col].Value = headers[col - 1];
+                }
+
+                int row = 2;
+                foreach (var user in users)
+                {
+                    worksheet.Cells[row, 1].Value = user.FirstName;
+                    worksheet.Cells[row, 2].Value = user.LastName;
+                    worksheet.Cells[row, 3].Value = user.Email;
+                    worksheet.Cells[row, 4].Value = user.PhoneNumber;
+                    worksheet.Cells[row, 5].Value = user.Address;
+                    worksheet.Cells[row, 6].Value = user.CreatedDate.ToString("yyyy-MM-dd");
+
+                    row++;
+                }
+
+                package.Save();
+            }
+            stream.Position = 0;
+            var mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            return File(stream, mimeType);
+        }
         #endregion
 
         #region Common

@@ -1,19 +1,16 @@
-﻿@model IEnumerable<MTM.Entities.DTO.UserViewModel>;
-
+﻿
 @{
     ViewData["Title"] = "User List";
-    int index = 1;
 }
-
 <div class="container">
     <h2>User List</h2>
     <partial name="_Notify" />
     <div class="btn-container">
-        <a class="btn btn-primary" asp-action="Create" asp-controller="User" > Create New User </a>
-        <button  class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal"> Import </button>
-        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#export-modal">Export</button>
+        <a class="btn btn-primary" asp-action="Create" asp-controller="User" tabindex="1" > Create New User </a>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
+        <button class="btn btn-secondary" id="export" data-bs-toggle="modal" tabindex="3">Export</button>
     </div>
-    <table class="table table-striped" id="userTable">
+    <table class="table table-striped no-wrap datatable" style="width:100%" id="userTable">
     <thead>
         <tr class="tbl-cell-center">
             <th>No</th>
@@ -25,60 +22,33 @@
             <th>Actions</th>
         </tr>
     </thead>
-    <tbody>
-     @foreach (var item in Model)
-        {
-        <tr class="tbl-cell-center">
-            <td>@index</td>
-            <td>@item.FullName</td>
-            <td>@item.Email</td>
-            <td>
-                <span class="badge @(item.Role == 1 ? "bg-primary" : "bg-success")">@item.RoleName</span>
-            </td>
-            <td class="dayjs" data-type="dmy" data-datetime="@item.CreatedDate">@item.CreatedDate</td>
-            <td>@item.CreatedFullName</td>
-            <td>
-               <div class="dropdown">
-                 <button class="btn btn-secondary dropdown-toggle" type="button" id="actionDropDown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                   Action
-                 </button>
-                 <div class="dropdown-menu" aria-labelledby="actionDropDown">
-                   <button class="dropdown-item text-success view-detail" data-id="@item.Id">View</button>
-                   <a class="dropdown-item text-primary" asp-action="Edit" asp-route-id="@item.Id" asp-controller="User">Edit</a>
-                   <button class="dropdown-item text-danger btn-delete" data-id="@item.Id">Delete</button>
-                 </div>
+        <tbody class="tbl-cell-center"></tbody>
+</table>
+    <!-- Import Modal -->
+    <div class="modal fade" id="import-modal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">Import User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            </td>
-        </tr>
-        index++;
-        }
-    </tbody>
-        <!-- Import Modal -->
-        <div class="modal fade" id="import-modal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="importModalLabel">Import User</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <form id="uploadForm" method="post" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="formFile" class="form-label">Please import file here</label>
+                            <input class="form-control" type="file" id="formFile" name="file" accept=".xlsx, .xls">
+                            <div class="form-text text-danger mt-1">* Allowed file types: xlsx, xls.</div>
+                        </div>
                     </div>
-                    <form id="uploadForm" method="post" enctype="multipart/form-data">
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="formFile" class="form-label">Please import file here</label>
-                                <input class="form-control" type="file" id="formFile" name="file" accept=".xlsx, .xls">
-                                <div class="form-text text-danger mt-1">* Allowed file types: xlsx, xls.</div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-success">Upload</button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Upload</button>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
 
-</table>
 
     <!--Detail Modal -->
     <div class="modal fade" id="detail-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -135,38 +105,6 @@
         </div>
     </div>
 
-
-@* <!--Import Modal -->
-<div class="modal fade" id="import-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">File Upload</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form method="post" id="uploadForm" asp-controller="Rent" asp-action="SingleFileUpload" enctype="multipart/form-data">
-                    <dl>
-                        <dt>
-                            <label for="formFile" class="form-label">Please Upload File ( .csv, .xlsx )</label>
-                        </dt>
-                        <dd>
-                            <input class="form-control" type="file" name="SingleFile" id="formFile" accept=".xlsx,.csv">
-                            <div asp-validation-summary="All" class="text-danger err-msg"></div>
-                        </dd>
-                    </dl>
-                    <div class="text-start">
-                        <input name="Upload" class="btn btn-primary" type="submit" value="Upload" />
-                        <button type="button"  class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
- *@
 <!--Export Modal -->
 <div class="modal fade" id="export-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -200,15 +138,75 @@
 @section Scripts {
     <script>
 
-            var dataTable = $('#userTable').dataTable();
-            
-            $(".view-detail").on("click", function(e){
+        $(document).ready(function () {
+            var dataTable = $('#userTable').dataTable({
+                responsive: true,
+                ajax: {
+                    url: '@Url.Action("GetList", "User")',
+                    type: 'GET',
+                    dataSrc: function (json) {
+                        return json.userList || [];
+                    },
+                    error: function (xhr, error, thrown) {
+                        console.error('Error in AJAX request:', error);
+                    }
+                },
+                columns: [
+                    {
+                        data: null,
+                        title: 'No',
+                        render: function (data, type, row, meta) {
+                            return meta.row + 1;
+                        }
+                    },
+                    { 
+                        data: 'fullName' 
+                    },
+                    { 
+                        data: 'email' 
+                    },
+                    {
+                        data: 'roleName', 
+                        render: function (data, type, row) {
+                            return '<span class="badge ' + (row.role == 1 ? 'bg-primary' : 'bg-success') + '">' + data + '</span>';
+                        }
+                    },
+                    {
+                        data: 'createdDate', 
+                        render: function (data) {
+                            return dayjs(data).format('DD-MM-YYYY');
+                        }
+                    },
+                    { 
+                        data: 'createdFullName' 
+                    },
+                    {
+                        data: 'id', 
+                        render: function (data, type, row) {
+                            return `
+                                    <div class="dropdown">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="actionDropDown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                             Action
+                                         </button>
+                                         <div class="dropdown-menu" aria-labelledby="actionDropDown">
+                                             <button class="dropdown-item text-success view-detail" data-id="${data}">View</button>
+                                                  <a class="dropdown-item text-primary" href="/User/Edit/${data}">Edit</a>
+                                             <button class="dropdown-item text-danger btn-delete" data-id="${data}">Delete</button>
+                                         </div>
+                                    </div>
+                             `;
+                        }
+                    }
+                ],
+            });
+
+            $("#userTable").on("click",".view-detail", function (e) {
                 let detailId = $(this).data('id');
 
                 $.ajax({
-                    url: '@Url.Action("UserDetail", "User")', 
+                    url: '@Url.Action("UserDetail", "User")',
                     type: 'GET',
-                    data: { id: detailId }, 
+                    data: { id: detailId },
                     success: function (result) {
                         console.log("Resule ", result)
                         $("#d-full-name").text(result.fullName);
@@ -230,73 +228,75 @@
                         if (result.dob) {
                             $("#d-dob").text(dayjs(result.dob).format('DD-MM-YYYY'));
                         } else {
-                            $("#d-dob").text(''); 
+                            $("#d-dob").text('');
                         }
 
                         $("#d-address").text(result.address);
+
                         $("#d-created-date").data('datetime', result.createdDate);
+                        $("#d-created-date").text(dayjs(result.createdDate).format('DD-MM-YYYY'));
+
                         $("#d-created-by").text(result.createdFullName);
-                        $('#detail-modal').modal('show'); 
+                        $('#detail-modal').modal('show');
                     },
                     error: function (err) {
                         console.error('Error fetching user details:', err);
                     }
                 });
-
             })
 
-        $(".btn-delete").on("click", function (e) {
-            e.preventDefault();
-            let deleteId = $(this).data('id');
+            $("#userTable").on("click",".btn-delete", function (e) {
+                e.preventDefault();
+                let deleteId = $(this).data('id');
 
-            Swal.fire({
-                title: "Are you sure?",
-                text: "You won't be able to recover this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, delete it!"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: '@Url.Action("Delete", "User")',
-                        type: 'GET',
-                        data: { id: deleteId },
-                        success: function (result) {
-                            console.log("result", result)
-                            if(result.status == 1){
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to recover this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, delete it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '@Url.Action("Delete", "User")',
+                            type: 'GET',
+                            data: { id: deleteId },
+                            success: function (result) {
+                                console.log("result", result)
+                                if (result.responseType == 1) {
+                                    Swal.fire({
+                                        title: "Deleted!",
+                                        text: result.responseMessage,
+                                        icon: "success"
+                                    }).then(() => {
+                                        dataTable.api().ajax.reload(null, false);
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: "Can't Deleted!",
+                                        text: result.responseMessage,
+                                        icon: "fail"
+                                    }).then(() => {
+                                        dataTable.api().ajax.reload(null,false);
+                                    });
+                                }
+                            },
+                            error: function (err) {
+                                console.error('Error deleting user:', err);
                                 Swal.fire({
-                                    title: "Deleted!",
-                                    text: "Your record has been deleted.",
-                                    icon: "success"
-                                }).then(() => {
-                                    location.reload(); 
-                                });
-                            }else{
-                                Swal.fire({
-                                    title: "Can't Deleted!",
-                                    text: "Sorry, It can not deleted",
-                                    icon: "fail"
-                                }).then(() => {
-                                    location.reload();
+                                    title: "Error!",
+                                    text: "An error occurred while deleting.",
+                                    icon: "error"
                                 });
                             }
-                          
-                        },
-                        error: function (err) {
-                            console.error('Error deleting user:', err);
-                            Swal.fire({
-                                title: "Error!",
-                                text: "An error occurred while deleting.",
-                                icon: "error"
-                            });
-                        }
-                    });
-                }
+                        });
+                    }
+                });
             });
-        });
 
+        });
 
     </script>
 }

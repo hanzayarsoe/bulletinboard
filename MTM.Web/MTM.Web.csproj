@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,7 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\NewFolder\**" />
+    <Content Remove="wwwroot\NewFolder\**" />
+    <EmbeddedResource Remove="wwwroot\NewFolder\**" />
+    <None Remove="wwwroot\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
+    <PackageReference Include="EPPlus.Core" Version="1.5.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
   </ItemGroup>
 
@@ -16,13 +24,6 @@
     <ProjectReference Include="..\MTM.DataAccess\MTM.DataAccess.csproj" />
     <ProjectReference Include="..\MTM.Entities\MTM.Entities.csproj" />
     <ProjectReference Include="..\MTM.Services\MTM.Services.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="wwwroot\Uploads\UserFile (1).xlsx" />
-    <_ContentIncludedByDefault Remove="wwwroot\Uploads\UserFile (2).xlsx" />
-    <_ContentIncludedByDefault Remove="wwwroot\Uploads\UserFile (3).xlsx" />
-    <_ContentIncludedByDefault Remove="wwwroot\Uploads\UserFile.xlsx" />
   </ItemGroup>
 
 </Project>

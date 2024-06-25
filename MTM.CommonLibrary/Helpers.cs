@@ -1,6 +1,4 @@
-﻿using System.Net.Http;
-using System.Security.Claims;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 
 namespace MTM.CommonLibrary
@@ -29,6 +27,22 @@ namespace MTM.CommonLibrary
 
 			return passwordRegex.IsMatch(password);
 		}
-		#endregion
-	}
+
+        #endregion
+
+        #region GetRole
+        public static int? GetRoleValue(string roleName)
+        {
+            switch (roleName?.ToLower())
+            {
+                case "admin":
+                    return 1;
+                case "user":
+                    return 2;
+                default:
+                    return null;
+            }
+        }
+        #endregion
+    }
 }

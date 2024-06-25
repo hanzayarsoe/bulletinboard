@@ -5,14 +5,14 @@ using MTM.Entities.DTO;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Globalization;
-using OfficeOpenXml;
 
 namespace MTM.DataAccess.Repository
 {
+
     public class UserRepository : IUserRepository
     {
         #region List
-        public UserListViewModel Data()
+        public UserListViewModel GetUserListData()
         {
            
             UserListViewModel list = new UserListViewModel();
@@ -24,9 +24,11 @@ namespace MTM.DataAccess.Repository
                                      where data.IsActive == true & data.IsDeleted == false 
                                      select new UserViewModel
                                      {
-                                         Id = data.Id,
                                          FirstName = data.FirstName,
-                                         IsActive = data.IsActive ? true : false,
+                                         LastName = data.LastName,
+                                         Email = data.Email,
+                                         PhoneNumber = data.PhoneNumber,
+                                         Address = data.Address,
                                          CreatedDate = data.CreatedDate,
                                      }).ToList();
                 }
@@ -51,7 +53,6 @@ namespace MTM.DataAccess.Repository
                                      on user.CreatedUserId equals createdBy.Id
                                      where user.IsActive == true & user.IsDeleted == false
                                      & user.Id != LoginId
-
                                      select new UserViewModel
                                      {
                                          Id = user.Id,
@@ -139,7 +140,6 @@ namespace MTM.DataAccess.Repository
                                  IsActive = data.IsActive,
                                  CreatedDate = data.CreatedDate,
                                  CreatedFullName = createdBy.FirstName + " " + createdBy.LastName,
-
                              }).First();
                 }
             }
@@ -164,15 +164,9 @@ namespace MTM.DataAccess.Repository
 
                     if (isExist != null)
                     {
-                        if (!string.IsNullOrEmpty(user.UserName))
-                        {
-                            isExist.UserName = user.UserName;
-                            isExist.NormalizedUserName = user.UserName.ToUpper();
-                        }
                         if (!string.IsNullOrEmpty(user.Email))
                         {
                             isExist.Email = user.Email;
-                            isExist.NormalizedEmail = user.Email.ToUpper();
                         }
                         if (!string.IsNullOrEmpty(user.FirstName))
                         {
@@ -185,14 +179,6 @@ namespace MTM.DataAccess.Repository
                         if (!string.IsNullOrEmpty(user.PasswordHash))
                         {
                             isExist.PasswordHash = user.PasswordHash;
-                        }
-                        if (!string.IsNullOrEmpty(user.SecurityStamp))
-                        {
-                            isExist.SecurityStamp = user.SecurityStamp;
-                        }
-                        if (!string.IsNullOrEmpty(user.ConcurrencyStamp))
-                        {
-                            isExist.ConcurrencyStamp = user.ConcurrencyStamp;
                         }
                         if (!string.IsNullOrEmpty(user.PhoneNumber))
                         {
@@ -210,15 +196,6 @@ namespace MTM.DataAccess.Repository
                         {
                             isExist.Role = user.Role.Value;
                         }
-
-                        isExist.EmailConfirmed = user.EmailConfirmed;
-                        isExist.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
-                        isExist.TwoFactorEnabled = user.TwoFactorEnabled;
-                        isExist.LockoutEnd = user.LockoutEnd;
-                        isExist.LoockoutEnabled = user.LoockoutEnabled;
-                        isExist.AccessFailedCount = user.AccessFailedCount;
-                        isExist.IsActive = user.IsActive;
-                        isExist.IsDeleted = user.IsDeleted;
                         isExist.UpdatedDate = DateTime.Now;
                         isExist.UpdatedUserId = user.UpdatedUserId;
 
@@ -261,7 +238,7 @@ namespace MTM.DataAccess.Repository
                     if (!Helpers.VerifyPassword(oldPwd, isExist?.PasswordHash ?? String.Empty))
                     {
                         response.ResponseType = Message.FAILURE;
-                        response.ResponseMessage = "Incorrect Old Password";
+                        response.ResponseMessage = string.Format(Message.INCORRECT_SINGLE, "Old Password");
                         return response;
                     }
 
@@ -285,7 +262,7 @@ namespace MTM.DataAccess.Repository
             {
                 var innerException = ex.InnerException?.Message ?? ex.Message;
                 response.ResponseType = Message.FAILURE;
-                response.ResponseMessage = $"An error occurred while saving the entity changes: {innerException}";
+                response.ResponseMessage = string.Format(Message.FAIL, "Update Password");
             }
             catch (Exception ex)
             {
@@ -366,63 +343,63 @@ namespace MTM.DataAccess.Repository
 			}
 			return response;
 		}
-		#endregion
+        #endregion
 
-		#region Login
-		public ResponseModel Login(string email, string password)
+        #region Login
+        public ResponseModel Login(string email, string password)
         {
             ResponseModel response = new ResponseModel();
+            UserViewModel? userData = null;
             try
             {
                 using (var context = new MTMContext())
                 {
-                    var userData = (from user in context.Users
-                                    where user.Email == email 
-                                    select new
-                                    {
-                                        user.Id,
-                                        user.Email,
-                                        user.FirstName,
-                                        user.LastName,
-                                        user.PasswordHash,
-                                        user.IsActive,
-                                        user.IsDeleted,
-                                        user.LoockoutEnabled
-                                    }).FirstOrDefault();
+                    userData = (from user in context.Users
+                                where user.Email == email && !user.IsDeleted
+                                select new UserViewModel
+                                {
+                                    Id = user.Id,
+                                    Email = user.Email,
+                                    FirstName = user.FirstName,
+                                    LastName = user.LastName,
+                                    PasswordHash = user.PasswordHash,
+                                    IsActive = user.IsActive,
+                                    IsDeleted = user.IsDeleted,
+                                    LockoutEnabled = user.LoockoutEnabled
+                                }).FirstOrDefault();
+
                     if (userData != null)
                     {
-                        if(!Helpers.VerifyPassword(password, userData.PasswordHash)){
-							response.ResponseType = Message.FAILURE;
-							response.ResponseMessage = "Incorrect Email or Password";
-						}
-                        else if(userData.IsDeleted == true)
+                        if (!Helpers.VerifyPassword(password, userData.PasswordHash))
                         {
                             response.ResponseType = Message.FAILURE;
-                            response.ResponseMessage = "Your account was Deleted";
-                        }else if(userData.IsActive == false)
-                        {
-							response.ResponseType = Message.FAILURE;
-							response.ResponseMessage = "Your account was Deactivate";
-						}
-                        else if(userData.LoockoutEnabled == true)
-                        {
-                            response.ResponseType = Message.FAILURE;
-                            response.ResponseMessage = "Your account was Locked";
+                            response.ResponseMessage = string.Format(Message.INCORRECT, "Email", "Password");
                         }
-                        else {
-							response.ResponseType = Message.SUCCESS;
-							response.Data = new Dictionary<string, string>
-						    {
-							    { "Id", userData.Id.ToString() },
-							    { "Email", userData.Email },
-                                { "FullName", userData.FirstName + " " + userData.LastName },
-						    };
-						}
+                        else if (!userData.IsActive)
+                        {
+                            response.ResponseType = Message.FAILURE;
+                            response.ResponseMessage = string.Format(Message.ACCOUNT_ERROR, "Your Account", "Deactivated");
+                        }
+                        else if (userData.LockoutEnabled)
+                        {
+                            response.ResponseType = Message.FAILURE;
+                            response.ResponseMessage = string.Format(Message.ACCOUNT_ERROR, "Your Account", "Locked");
+                        }
+                        else
+                        {
+                            response.ResponseType = Message.SUCCESS;
+                            response.Data = new Dictionary<string, string>
+                            {
+                                { "Id", userData.Id.ToString() },
+                                { "Email", userData.Email },
+                                { "FullName", $"{userData.FirstName} {userData.LastName}" }
+                            };
+                        }
                     }
                     else
                     {
                         response.ResponseType = Message.FAILURE;
-                        response.ResponseMessage = "Incorrect Email or Password";
+                        response.ResponseMessage = string.Format(Message.NOT_EXIST, "Email");
                     }
                 }
             }
@@ -433,7 +410,6 @@ namespace MTM.DataAccess.Repository
             }
             return response;
         }
-
         #endregion
 
         #region GetIdByEmail
@@ -495,114 +471,11 @@ namespace MTM.DataAccess.Repository
             if (email != null)
             {
                 using var context = new MTMContext();
-                isExist = context.Users.Any(user => user.Email == email);
+                isExist = context.Users.Any(user => user.Email == email && user.IsDeleted == false);
                 return isExist;
             }
 
             return isExist;
-        }
-        #endregion
-
-        #region UploadUser
-        public ResponseModel UploadUser(string filePath)
-        {
-            var response = new ResponseModel();
-            var errorMessages = new List<string>();
-
-            using (var context = new MTMContext())
-            {
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                using (var package = new ExcelPackage(new FileInfo(filePath)))
-                {
-                    var worksheet = package.Workbook.Worksheets[0];
-                    int rowCount = worksheet.Dimension.Rows;
-
-                    for (int row = 2; row <= rowCount; row++)
-                    {
-                        var firstName = worksheet.Cells[row, 1].Text;
-                        var lastName = worksheet.Cells[row, 2].Text;
-                        var email = worksheet.Cells[row, 3].Text;
-                        var phone = worksheet.Cells[row, 4].Text;
-                        var password = worksheet.Cells[row, 5].Text;
-                        var confirmPassword = worksheet.Cells[row, 6].Text;
-                        var roleName = worksheet.Cells[row, 7].Text;
-                        // var dobString = worksheet.Cells[row, 8].Text;
-                        var address = worksheet.Cells[row, 9].Text;
-
-                        if (string.IsNullOrEmpty(firstName))
-                        {
-                            errorMessages.Add($"First Name is required at row {row}");
-                            continue;
-                        }
-
-                        if (context.Users.Any(u => u.Email == email))
-                        {
-                            errorMessages.Add($"Email {email} already exists at row {row}");
-                            continue;
-                        }
-
-                        if (password != confirmPassword)
-                        {
-                            errorMessages.Add($"Password and Confirm Password do not match at row {row}");
-                            continue;
-                        }
-
-                        // DateTime? dob = null;
-                        // if (!string.IsNullOrEmpty(dobString))
-                        // {
-                        //     if (!DateTime.TryParseExact(dobString, "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDob))
-                        //     {
-                        //         errorMessages.Add($"Invalid date of birth format at row {row}. Use dd/MM/yyyy format.");
-                        //         continue;
-                        //     }
-                        //     dob = parsedDob;
-                        // }
-
-                        int? role = GetRoleValue(roleName);
-
-                        var newUser = new User
-                        {
-                            Id = Guid.NewGuid().ToString(),
-                            FirstName = firstName,
-                            LastName = lastName,
-                            Email = email,
-                            PhoneNumber = phone,
-                            PasswordHash = Helpers.HashPassword(password),
-                            Role = role,
-                            Address = address
-                        };
-
-                        context.Users.Add(newUser);
-                    }
-
-                    if (errorMessages.Any())
-                    {
-                        response.ResponseType = Message.FAILURE;
-                        response.ResponseMessage = string.Join("; ", errorMessages);
-                    }
-                    else
-                    {
-                        context.SaveChanges();
-                        response.ResponseType = Message.SUCCESS;
-                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "User", "Created");
-                    }
-                }
-            }
-
-            return response;
-        }
-
-        private int? GetRoleValue(string roleName)
-        {
-            switch (roleName?.ToLower())
-            {
-                case "admin":
-                    return 1;
-                case "user":
-                    return 2;
-                default:
-                    return null; // If roleName is not provided or doesn't match, return null
-            }
         }
         #endregion
     }
