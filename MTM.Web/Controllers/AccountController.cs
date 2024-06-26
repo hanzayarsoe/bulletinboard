@@ -236,7 +236,6 @@ namespace MTM.Web.Controllers
 					{
 					new Claim(ClaimTypes.Name, Email),
 					new Claim(ClaimTypes.NameIdentifier, Id),
-					new Claim(ClaimTypes.Role, Role)
 					};
 					var ClaimsIdentity = new ClaimsIdentity(Claims, "CookieAuth");
 					var AuthProperties = new AuthenticationProperties

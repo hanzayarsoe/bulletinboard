@@ -8,7 +8,9 @@ namespace MTM.DataAccess.IRepository
         //PostListViewModel Data();
         //PostViewModel Create(Post post);
         PostViewModel GetPost(string id);
-        //PostViewModel Update(Post post);
+        PostListViewModel GetPostList();
+        ResponseModel Create(Post post);
+        ResponseModel Update(Post post);
         //PostViewModel Delete(string id, string userId);
     }
 }

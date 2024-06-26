@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using MTM.CommonLibrary;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
-using MTM.Services.Service;
-using System.Diagnostics;
 using System.Security.Claims;
 
 namespace MTM.Web.Controllers
@@ -13,12 +11,13 @@ namespace MTM.Web.Controllers
     public class PostController : Controller
     {
         private readonly IPostService _postService;
-         public PostController(IPostService postService)
+        private readonly IUserService _userService;
+         public PostController(IPostService postService, IUserService userService)
         {
             this._postService = postService;
+            this._userService = userService;
         }
         #region Post List
-        [HttpGet]
         public ActionResult Index()
         {
             if (TempData["MessageType"] != null)
@@ -35,17 +34,38 @@ namespace MTM.Web.Controllers
         }
 
         #region GetPostList
+        [HttpGet]
         public IActionResult GetPostList()
         {
-            string id = GetLoginId();
-            PostViewModel model = _postService.GetPost(id);
-            return View(model);
+            PostListViewModel postList = _postService.GetPostList();
+            return Json(postList);
         }
         #endregion
 
-        #region CreatePost
-        public IActionResult CreatePost()
+        #region Create
+        public IActionResult Create()
         {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(PostViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                model.Id = Guid.NewGuid().ToString();
+                model.CreatedUserId = GetLoginId();
+                model.CreatedDate = DateTime.Now;
+                ResponseModel response = _postService.Create(model);
+                AlertMessage(response);
+                if (response.ResponseType == Message.SUCCESS)
+                {
+                    TempData["MessageType"] = Message.SUCCESS;
+                    TempData["Message"] = string.Format(Message.SAVE_SUCCESS, "Post", "Created");
+                    return RedirectToAction("Index");
+                }
+            }
             return View();
         }
         #endregion
@@ -54,15 +74,15 @@ namespace MTM.Web.Controllers
         #region Edit
         public ActionResult Edit(string id)
         {
-            String LoginRole = GetLoginRole();
             String LoginId = GetLoginId();
+            UserViewModel loginUser = _userService.GetUser(LoginId);
             if (id == null)
             {
                 return NotFound();
             }
 
             PostViewModel post = _postService.GetPost(id);
-            if (LoginRole != "admin" || LoginId != post.CreatedUserId )
+            if (loginUser.Role != 1 && LoginId != post.CreatedUserId )
             {
                 TempData["MessageType"] = Message.FAILURE;
                 TempData["Message"] = string.Format(Message.FAIL_AUTHORIZE, "Edit");
@@ -74,19 +94,15 @@ namespace MTM.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(PostViewModel model)
         {
-            if (model == null)
-            {
-                return NotFound();
-            }
-
-            if (!string.IsNullOrEmpty(model.Title))
+            if (ModelState.IsValid)
             {
                 string LoginId = GetLoginId();
-               
-                model.CreatedDate = DateTime.Now;
-                model.CreatedUserId = LoginId;
-               // ResponseModel response = _postService
-                return View(model);
+                model.UpdatedDate = DateTime.Now;
+                model.UpdatedUserId = LoginId;
+                ResponseModel response = _postService.Update(model);
+                TempData["MessageType"] = response.ResponseType;
+                TempData["Message"] = response.ResponseMessage;
+                return RedirectToAction("Index");
             }
             return View(model);
         }
@@ -96,10 +112,6 @@ namespace MTM.Web.Controllers
         public string GetLoginId()
         {
             return HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? String.Empty;
-        }
-        public string GetLoginRole()
-        {
-            return HttpContext.User.FindFirst(ClaimTypes.Role)?.Value ?? String.Empty;
         }
         private void AlertMessage(ResponseModel response)
         {

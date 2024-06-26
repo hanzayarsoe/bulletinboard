@@ -5,7 +5,7 @@
     <h2>Post List</h2>
     <partial name="_Notify" />
     <div class="btn-container">
-        <a class="btn btn-outline-primary" asp-action="CreatePost" asp-controller="Post" tabindex="1"> Create New Post </a>
+        <a class="btn btn-outline-primary" asp-action="Create" asp-controller="Post" tabindex="1"> Create New Post </a>
         <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
         <button class="btn btn-outline-secondary" id="export" data-bs-toggle="modal" tabindex="3">Export</button>
     </div>
@@ -144,6 +144,8 @@
                     url: '@Url.Action("GetPostList", "Post")',
                     type: 'GET',
                     dataSrc: function (json) {
+                        console.log(json);
+                        console.log(json.postList)
                         return json.postList || [];
                     },
                     error: function (xhr, error, thrown) {
@@ -165,9 +167,10 @@
                         data: 'description'
                     },
                     {
-                        data: 'status',
+                        data: 'isPublished',
                         render: function (data, type, row) {
-                            return '<span class="badge ' + (row.status == 1 ? 'bg-primary' : 'bg-success') + '">' + data + '</span>';
+                            console.log(data, type, row);
+                            return '<span class="badge ' + (row.isPublished ? 'bg-primary' : 'bg-success') + '">' + (row.isPublished ? 'published' : 'not published') + '</span>';
                         }
                     },
                     {
