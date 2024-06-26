@@ -70,4 +70,11 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
+.auto-resize-input {
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+    resize: none;
+}
+
 

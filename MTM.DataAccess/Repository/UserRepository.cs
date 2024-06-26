@@ -363,6 +363,7 @@ namespace MTM.DataAccess.Repository
                                     FirstName = user.FirstName,
                                     LastName = user.LastName,
                                     PasswordHash = user.PasswordHash,
+                                    Role = user.Role,
                                     IsActive = user.IsActive,
                                     IsDeleted = user.IsDeleted,
                                     LockoutEnabled = user.LoockoutEnabled
@@ -392,6 +393,7 @@ namespace MTM.DataAccess.Repository
                             {
                                 { "Id", userData.Id.ToString() },
                                 { "Email", userData.Email },
+                                { "Role",  userData.Role == 1 ? "admin" : "user" },
                                 { "FullName", $"{userData.FirstName} {userData.LastName}" }
                             };
                         }

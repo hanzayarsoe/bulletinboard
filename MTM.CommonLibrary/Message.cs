@@ -17,6 +17,7 @@
         #region Message
         public const string SAVE_SUCCESS = "{0} is successfully {1}.";
         public const string FAIL = "{0} is failed";
+        public const string FAIL_AUTHORIZE = "Sorry, You are not authorize for {0}";
         #endregion
 
         #region Account Message

@@ -231,10 +231,12 @@ namespace MTM.Web.Controllers
 				{
 					string Id = response.Data["Id"];
 					string Email = response.Data["Email"];
+					string Role = response.Data["Role"];
 					List<Claim> Claims = new List<Claim>
 					{
 					new Claim(ClaimTypes.Name, Email),
 					new Claim(ClaimTypes.NameIdentifier, Id),
+					new Claim(ClaimTypes.Role, Role)
 					};
 					var ClaimsIdentity = new ClaimsIdentity(Claims, "CookieAuth");
 					var AuthProperties = new AuthenticationProperties

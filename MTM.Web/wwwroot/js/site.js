@@ -35,6 +35,11 @@ function showAlert(type, message, callback) {
         }
     });
 }
+// auto resize input box and text area 
+$('.auto-resize-input').on("input",function () {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+})
 
 $(function () {
     $('#uploadForm').on('submit', function (event) {
