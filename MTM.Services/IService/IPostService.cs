@@ -7,7 +7,7 @@ namespace MTM.Services.IService
         //PostListViewModel Data();
         //PostViewModel Create(PostViewModel model);
         PostViewModel GetPost(string id);
-        //PostViewModel Update(PostViewModel category);
+        ResponseModel Update(PostViewModel post);
         //PostViewModel Delete(string id, string userId);
     }
 }

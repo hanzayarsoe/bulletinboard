@@ -1,6 +1,9 @@
 ﻿using MTM.DataAccess.IRepository;
 using MTM.Entities.DTO;
 using MTM.Entities.Data;
+using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using MTM.CommonLibrary;
 
 namespace MTM.DataAccess.Repository
 {
@@ -36,6 +39,48 @@ namespace MTM.DataAccess.Repository
                 Console.WriteLine(ex.Message);
             }
             return model;
+        }
+        #endregion
+        #region Update
+        public ResponseModel Update(Post post)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var context = new MTMContext())
+                {
+                    Post? isExist = context.Posts.FirstOrDefault(p => p.Id == post.Id);
+                    if(isExist != null)
+                    {
+                        isExist.Title = post.Title;
+                        isExist.Description = post.Description;
+                        isExist.IsPublished = post.IsPublished;
+                        isExist.UpdatedDate = post.UpdatedDate;
+                        isExist.UpdatedUserId = post.UpdatedUserId;
+                        context.SaveChanges();
+                        response.ResponseType = Message.SUCCESS;
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "Post", "updated");
+                    }
+                    else
+                    {
+                        response.ResponseType = Message.FAILURE;
+                        response.ResponseMessage = string.Format(Message.NOT_EXIST, "your info");
+                    }
+                       
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                var innerException = ex.InnerException?.Message ?? ex.Message;
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = $"An error occurred while saving the entity changes: {innerException}";
+            }
+            catch (Exception ex)
+            {
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = ex.Message;
+            }
+            return response;
         }
         #endregion
     }

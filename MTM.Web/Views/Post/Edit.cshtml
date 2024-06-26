@@ -11,12 +11,12 @@
              <span asp-validation-for="Title" class="text-danger input-err"></span>
         </div>
         <div class="form-floating mb-3">
-            <textarea asp-for="Description" class="form-control auto-resize-input" id="description" placeholder="Description" rows="0" tabindex="2"> </textarea>
+            <textarea asp-for="Description" class="form-control auto-resize-input" id="description" placeholder="Description" required rows="0" tabindex="2"> </textarea>
              <label asp-for="Description">Description</label>
              <span asp-validation-for="Description" class="text-danger input-err"></span>
         </div>
         <div class="form-check form-switch mb-3">
-            <input class="form-check-input" type="checkbox" role="switch" id="is-publish" name="IsPublished" checked="true">
+            <input asp-for="IsPublished" class="form-check-input" type="checkbox" role="switch" id="is-publish" name="IsPublished" checked="@Model.IsPublished">
             <label class="form-check-label" for="is-publish">Published?</label>
         </div>
         <div class="text-md-center">
