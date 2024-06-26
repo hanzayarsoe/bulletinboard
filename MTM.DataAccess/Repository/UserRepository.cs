@@ -421,7 +421,7 @@ namespace MTM.DataAccess.Repository
                 using var context = new MTMContext();
 
                 var emailExist = context.Users
-                    .Where(user => user.Email == email)
+                    .Where(user => user.Email == email && user.IsDeleted == false)
                     .Select(user => new
                     {
                         user.Id,
