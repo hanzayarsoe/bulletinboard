@@ -12,7 +12,7 @@
     <table class="table table-striped no-wrap datatable" style="width:100%" id="postTable">
         <thead>
             <tr>
-                <th>No</th>
+                <th class="text-center">No</th>
                 <th>Title</th>
                 <th>Description</th>
                 <th>Status</th>
@@ -76,6 +76,7 @@
                                 <span id="d-status" class="badge"></span>
                             </td>
                         </tr>
+                        <tr>
                             <th>Created Date</th>
                             <td id="d-created-date" class="dayjs" data-type="dmy" data-datetime=""></td>
                         </tr>
@@ -97,7 +98,7 @@
     <script>
 
         $(document).ready(function () {
-            var dataTable = $('#postTable').dataTable({
+            let dataTable = $('#postTable').dataTable({
                 responsive: true,
                 ajax: {
                     url: '@Url.Action("GetPostList", "Post")',

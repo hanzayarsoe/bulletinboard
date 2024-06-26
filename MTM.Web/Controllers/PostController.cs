@@ -20,6 +20,7 @@ namespace MTM.Web.Controllers
             this._userService = userService;
             this._env = env; 
         }
+        
         #region Post List
         public ActionResult Index()
         {
@@ -104,6 +105,7 @@ namespace MTM.Web.Controllers
         #endregion
 
         #endregion
+        
         #region Edit
         public ActionResult Edit(string id)
         {
@@ -279,9 +281,7 @@ namespace MTM.Web.Controllers
             return File(stream, mimeType);
         }
         #endregion
-
-
-
+        
         #region Common
         public string GetLoginId()
         {
