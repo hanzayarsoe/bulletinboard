@@ -9,7 +9,7 @@
         <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
         <button class="btn btn-outline-secondary" id="export" data-bs-toggle="modal" tabindex="3">Export</button>
     </div>
-    <table class="table table-striped no-wrap datatable" style="width:100%" id="userPostTable">
+    <table class="table table-striped no-wrap datatable" style="width:100%" id="postTable">
         <thead>
             <tr class="tbl-cell-center">
                 <th>No</th>
@@ -54,7 +54,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">User Detail</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Post Detail</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -62,32 +62,19 @@
                 <div class="modal-body">
                     <table class="table">
                         <tr>
-                            <th>Full Name</th>
-                            <td id="d-full-name"></td>
+                            <th>Title</th>
+                            <td id="d-title"></td>
                         </tr>
                         <tr>
-                            <th>Role</th>
+                            <th>Description</th>
+                            <td id="d-description"></td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
                             <td>
-                                <span id="d-role" class="badge"></span>
+                                <span id="d-status" class="badge"></span>
                             </td>
                         </tr>
-                        <tr>
-                            <th>Email</th>
-                            <td id="d-email"></td>
-                        </tr>
-                        <tr>
-                            <th>Phone</th>
-                            <td id="d-phone"></td>
-                        </tr>
-                        <tr>
-                            <th>Date Of Birth</th>
-                            <td id="d-dob" class="dayjs" data-type="dmy" data-datetime=""></td>
-                        </tr>
-                        <tr>
-                            <th>Address</th>
-                            <td id="d-address"></td>
-                        </tr>
-                        <tr>
                             <th>Created Date</th>
                             <td id="d-created-date" class="dayjs" data-type="dmy" data-datetime=""></td>
                         </tr>
@@ -138,7 +125,7 @@
     <script>
 
         $(document).ready(function () {
-            var dataTable = $('#userPostTable').dataTable({
+            var dataTable = $('#postTable').dataTable({
                 responsive: true,
                 ajax: {
                     url: '@Url.Action("GetPostList", "Post")',
@@ -170,7 +157,7 @@
                         data: 'isPublished',
                         render: function (data, type, row) {
                             console.log(data, type, row);
-                            return '<span class="badge ' + (row.isPublished ? 'bg-primary' : 'bg-success') + '">' + (row.isPublished ? 'published' : 'not published') + '</span>';
+                            return '<span class="badge ' + (row.isPublished ? 'bg-primary' : 'bg-success') + '">' + (row.isPublished ? 'Published' : 'Not published') + '</span>';
                         }
                     },
                     {
@@ -202,7 +189,7 @@
                 ],
             });
 
-            $("#userTable").on("click", ".view-detail", function (e) {
+            $("#postTable").on("click", ".view-detail", function (e) {
                 let detailId = $(this).data('id');
 
                 $.ajax({
@@ -210,31 +197,14 @@
                     type: 'GET',
                     data: { id: detailId },
                     success: function (result) {
-                        console.log("Resule ", result)
-                        $("#d-full-name").text(result.fullName);
-                        // role
-                        console.log("result role name----", result.roleName);
-                        if (result.roleName == "admin") {
-                            $("#d-role").removeClass("bg-success");
-                            $("#d-role").addClass("bg-primary");
+                        $("#d-title").text(result.title);
+                        $("#d-description").text(result.description);
+                        // Status
+                        if (result.isPublished) {
+                            $("#d-status").removeClass("bg-success").addClass("bg-primary").text("Published");
                         } else {
-                            $("#d-role").removeClass("bg-primary");
-                            $("#d-role").addClass("bg-success");
+                            $("#d-status").removeClass("bg-primary").addClass("bg-success").text("Not published");
                         }
-                        $("#d-role").text(result.roleName);
-
-                        $("#d-email").text(result.email);
-                        $("#d-phone").text(result.phoneNumber);
-                        // date of birth
-                        $("#d-dob").data('datetime', result.dob);
-                        if (result.dob) {
-                            $("#d-dob").text(dayjs(result.dob).format('DD-MM-YYYY'));
-                        } else {
-                            $("#d-dob").text('');
-                        }
-
-                        $("#d-address").text(result.address);
-
                         $("#d-created-date").data('datetime', result.createdDate);
                         $("#d-created-date").text(dayjs(result.createdDate).format('DD-MM-YYYY'));
 
@@ -247,7 +217,7 @@
                 });
             })
 
-            $("#userTable").on("click", ".btn-delete", function (e) {
+            $("#postTable").on("click", ".btn-delete", function (e) {
                 e.preventDefault();
                 let deleteId = $(this).data('id');
 
