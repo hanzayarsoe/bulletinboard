@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MTM.CommonLibrary;
-using MTM.Entities.Data;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
 using OfficeOpenXml;
-using System.Diagnostics;
 using System.Globalization;
 using System.Security.Claims;
 
@@ -271,13 +268,13 @@ namespace MTM.Web.Controllers
 
             if (file == null || file.Length == 0)
             {
-                return Json(new { success = false, message = "File is not selected" });
+                return Json(new { success = false, message = Message.NOT_SELECTED });
             }
 
             var fileExtension = Path.GetExtension(file.FileName);
             if (fileExtension != ".csv" && fileExtension != ".xlsx")
             {
-                return Json(new { success = false, message = "Invalid file format" });
+                return Json(new { success = false, message = Message.INVALID_FORMAT });
             }
 
             var uploads = Path.Combine(_env.WebRootPath, "Uploads");
@@ -289,7 +286,7 @@ namespace MTM.Web.Controllers
             var filePath = Path.Combine(uploads, file.FileName);
             if (System.IO.File.Exists(filePath))
             {
-                filePath = GetUniqueFileName(filePath, uploads);
+                filePath = Helpers.GetUniqueFileName(filePath, uploads);
             }
 
             using (var fileStream = new FileStream(filePath, FileMode.Create))
@@ -304,13 +301,13 @@ namespace MTM.Web.Controllers
                     var worksheet = package.Workbook.Worksheets.FirstOrDefault();
                     if (worksheet == null)
                     {
-                        return Json(new { success = false, message = "Worksheet not found or the Excel file is empty." });
+                        return Json(new { success = false, message = string.Format(Message.NOT_FOUND,"WorkSheet") });
                     }
 
                     int rowCount = worksheet.Dimension?.Rows ?? 0;
                     if (rowCount < 2)
                     {
-                        return Json(new { success = false, message = "The Excel file does not contain any data." });
+                        return Json(new { success = false, message = string.Format(Message.NOT_FOUND,"No data") });
                     }
 
                     for (int row = 2; row <= rowCount; row++)
@@ -327,20 +324,20 @@ namespace MTM.Web.Controllers
 
                         if (string.IsNullOrEmpty(firstName))
                         {
-                            errorMessages.Add($"Row {row}: First Name is required");
+                            errorMessages.Add(string.Format(Message.REQUIRED_NAME,row));
                             continue;
                         }
 
                         var isEmailExist = _userService.CheckEmail(email);
                         if (isEmailExist)
                         {
-                            errorMessages.Add($"Row {row}: Email {email} already exists");
+                            errorMessages.Add(string.Format(Message.EMAIL_EXIST,row,email));
                             continue;
                         }
 
                         if (password != confirmPassword)
                         {
-                            errorMessages.Add($"Row {row}: Password and Confirm Password do not match");
+                            errorMessages.Add(string.Format(Message.NOT_MATCH,"Row " + row + " your password"));
                             continue;
                         }
 
@@ -349,7 +346,7 @@ namespace MTM.Web.Controllers
                         {
                             if (!DateTime.TryParseExact(dobString, "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDob))
                             {
-                                errorMessages.Add($"Row {row}: Invalid date of birth format. Use d/M/yyyy format.");
+                                errorMessages.Add(string.Format(Message.DATE_ERROR,row));
                                 continue;
                             }
                             dob = parsedDob;
@@ -363,7 +360,7 @@ namespace MTM.Web.Controllers
                             LastName = lastName,
                             Email = email,
                             PhoneNumber = phone,
-                            PasswordHash = Helpers.HashPassword(password),
+                            PasswordHash = password,
                             Role = role,
                             DOB = dob,
                             Address = address,
@@ -377,7 +374,7 @@ namespace MTM.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = $"An error occurred while processing the file. Details: {ex.Message}" });
+                return Json(new { success = false, message = string.Format(Message.ERROR_OCCURED,ex.Message)});
             }
 
             if (errorMessages.Any())
@@ -391,7 +388,7 @@ namespace MTM.Web.Controllers
                 var response = _userService.Register(user);
                 if (response.ResponseType != Message.SUCCESS)
                 {
-                    errorMessages.Add($"Error at row corresponding to {user.Email}: {response.ResponseMessage}");
+                    errorMessages.Add(string.Format(Message.CORRESPONSE_ERROR, user.Email, response.ResponseMessage));
                 }
             }
 
@@ -401,26 +398,8 @@ namespace MTM.Web.Controllers
                 return Json(new { success = false, message = errorMessageHtml, errors = errorMessages });
             }
 
-            return Json(new { success = true, message = "All users have been created successfully." });
+            return Json(new { success = true, message = string.Format(Message.CREATE_SUCCESS,"All users")});
         }
-
-
-        private string GetUniqueFileName(string filePath, string uploads)
-        {
-            int count = 1;
-            string fileNameOnly = Path.GetFileNameWithoutExtension(filePath);
-            string extension = Path.GetExtension(filePath);
-            string newFullPath = filePath;
-
-            while (System.IO.File.Exists(newFullPath))
-            {
-                string tempFileName = $"{fileNameOnly} ({count++})";
-                newFullPath = Path.Combine(uploads, tempFileName + extension);
-            }
-
-            return newFullPath;
-        }
-
         #endregion
 
         #region Export
