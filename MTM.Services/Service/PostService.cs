@@ -31,5 +31,9 @@ namespace MTM.Services.Service
         {
             return this._postRepository.Create(this._mapper.Map<Post>(model));
         }
+        public ResponseModel Delete(string id, string currentUserId)
+        {
+            return this._postRepository.Delete(id,currentUserId);
+        }
     }
 }

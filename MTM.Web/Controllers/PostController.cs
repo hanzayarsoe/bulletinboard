@@ -48,6 +48,36 @@ namespace MTM.Web.Controllers
         }
         #endregion
 
+        #region PostDetail
+        public IActionResult PostDetail(string Id)
+        {
+            PostViewModel post = _postService.GetPost(Id);
+            if (post != null)
+            {
+                return Json(post);
+            }
+            return NotFound();
+        }
+        #endregion
+
+        #region Delete
+        public IActionResult Delete(string id)
+        {
+            var response = new ResponseModel();
+            string currentUserId = GetLoginId();
+            UserViewModel currentUser = _userService.GetUser(currentUserId);
+            PostViewModel post = _postService.GetPost(id);
+            if(currentUser.Role != 1 && currentUserId != post.CreatedUserId)
+            {
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = string.Format(Message.FAIL_AUTHORIZE, "delete");
+                return Json(response);
+            }
+            response = _postService.Delete(id,currentUserId);
+            return Json(response);
+        }
+        #endregion
+
         #region Create
         public IActionResult Create()
         {
@@ -80,7 +110,7 @@ namespace MTM.Web.Controllers
         #region Edit
         public ActionResult Edit(string id)
         {
-            String LoginId = GetLoginId();
+            string LoginId = GetLoginId();
             UserViewModel loginUser = _userService.GetUser(LoginId);
             if (id == null)
             {

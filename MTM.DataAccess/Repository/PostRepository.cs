@@ -54,6 +54,7 @@ namespace MTM.DataAccess.Repository
                     list.PostList = (from post in context.Posts
                                      join createdBy in context.Users
                                      on post.CreatedUserId equals createdBy.Id
+                                     where post.IsDeleted == false
                                      select new PostViewModel
                                      {
                                          Id = post.Id,
@@ -136,6 +137,42 @@ namespace MTM.DataAccess.Repository
             {
                 response.ResponseType = Message.FAILURE;
                 response.ResponseMessage = ex.Message;
+            }
+            return response;
+        }
+        #endregion
+
+        #region Delete
+        public ResponseModel Delete(string id,string currentUserId)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var context = new MTMContext())
+                {
+                    var postModel = context.Posts.FirstOrDefault(c => c.Id == id);
+                    if (postModel == null)
+                    {
+                        response.ResponseType = Message.FAILURE;
+                        response.ResponseMessage = string.Format(Message.NOT_EXIST,"Post");
+                    }
+                    else
+                    {
+                        postModel.IsDeleted = true;
+                        postModel.DeletedUserId = currentUserId;
+                        postModel.DeletedDate = DateTime.Now;
+                        postModel.IsPublished = false;
+                        context.Posts.Update(postModel);
+                        context.SaveChanges();
+                        response.ResponseType = Message.SUCCESS;
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "Post", "Deleted");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = e.Message;
             }
             return response;
         }

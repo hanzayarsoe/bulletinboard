@@ -12,5 +12,6 @@ namespace MTM.DataAccess.IRepository
         ResponseModel Create(Post post);
         ResponseModel Update(Post post);
         //PostViewModel Delete(string id, string userId);
+        ResponseModel Delete(string id,string currentUserId);
     }
 }
