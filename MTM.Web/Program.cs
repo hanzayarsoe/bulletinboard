@@ -1,8 +1,5 @@
-using MTM.Entities.Data;
 using MTM.Services.IOC;
 using EmailService.Configuration;
-using MTM.Services.IService;
-using MTM.Services.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 

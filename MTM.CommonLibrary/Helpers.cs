@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 
-
 namespace MTM.CommonLibrary
 {
     public static class Helpers
