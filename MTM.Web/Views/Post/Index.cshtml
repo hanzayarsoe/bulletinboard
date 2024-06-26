@@ -1,7 +1,303 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Post List";
+}
+<div class="container">
+    <h2>Post List</h2>
+    <partial name="_Notify" />
+    <div class="btn-container">
+        <a class="btn btn-outline-primary" asp-action="CreatePost" asp-controller="Post" tabindex="1"> Create New Post </a>
+        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
+        <button class="btn btn-outline-secondary" id="export" data-bs-toggle="modal" tabindex="3">Export</button>
+    </div>
+    <table class="table table-striped no-wrap datatable" style="width:100%" id="userPostTable">
+        <thead>
+            <tr class="tbl-cell-center">
+                <th>No</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Created By</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody class="tbl-cell-center"></tbody>
+    </table>
+    <!-- Import Modal -->
+    <div class="modal fade" id="import-modal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">Import User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="uploadForm" method="post" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="formFile" class="form-label">Please import file here</label>
+                            <input class="form-control" type="file" id="formFile" name="file" accept=".xlsx, .xls">
+                            <div class="form-text text-danger mt-1">* Allowed file types: xlsx, xls.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!--Detail Modal -->
+    <div class="modal fade" id="detail-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">User Detail</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <tr>
+                            <th>Full Name</th>
+                            <td id="d-full-name"></td>
+                        </tr>
+                        <tr>
+                            <th>Role</th>
+                            <td>
+                                <span id="d-role" class="badge"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td id="d-email"></td>
+                        </tr>
+                        <tr>
+                            <th>Phone</th>
+                            <td id="d-phone"></td>
+                        </tr>
+                        <tr>
+                            <th>Date Of Birth</th>
+                            <td id="d-dob" class="dayjs" data-type="dmy" data-datetime=""></td>
+                        </tr>
+                        <tr>
+                            <th>Address</th>
+                            <td id="d-address"></td>
+                        </tr>
+                        <tr>
+                            <th>Created Date</th>
+                            <td id="d-created-date" class="dayjs" data-type="dmy" data-datetime=""></td>
+                        </tr>
+                        <tr>
+                            <th>Created By</th>
+                            <td id="d-created-by"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Export Modal -->
+    <div class="modal fade" id="export-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Export As</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="importForm">
+                        <select class="form-select" id="select-format">
+                            <option value="csv">Comma Separated Values</option>
+                            <option value="xlsx">Excel Spreadsheet</option>
+                        </select>
+                        <label for="file-name" class="form-label">Save As</label>
+                        <input type="text" name="name" id="file-name" class="form-control" />
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button name="Upload" class="btn btn-primary" id="export-btn" data-bs-dismiss="modal">Export</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+
+        $(document).ready(function () {
+            var dataTable = $('#userPostTable').dataTable({
+                responsive: true,
+                ajax: {
+                    url: '@Url.Action("GetPostList", "Post")',
+                    type: 'GET',
+                    dataSrc: function (json) {
+                        return json.postList || [];
+                    },
+                    error: function (xhr, error, thrown) {
+                        console.error('Error in AJAX request:', error);
+                    }
+                },
+                columns: [
+                    {
+                        data: null,
+                        title: 'No',
+                        render: function (data, type, row, meta) {
+                            return meta.row + 1;
+                        }
+                    },
+                    {
+                        data: 'title'
+                    },
+                    {
+                        data: 'description'
+                    },
+                    {
+                        data: 'status',
+                        render: function (data, type, row) {
+                            return '<span class="badge ' + (row.status == 1 ? 'bg-primary' : 'bg-success') + '">' + data + '</span>';
+                        }
+                    },
+                    {
+                        data: 'createdDate',
+                        render: function (data) {
+                            return dayjs(data).format('DD-MM-YYYY');
+                        }
+                    },
+                    {
+                        data: 'createdFullName'
+                    },
+                    {
+                        data: 'id',
+                        render: function (data, type, row) {
+                            return `
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="actionDropDown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                     Action
+                                                 </button>
+                                                 <div class="dropdown-menu" aria-labelledby="actionDropDown">
+                                                     <button class="dropdown-item text-success view-detail" data-id="${data}">View</button>
+                                                          <a class="dropdown-item text-primary" href="/User/Edit/${data}">Edit</a>
+                                                     <button class="dropdown-item text-danger btn-delete" data-id="${data}">Delete</button>
+                                                 </div>
+                                            </div>
+                                     `;
+                        }
+                    }
+                ],
+            });
+
+            $("#userTable").on("click", ".view-detail", function (e) {
+                let detailId = $(this).data('id');
+
+                $.ajax({
+                    url: '@Url.Action("PostDetail", "Post")',
+                    type: 'GET',
+                    data: { id: detailId },
+                    success: function (result) {
+                        console.log("Resule ", result)
+                        $("#d-full-name").text(result.fullName);
+                        // role
+                        console.log("result role name----", result.roleName);
+                        if (result.roleName == "admin") {
+                            $("#d-role").removeClass("bg-success");
+                            $("#d-role").addClass("bg-primary");
+                        } else {
+                            $("#d-role").removeClass("bg-primary");
+                            $("#d-role").addClass("bg-success");
+                        }
+                        $("#d-role").text(result.roleName);
+
+                        $("#d-email").text(result.email);
+                        $("#d-phone").text(result.phoneNumber);
+                        // date of birth
+                        $("#d-dob").data('datetime', result.dob);
+                        if (result.dob) {
+                            $("#d-dob").text(dayjs(result.dob).format('DD-MM-YYYY'));
+                        } else {
+                            $("#d-dob").text('');
+                        }
+
+                        $("#d-address").text(result.address);
+
+                        $("#d-created-date").data('datetime', result.createdDate);
+                        $("#d-created-date").text(dayjs(result.createdDate).format('DD-MM-YYYY'));
+
+                        $("#d-created-by").text(result.createdFullName);
+                        $('#detail-modal').modal('show');
+                    },
+                    error: function (err) {
+                        console.error('Error fetching user details:', err);
+                    }
+                });
+            })
+
+            $("#userTable").on("click", ".btn-delete", function (e) {
+                e.preventDefault();
+                let deleteId = $(this).data('id');
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to recover this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, delete it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '@Url.Action("Delete", "Post")',
+                            type: 'GET',
+                            data: { id: deleteId },
+                            success: function (result) {
+                                console.log("result", result)
+                                if (result.responseType == 1) {
+                                    Swal.fire({
+                                        title: "Deleted!",
+                                        text: result.responseMessage,
+                                        icon: "success"
+                                    }).then(() => {
+                                        dataTable.api().ajax.reload(null, false);
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: "Can't Deleted!",
+                                        text: result.responseMessage,
+                                        icon: "fail"
+                                    }).then(() => {
+                                        dataTable.api().ajax.reload(null, false);
+                                    });
+                                }
+                            },
+                            error: function (err) {
+                                console.error('Error deleting user:', err);
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: "An error occurred while deleting.",
+                                    icon: "error"
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+        });
+
+    </script>
 }
 
-<partial name="_Notify" />
+

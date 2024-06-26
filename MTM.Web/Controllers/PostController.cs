@@ -17,12 +17,39 @@ namespace MTM.Web.Controllers
         {
             this._postService = postService;
         }
-        #region User List
+        #region Post List
         [HttpGet]
         public ActionResult Index()
         {
+            if (TempData["MessageType"] != null)
+            {
+                int ResponseType = Convert.ToInt32(TempData["MessageType"]);
+                string ResponseMessage = Convert.ToString(TempData["Message"]) ?? string.Empty;
+                AlertMessage(new ResponseModel
+                {
+                    ResponseType = ResponseType,
+                    ResponseMessage = ResponseMessage
+                });
+            }
             return View();
         }
+
+        #region GetPostList
+        public IActionResult GetPostList()
+        {
+            string id = GetLoginId();
+            PostViewModel model = _postService.GetPost(id);
+            return View(model);
+        }
+        #endregion
+
+        #region CreatePost
+        public IActionResult CreatePost()
+        {
+            return View();
+        }
+        #endregion
+
         #endregion
         #region Edit
         public ActionResult Edit(string id)

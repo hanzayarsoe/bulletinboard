@@ -53,12 +53,12 @@ namespace MTM.Entities.DTO
         public string CreatedUserId { get; set; }
 
         [DisplayName("Updated Date")]
-        public DateTime UpdatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
 
         [DisplayName("Updated User")]
         public string UpdatedUserId { get; set; }
 
-        public DateTime DeletedDate { get; set; }
+        public DateTime? DeletedDate { get; set; }
 
         public string DeletedUserId { get; set; }
 
