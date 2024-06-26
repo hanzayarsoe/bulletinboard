@@ -11,7 +11,7 @@
     </div>
     <table class="table table-striped no-wrap datatable" style="width:100%" id="postTable">
         <thead>
-            <tr class="tbl-cell-center">
+            <tr>
                 <th>No</th>
                 <th>Title</th>
                 <th>Description</th>
@@ -21,7 +21,7 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody class="tbl-cell-center"></tbody>
+        <tbody></tbody>
     </table>
 
     <!-- Import Modal -->
@@ -113,8 +113,7 @@
                 },
                 columns: [
                     {
-                        data: null,
-                        title: 'No',
+                        data: 'id',
                         render: function (data, type, row, meta) {
                             return meta.row + 1;
                         }

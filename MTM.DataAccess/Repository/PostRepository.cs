@@ -1,7 +1,6 @@
 ﻿using MTM.DataAccess.IRepository;
 using MTM.Entities.DTO;
 using MTM.Entities.Data;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using MTM.CommonLibrary;
 

@@ -50,11 +50,6 @@ body {
     user-select: none;
 }
 
-.tbl-cell-center td,
-.tbl-cell-center th{
-    text-align:center!important;
-}
-
 .row > .form-floating > label {
     margin-left: 0.75em;
 }
@@ -77,4 +72,7 @@ input[type="number"] {
     resize: none;
 }
 
+table.dataTable td.dt-type-numeric{
+    text-align: center;
+}
 
