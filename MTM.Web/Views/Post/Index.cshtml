@@ -7,7 +7,7 @@
     <div class="btn-container">
         <a class="btn btn-outline-primary" asp-action="Create" asp-controller="Post" tabindex="1"> Create New Post </a>
         <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
-        <button class="btn btn-outline-secondary" id="export" data-bs-toggle="modal" tabindex="3">Export</button>
+        <button class="btn btn-outline-secondary" id="export" data-bs-toggle="modal" tabindex="3" data-id="POST">Export</button>
     </div>
     <table class="table table-striped no-wrap datatable" style="width:100%" id="userPostTable">
         <thead>
@@ -23,15 +23,16 @@
         </thead>
         <tbody class="tbl-cell-center"></tbody>
     </table>
+
     <!-- Import Modal -->
     <div class="modal fade" id="import-modal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="importModalLabel">Import User</h5>
+                    <h5 class="modal-title" id="importModalLabel">Import Posts</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="uploadForm" method="post" enctype="multipart/form-data">
+                <form id="uploadForm" method="post" enctype="multipart/form-data" data-id="Post">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="formFile" class="form-label">Please import file here</label>
@@ -103,35 +104,6 @@
             </div>
         </div>
     </div>
-
-    <!--Export Modal -->
-    <div class="modal fade" id="export-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Export As</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="importForm">
-                        <select class="form-select" id="select-format">
-                            <option value="csv">Comma Separated Values</option>
-                            <option value="xlsx">Excel Spreadsheet</option>
-                        </select>
-                        <label for="file-name" class="form-label">Save As</label>
-                        <input type="text" name="name" id="file-name" class="form-control" />
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button name="Upload" class="btn btn-primary" id="export-btn" data-bs-dismiss="modal">Export</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </div>
 
 @section Scripts {
@@ -192,7 +164,7 @@
                                                  </button>
                                                  <div class="dropdown-menu" aria-labelledby="actionDropDown">
                                                      <button class="dropdown-item text-success view-detail" data-id="${data}">View</button>
-                                                          <a class="dropdown-item text-primary" href="/User/Edit/${data}">Edit</a>
+                                                          <a class="dropdown-item text-primary" href="/POST/Edit/${data}">Edit</a>
                                                      <button class="dropdown-item text-danger btn-delete" data-id="${data}">Delete</button>
                                                  </div>
                                             </div>

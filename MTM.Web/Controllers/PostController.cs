@@ -124,13 +124,13 @@ namespace MTM.Web.Controllers
 
             if (file == null || file.Length == 0)
             {
-                return Json(new { success = false, message = "File is not selected" });
+                return Json(new { success = false, message = Message.NOT_SELECTED });
             }
 
             var fileExtension = Path.GetExtension(file.FileName);
             if (fileExtension != ".xls" && fileExtension != ".xlsx")
             {
-                return Json(new { success = false, message = "Invalid file format" });
+                return Json(new { success = false, message = Message.INVALID_FORMAT });
             }
 
             var uploads = Path.Combine(_env.WebRootPath, "Uploads");
@@ -157,29 +157,23 @@ namespace MTM.Web.Controllers
                     var worksheet = package.Workbook.Worksheets.FirstOrDefault();
                     if (worksheet == null)
                     {
-                        return Json(new { success = false, message = "Worksheet not found or the Excel file is empty." });
+                        return Json(new { success = false, message = string.Format(Message.NOT_FOUND, "WorkSheet") });
                     }
 
                     int rowCount = worksheet.Dimension?.Rows ?? 0;
                     if (rowCount < 2)
                     {
-                        return Json(new { success = false, message = "The Excel file does not contain any data." });
+                        return Json(new { success = false, message = string.Format(Message.NOT_FOUND, "No data") });
                     }
 
                     for (int row = 2; row <= rowCount; row++)
                     {
                         string Title = worksheet.Cells[row, 1].Text;
                         string Description = worksheet.Cells[row, 2].Text;
-                      
 
-                        if (string.IsNullOrEmpty(Title))
+                        if (string.IsNullOrEmpty(Title) || string.IsNullOrEmpty(Description))
                         {
-                            errorMessages.Add($"Row {row}: Title is required");
-                            continue;
-                        }
-                        if (string.IsNullOrEmpty(Description))
-                        {
-                            errorMessages.Add($"Row {row}: Description is required");
+                            errorMessages.Add(string.Format(Message.REQUIRED, row));
                             continue;
                         }
 
@@ -199,7 +193,7 @@ namespace MTM.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = $"An error occurred while processing the file. Details: {ex.Message}" });
+                return Json(new { success = false, message = string.Format(Message.ERROR_OCCURED, ex.Message) });
             }
 
             if (errorMessages.Any())
@@ -208,13 +202,9 @@ namespace MTM.Web.Controllers
                 return Json(new { success = false, message = errorMessageHtml, errors = errorMessages });
             }
 
-            foreach (var user in posts)
+            foreach (var post in posts)
             {
-               // var response = _userService.Register(user);
-                //if (response.ResponseType != Message.SUCCESS)
-                //{
-                //    errorMessages.Add($"Error at row corresponding to {user.Email}: {response.ResponseMessage}");
-                //}
+                var response = _postService.Create(post);
             }
 
             if (errorMessages.Any())
@@ -223,15 +213,14 @@ namespace MTM.Web.Controllers
                 return Json(new { success = false, message = errorMessageHtml, errors = errorMessages });
             }
 
-            return Json(new { success = true, message = "All users have been created successfully." });
+            return Json(new { success = true, message = string.Format(Message.CREATE_SUCCESS, "All Posts") });
         }
-
         #endregion
 
         #region Export
         public IActionResult Export()
         {
-            var users = _userService.GetUserListData().UserList;
+            var posts = _postService.GetPostList().PostList;
             var stream = new MemoryStream();
 
             using (var package = new ExcelPackage(stream))
@@ -240,7 +229,7 @@ namespace MTM.Web.Controllers
 
                 var headers = new string[]
                 {
-                "Title", "Description", "Created Date"
+                "Title", "Description"
                 };
 
                 for (int col = 1; col <= headers.Length; col++)
@@ -249,15 +238,10 @@ namespace MTM.Web.Controllers
                 }
 
                 int row = 2;
-                foreach (var user in users)
+                foreach (var post in posts)
                 {
-                    worksheet.Cells[row, 1].Value = user.FirstName;
-                    worksheet.Cells[row, 2].Value = user.LastName;
-                    worksheet.Cells[row, 3].Value = user.Email;
-                    worksheet.Cells[row, 4].Value = user.PhoneNumber;
-                    worksheet.Cells[row, 5].Value = user.Address;
-                    worksheet.Cells[row, 6].Value = user.CreatedDate.ToString("yyyy-MM-dd");
-
+                    worksheet.Cells[row, 1].Value = post.Title;
+                    worksheet.Cells[row, 2].Value = post.Description;
                     row++;
                 }
 
@@ -268,6 +252,7 @@ namespace MTM.Web.Controllers
             return File(stream, mimeType);
         }
         #endregion
+
 
 
         #region Common

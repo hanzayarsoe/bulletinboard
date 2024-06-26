@@ -288,6 +288,7 @@ namespace MTM.DataAccess.Repository
                     else
                     {
                         userModel.IsDeleted = true;
+                        userModel.IsActive = false;
                         userModel.DeletedUserId = userId;
                         userModel.DeletedDate = DateTime.Now;
                         context.Users.Update(userModel);

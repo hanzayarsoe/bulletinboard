@@ -44,9 +44,10 @@ $('.auto-resize-input').on("input",function () {
 $(function () {
     $('#uploadForm').on('submit', function (event) {
         event.preventDefault();
+        let category = $(this).data("id");
         var formData = new FormData(this);
         $.ajax({
-            url: `/User/Upload`,
+            url: `/${category}/Upload`,
             type: 'POST',
             data: formData,
             processData: false,
@@ -65,7 +66,8 @@ $(function () {
             }
         });
     });
-    $('#export').on('click',function () {
-        window.location.href = `/User/Export`;
+    $('#export').on('click', function () {
+        let category = $(this).data("id");
+        window.location.href = `/${category}/Export`;
     });
 });

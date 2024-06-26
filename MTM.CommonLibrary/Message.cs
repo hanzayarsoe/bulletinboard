@@ -29,15 +29,19 @@
         public const string INCORRECT_SINGLE = "Incorrect {0}";
         public const string ACCOUNT_ERROR = "{0} was {1}";
         public const string EMAIL_FAIL = "Your update email is already used by other user";
+        public const string NOT_FOUND = "{0} was not found";
+        public const string CREATE_SUCCESS = "{0} have been created successfully.";
+        #endregion
+
+        #region File Message
         public const string NOT_SELECTED = "File is not selected";
         public const string INVALID_FORMAT = "Invalid file format";
-        public const string NOT_FOUND = "{0} was not found";
+        public const string CORRESPONSE_ERROR = "Error at row corresponding to {0}: {1}";
+        public const string ERROR_OCCURED = "An error occurred while processing the file. Details: {0}";
+        public const string REQUIRED = "Row {0} : Data Required";
         public const string REQUIRED_NAME = "Row {0} : First Name is required";
         public const string EMAIL_EXIST = "Row {0} : Email {1} already exists";
         public const string DATE_ERROR = "Row {0} : Invalid date of birth format. Use d/M/yyyy format";
-        public const string ERROR_OCCURED = "An error occurred while processing the file. Details: {0}";
-        public const string CREATE_SUCCESS = "{0} have been created successfully.";
-        public const string CORRESPONSE_ERROR = "Error at row corresponding to {0}: {1}";
         #endregion
     }
 }
