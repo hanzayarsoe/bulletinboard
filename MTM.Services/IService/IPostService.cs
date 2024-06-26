@@ -1,4 +1,6 @@
-﻿namespace MTM.Services.IService
+﻿using MTM.Entities.DTO;
+
+namespace MTM.Services.IService
 {
     public interface IPostService
     {
