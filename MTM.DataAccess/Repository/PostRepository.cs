@@ -9,7 +9,7 @@ namespace MTM.DataAccess.Repository
 {
     public class PostRepository : IPostRepository
     {
-        #region GetUser
+        #region GetPost
         public PostViewModel GetPost(string id)
         {
             PostViewModel model = new PostViewModel();
@@ -41,6 +41,63 @@ namespace MTM.DataAccess.Repository
             return model;
         }
         #endregion
+
+        #region GetPostList
+        public PostListViewModel GetPostList()
+        {
+
+            PostListViewModel list = new PostListViewModel();
+            try
+            {
+                using (var context = new MTMContext())
+                {
+                    list.PostList = (from post in context.Posts
+                                     join createdBy in context.Users
+                                     on post.CreatedUserId equals createdBy.Id
+                                     select new PostViewModel
+                                     {
+                                         Id = post.Id,
+                                         Title = post.Title,
+                                         Description = post.Description,
+                                         IsPublished = post.IsPublished,
+                                         CreatedDate = post.CreatedDate,
+                                         CreatedFullName = createdBy.FirstName + " " + createdBy.LastName,
+
+                                     }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return list;
+        }
+        #endregion
+
+        #region Create
+        public ResponseModel Create(Post post)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var context = new MTMContext())
+                {
+                    context.Posts.Add(post);
+                    context.SaveChanges();
+                    response.ResponseType = Message.SUCCESS;
+                    response.ResponseMessage = string.Format(Message.SAVE_SUCCESS,"Post", "created");
+                }
+            }
+            catch (Exception ex)
+            {
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = ex.Message;
+            }
+            return response;
+        }
+        #endregion
+
         #region Update
         public ResponseModel Update(Post post)
         {

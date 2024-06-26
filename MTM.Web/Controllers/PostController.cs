@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MTM.CommonLibrary;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
@@ -24,12 +23,12 @@ namespace MTM.Web.Controllers
             this._userService = userService;
             this._env = env; 
         }
-        #region User List
-        [HttpGet]
+        #region Post List
         public ActionResult Index()
         {
             if (TempData["MessageType"] != null)
-            {                int ResponseType = Convert.ToInt32(TempData["MessageType"]);
+            {
+                int ResponseType = Convert.ToInt32(TempData["MessageType"]);
                 string ResponseMessage = Convert.ToString(TempData["Message"]) ?? string.Empty;
                 AlertMessage(new ResponseModel
                 {
@@ -39,6 +38,44 @@ namespace MTM.Web.Controllers
             }
             return View();
         }
+
+        #region GetPostList
+        [HttpGet]
+        public IActionResult GetPostList()
+        {
+            PostListViewModel postList = _postService.GetPostList();
+            return Json(postList);
+        }
+        #endregion
+
+        #region Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(PostViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                model.Id = Guid.NewGuid().ToString();
+                model.CreatedUserId = GetLoginId();
+                model.CreatedDate = DateTime.Now;
+                ResponseModel response = _postService.Create(model);
+                AlertMessage(response);
+                if (response.ResponseType == Message.SUCCESS)
+                {
+                    TempData["MessageType"] = Message.SUCCESS;
+                    TempData["Message"] = string.Format(Message.SAVE_SUCCESS, "Post", "Created");
+                    return RedirectToAction("Index");
+                }
+            }
+            return View();
+        }
+        #endregion
+
         #endregion
         #region Edit
         public ActionResult Edit(string id)

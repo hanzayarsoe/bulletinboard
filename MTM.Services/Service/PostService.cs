@@ -19,10 +19,17 @@ namespace MTM.Services.Service
         {
             return this._postRepository.GetPost(id);
         }
+        public PostListViewModel GetPostList()
+        {
+            return this._postRepository.GetPostList();
+        }
         public ResponseModel Update(PostViewModel model)
         {
             return this._postRepository.Update(this._mapper.Map<Post>(model));
         }
-
+        public ResponseModel Create(PostViewModel model)
+        {
+            return this._postRepository.Create(this._mapper.Map<Post>(model));
+        }
     }
 }
