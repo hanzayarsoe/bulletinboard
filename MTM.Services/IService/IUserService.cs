@@ -6,7 +6,7 @@ namespace MTM.Services.IService
     {
         UserListViewModel GetUserListData();
         UserListViewModel GetList(string LoginId);
-        ResponseModel Create(UserViewModel model);
+        ResponseModel Create(UserListViewModel model);
         UserViewModel GetUser(string id);
         ResponseModel Update(UserViewModel user);
         ResponseModel Delete(string id, string userId);

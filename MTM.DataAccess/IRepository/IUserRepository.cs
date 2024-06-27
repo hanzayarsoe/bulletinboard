@@ -7,7 +7,7 @@ namespace MTM.DataAccess.IRepository
     {
         UserListViewModel GetUserListData();
         UserListViewModel GetList(String LoginId);
-        ResponseModel Create(User user);
+        ResponseModel Create(List<User> user);
         UserViewModel GetUser(string id);
         ResponseModel Update(User user);
         ResponseModel Delete(string id, string userId);

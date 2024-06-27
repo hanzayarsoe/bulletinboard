@@ -52,8 +52,6 @@
             </div>
         </div>
     </div>
-
-
     <!--Detail Modal -->
     <div class="modal fade" id="detail-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -106,7 +104,6 @@
             </div>
         </div>
     </div>
-
 <!--Export Modal -->
 <div class="modal fade" id="export-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -134,12 +131,9 @@
         </div>
     </div>
 </div>
-
 </div>
-
 @section Scripts {
     <script>
-
         $(document).ready(function () {
             var dataTable = $('#userTable').dataTable({
                 responsive: true,
@@ -204,10 +198,8 @@
                     }
                 ],
             });
-
             $("#userTable").on("click",".view-detail", function (e) {
                 let detailId = $(this).data('id');
-
                 $.ajax({
                     url: '@Url.Action("UserDetail", "User")',
                     type: 'GET',
@@ -225,7 +217,6 @@
                             $("#d-role").addClass("bg-success");
                         }
                         $("#d-role").text(result.roleName);
-
                         $("#d-email").text(result.email);
                         $("#d-phone").text(result.phoneNumber);
                         // date of birth
@@ -235,12 +226,9 @@
                         } else {
                             $("#d-dob").text('');
                         }
-
                         $("#d-address").text(result.address);
-
                         $("#d-created-date").data('datetime', result.createdDate);
                         $("#d-created-date").text(dayjs(result.createdDate).format('DD-MM-YYYY'));
-
                         $("#d-created-by").text(result.createdFullName);
                         $('#detail-modal').modal('show');
                     },
@@ -249,7 +237,6 @@
                     }
                 });
             })
-
             $("#userTable").on("click",".btn-delete", function (e) {
                 e.preventDefault();
                 let deleteId = $(this).data('id');
@@ -300,10 +287,6 @@
                     }
                 });
             });
-
         });
-
     </script>
 }
-
-    
