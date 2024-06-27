@@ -383,15 +383,8 @@ namespace MTM.Web.Controllers
                 return Json(new { success = false, message = errorMessageHtml, errors = errorMessages });
             }
 
-            foreach (var user in users)
-            {
-                var response = _userService.Register(user);
-                if (response.ResponseType != Message.SUCCESS)
-                {
-                    errorMessages.Add(string.Format(Message.CORRESPONSE_ERROR, user.Email, response.ResponseMessage));
-                }
-            }
-
+            users.ForEach(user => _userService.Register(user));
+            
             if (errorMessages.Any())
             {
                 var errorMessageHtml = $"<ul style='font-size:small; list-style-type:none;'>{string.Join("", errorMessages.Select(e => $"<li>{e}</li>"))}</ul>";
