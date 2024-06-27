@@ -360,7 +360,7 @@ namespace MTM.Web.Controllers
                             LastName = lastName,
                             Email = email,
                             PhoneNumber = phone,
-                            PasswordHash = password,
+                            PasswordHash = Helpers.HashPassword(password),
                             Role = role,
                             DOB = dob,
                             Address = address,

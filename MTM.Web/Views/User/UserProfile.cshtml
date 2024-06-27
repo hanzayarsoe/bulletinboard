@@ -6,12 +6,11 @@ ViewData["Title"] = "Profile";
     <partial name="_Notify" />
     <div class="row">
         <div class="col-md-4 d-flex flex-column">
-            <img src="/img/user_profile.png"
+            <img id="profileImagePreview"
+                 src="/img/user_profile.png"
                  class="rounded-circle border mb-3 align-self-center w-75"
                  alt="User Image" />
-            <a type="button" tabindex="9" asp-action="ChangePassword" asp-controller="User" class="btn btn-outline-info align-self-center btn-sm">
-                Change Password
-            </a>
+            <input type="file" tabindex="10" id="profileImageInput" class="form-control-file align-self-center" accept="image/*" />
         </div>
         <div class="col-md-6">
             <form method="post" asp-action="UserProfile" asp-controller="User">
