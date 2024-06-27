@@ -1,6 +1,8 @@
 ﻿
 @model MTM.Entities.DTO.PostViewModel
-
+@{
+    ViewData["Title"] = "Post Edit";
+}
 <div class="container mt-5 col-md-7 mx-auto">
     <h2>Edit Post</h2>
     <partial name="_Notify" />
@@ -11,7 +13,7 @@
              <span asp-validation-for="Title" class="text-danger input-err"></span>
         </div>
         <div class="form-floating mb-3">
-            <textarea asp-for="Description" class="form-control auto-resize-input" id="description" placeholder="Description" required rows="0" tabindex="2"> </textarea>
+            <textarea asp-for="Description" class="form-control auto-resize-input" id="description" placeholder="Description" required rows="2" tabindex="2"> </textarea>
              <label asp-for="Description">Description</label>
              <span asp-validation-for="Description" class="text-danger input-err"></span>
         </div>
