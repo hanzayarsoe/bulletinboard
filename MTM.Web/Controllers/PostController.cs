@@ -36,6 +36,7 @@ namespace MTM.Web.Controllers
             }
             return View();
         }
+        #endregion
 
         #region GetPostList
         [HttpGet]
@@ -94,7 +95,6 @@ namespace MTM.Web.Controllers
                 model.CreatedUserId = GetLoginId();
                 model.CreatedDate = DateTime.Now;
                 ResponseModel response = _postService.Create(model);
-                AlertMessage(response);
                 if (response.ResponseType == Message.SUCCESS)
                 {
                     TempData["MessageType"] = Message.SUCCESS;

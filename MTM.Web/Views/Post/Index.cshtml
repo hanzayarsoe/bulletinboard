@@ -23,7 +23,6 @@
         </thead>
         <tbody></tbody>
     </table>
-
     <!-- Import Modal -->
     <div class="modal fade" id="import-modal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -48,8 +47,6 @@
             </div>
         </div>
     </div>
-
-
     <!--Detail Modal -->
     <div class="modal fade" id="detail-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -59,14 +56,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <table class="table">
+                    <table class="table table-responsive">
                         <tr>
                             <th>Title</th>
                             <td id="d-title"></td>
                         </tr>
                         <tr>
                             <th>Description</th>
-                            <td id="d-description"></td>
+                            <td id="d-description" class="text-break"></td>
                         </tr>
                         <tr>
                             <th>Status</th>
@@ -91,10 +88,8 @@
         </div>
     </div>
 </div>
-
 @section Scripts {
     <script>
-
         $(document).ready(function () {
             let dataTable = $('#postTable').dataTable({
                 responsive: true,
@@ -102,8 +97,6 @@
                     url: '@Url.Action("GetPostList", "Post")',
                     type: 'GET',
                     dataSrc: function (json) {
-                        console.log(json);
-                        console.log(json.postList)
                         return json.postList || [];
                     },
                     error: function (xhr, error, thrown) {
@@ -121,7 +114,13 @@
                         data: 'title'
                     },
                     {
-                        data: 'description'
+                        data: 'description',
+                        render: function(data, type, row) {
+                            if (type === 'display' && data.length > 20) {
+                                return data.substr(0, 20) + '...';
+                            }
+                            return data;
+                        }
                     },
                     {
                         data: 'isPublished',
@@ -160,10 +159,8 @@
                     }
                 ],
             });
-
             $("#postTable").on("click", ".view-detail", function (e) {
                 let detailId = $(this).data('id');
-
                 $.ajax({
                     url: '@Url.Action("PostDetail", "Post")',
                     type: 'GET',
@@ -179,7 +176,6 @@
                         }
                         $("#d-created-date").data('datetime', result.createdDate);
                         $("#d-created-date").text(dayjs(result.createdDate).format('DD-MM-YYYY'));
-
                         $("#d-created-by").text(result.createdFullName);
                         $('#detail-modal').modal('show');
                     },
@@ -188,7 +184,6 @@
                     }
                 });
             })
-
             $("#postTable").on("click", ".btn-delete", function (e) {
                 e.preventDefault();
                 let deleteId = $(this).data('id');
@@ -199,10 +194,6 @@
                     }
                 });
             });
-
         });
-
     </script>
 }
-
-
