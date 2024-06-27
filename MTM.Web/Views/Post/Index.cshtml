@@ -141,6 +141,8 @@
                     },
                     {
                         data: 'id',
+                        orderable: false,
+                        searchable: false,
                         render: function (data, type, row) {
                             return `
                                             <div class="dropdown">
@@ -190,50 +192,10 @@
             $("#postTable").on("click", ".btn-delete", function (e) {
                 e.preventDefault();
                 let deleteId = $(this).data('id');
-
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "You won't be able to recover this!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#3085d6",
-                    cancelButtonColor: "#d33",
-                    confirmButtonText: "Yes, delete it!"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: '@Url.Action("Delete", "Post")',
-                            type: 'GET',
-                            data: { id: deleteId },
-                            success: function (result) {
-                                console.log("result", result)
-                                if (result.responseType == 1) {
-                                    Swal.fire({
-                                        title: "Deleted!",
-                                        text: result.responseMessage,
-                                        icon: "success"
-                                    }).then(() => {
-                                        dataTable.api().ajax.reload(null, false);
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        title: "Can't Deleted!",
-                                        text: result.responseMessage,
-                                        icon: "fail"
-                                    }).then(() => {
-                                        dataTable.api().ajax.reload(null, false);
-                                    });
-                                }
-                            },
-                            error: function (err) {
-                                console.error('Error deleting user:', err);
-                                Swal.fire({
-                                    title: "Error!",
-                                    text: "An error occurred while deleting.",
-                                    icon: "error"
-                                });
-                            }
-                        });
+                let url = '@Url.Action("Delete", "Post")';
+                swalDelete(url, deleteId, (status) => {
+                    if (status) {
+                        dataTable.api().ajax.reload(null, false);
                     }
                 });
             });

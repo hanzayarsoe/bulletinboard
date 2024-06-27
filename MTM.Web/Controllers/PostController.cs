@@ -36,6 +36,7 @@ namespace MTM.Web.Controllers
             }
             return View();
         }
+        #endregion
 
         #region GetPostList
         [HttpGet]
@@ -104,8 +105,6 @@ namespace MTM.Web.Controllers
         }
         #endregion
 
-        #endregion
-        
         #region Edit
         public ActionResult Edit(string id)
         {

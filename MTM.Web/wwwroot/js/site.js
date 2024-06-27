@@ -14,6 +14,60 @@ function DateFormatChange() {
         }
 }
 
+// For Delete Process - Uses - Post, User
+let swalDelete = (url, deleteId, callback ) => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to recover this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: { id: deleteId },
+                success: function (result) {
+                    console.log("result", result)
+                    if (result.responseType == 1) {
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: result.responseMessage,
+                            icon: "success"
+                        }).then(() => {
+                            callback(true);
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Can't Deleted!",
+                            text: result.responseMessage,
+                            icon: "fail"
+                        }).then(() => {
+                            callback(false);
+                        });
+                    }
+                },
+                error: function (err) {
+                    console.error('Error deleting user:', err);
+                    Swal.fire({
+                        title: "Error!",
+                        text: "An error occurred while deleting.",
+                        icon: "error"
+                    }).then(() => {
+                        callback(false);
+                    });
+                }
+            });
+        }
+    });
+}
+
+   
+
+
 // For Password Hide/Show 
     $('.eye-icon').on('click', function () {
         var input = $($(this).attr('data-toggle'));
