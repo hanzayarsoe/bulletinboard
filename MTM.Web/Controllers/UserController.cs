@@ -383,7 +383,16 @@ namespace MTM.Web.Controllers
                 return Json(new { success = false, message = errorMessageHtml, errors = errorMessages });
             }
 
-            users.ForEach(user => _userService.Register(user));
+            var userListViewModel = new UserListViewModel
+            {
+                UserList = users
+            };
+
+            ResponseModel response = _userService.Create(userListViewModel);
+            if (response.ResponseType != Message.SUCCESS)
+            {
+                return Json(new { success = false, message = response.ResponseMessage });
+            }
             
             if (errorMessages.Any())
             {
