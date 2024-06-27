@@ -4,6 +4,7 @@ using MTM.CommonLibrary;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
 using OfficeOpenXml;
+using System.Diagnostics;
 using System.Security.Claims;
 
 namespace MTM.Web.Controllers
@@ -198,10 +199,16 @@ namespace MTM.Web.Controllers
                     {
                         string Title = worksheet.Cells[row, 1].Text;
                         string Description = worksheet.Cells[row, 2].Text;
+                        string IsPublished = worksheet.Cells[row, 3].Text;
 
-                        if (string.IsNullOrEmpty(Title) || string.IsNullOrEmpty(Description))
+                        if (string.IsNullOrEmpty(Title) || string.IsNullOrEmpty(Description) || string.IsNullOrEmpty(IsPublished))
                         {
                             errorMessages.Add(string.Format(Message.REQUIRED, row));
+                            continue;
+                        }
+                       
+                        if(IsPublished != "1" && IsPublished != "0"){
+                            errorMessages.Add(string.Format(Message.INPUT_DATA_INCORRECT, row));
                             continue;
                         }
 
@@ -210,11 +217,10 @@ namespace MTM.Web.Controllers
                             Id = Guid.NewGuid().ToString(),
                             Title = Title,
                             Description = Description,
-                            IsPublished = true,
+                            IsPublished = (IsPublished == "1") ? true : false,
                             CreatedDate = DateTime.Now,
                             CreatedUserId = GetLoginId()
                         };
-
                         posts.Add(post);
                     }
                 }
@@ -257,7 +263,7 @@ namespace MTM.Web.Controllers
 
                 var headers = new string[]
                 {
-                "Title", "Description"
+                "Title", "Description", "Status"
                 };
 
                 for (int col = 1; col <= headers.Length; col++)
@@ -270,6 +276,7 @@ namespace MTM.Web.Controllers
                 {
                     worksheet.Cells[row, 1].Value = post.Title;
                     worksheet.Cells[row, 2].Value = post.Description;
+                    worksheet.Cells[row, 3].Value = post.IsPublished;
                     row++;
                 }
 

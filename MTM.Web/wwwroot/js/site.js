@@ -1,4 +1,10 @@
 ﻿dayjs.extend(dayjs_plugin_relativeTime);
+window.onload = function () {
+    // Adjust the height of the textareas when the page loads
+    document.querySelectorAll('.auto-resize-input').forEach(function (textarea) {
+        autoResize(textarea);
+    });
+};
 
 DateFormatChange();
 function DateFormatChange() {
@@ -65,9 +71,6 @@ let swalDelete = (url, deleteId, callback ) => {
     });
 }
 
-   
-
-
 // For Password Hide/Show 
     $('.eye-icon').on('click', function () {
         var input = $($(this).attr('data-toggle'));
@@ -90,6 +93,10 @@ function showAlert(type, message, callback) {
     });
 }
 // auto resize input box and text area 
+function autoResize(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+}
 $('.auto-resize-input').on("input",function () {
     this.style.height = 'auto';
     this.style.height = this.scrollHeight + 'px';

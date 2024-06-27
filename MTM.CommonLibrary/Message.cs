@@ -39,6 +39,7 @@
         public const string CORRESPONSE_ERROR = "Error at row corresponding to {0}: {1}";
         public const string ERROR_OCCURED = "An error occurred while processing the file. Details: {0}";
         public const string REQUIRED = "Row {0} : Data Required";
+        public const string INPUT_DATA_INCORRECT = "Row {0} : Data Incorrect";
         public const string REQUIRED_NAME = "Row {0} : First Name is required";
         public const string EMAIL_EXIST = "Row {0} : Email {1} already exists";
         public const string DATE_ERROR = "Row {0} : Invalid date of birth format. Use d/M/yyyy format";
