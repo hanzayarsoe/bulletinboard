@@ -77,26 +77,25 @@ namespace MTM.DataAccess.Repository
         #endregion
 
         #region Create
-        public ResponseModel Create(User user)
+        public ResponseModel Create(List<User> users)
         {
             ResponseModel response = new ResponseModel();
             try
             {
-                using (var context = new MTMContext())
+                if (users != null)
                 {
-                    var checkExist = context.Users.FirstOrDefault(c => c.Email == user.Email);
-                    if (checkExist != null)
+                    using (var context = new MTMContext())
                     {
-                        response.ResponseType = Message.EXIST;
-                        response.ResponseMessage = string.Format(Message.ALREADY_EXIST, user.Email);
-                    }
-                    else
-                    {
-                        context.Users.Add(user);
+                        context.Users.AddRange(users);
                         context.SaveChanges();
                         response.ResponseType = Message.SUCCESS;
-                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, user.FirstName, "created");
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "Import", "completed");
                     }
+                }
+                else
+                {
+                    response.ResponseType = Message.FAILURE;
+                    response.ResponseMessage = string.Format(Message.FAIL, "Import");
                 }
             }
             catch (Exception ex)
