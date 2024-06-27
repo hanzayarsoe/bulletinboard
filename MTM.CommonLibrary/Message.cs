@@ -24,7 +24,7 @@
         public const string NOT_EXIST = "{0} was not exist or deleted.";
         public const string NOT_MATCH = "{0} does not match";
         public const string PASSWORD_FORMAT_ERROR = "Password must be at least one lowercase letter, one uppercase letter, one digit, and one special character";
-        public const string INCORRECT = "Incorrect {0} OR {1}";
+        public const string INCORRECT = "Incorrect {0} or {1}";
         public const string INCORRECT_SINGLE = "Incorrect {0}";
         public const string ACCOUNT_ERROR = "{0} was {1}";
         public const string EMAIL_FAIL = "Your update email is already used by other user";
