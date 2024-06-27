@@ -151,6 +151,7 @@ namespace MTM.Web.Controllers
             var errorMessages = new List<string>();
             var posts = new List<PostViewModel>();
 
+
             if (file == null || file.Length == 0)
             {
                 return Json(new { success = false, message = Message.NOT_SELECTED });
@@ -236,9 +237,15 @@ namespace MTM.Web.Controllers
                 return Json(new { success = false, message = errorMessageHtml, errors = errorMessages });
             }
 
-            foreach (var post in posts)
+            var postListViewModel = new PostListViewModel
             {
-                var response = _postService.Create(post);
+                PostList = posts
+            };
+
+            ResponseModel response = _postService.CreateList(postListViewModel);
+            if (response.ResponseType != Message.SUCCESS)
+            {
+                return Json(new { success = false, message = response.ResponseMessage });
             }
 
             if (errorMessages.Any())

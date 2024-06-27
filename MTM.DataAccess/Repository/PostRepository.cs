@@ -96,6 +96,36 @@ namespace MTM.DataAccess.Repository
             }
             return response;
         }
+
+        public ResponseModel CreateList(List<Post> posts)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                if (posts != null)
+                {
+                    using (var context = new MTMContext())
+                    {
+                        context.Posts.AddRange(posts);
+                        context.SaveChanges();
+                        response.ResponseType = Message.SUCCESS;
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "Import", "completed");
+                    }
+                }
+                else
+                {
+                    response.ResponseType = Message.FAILURE;
+                    response.ResponseMessage = string.Format(Message.FAIL, "Import");
+                }
+            }
+            catch (Exception ex)
+            {
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = ex.Message;
+            }
+            return response;
+        }
+
         #endregion
 
         #region Update

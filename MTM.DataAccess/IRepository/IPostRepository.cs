@@ -10,6 +10,7 @@ namespace MTM.DataAccess.IRepository
         PostViewModel GetPost(string id);
         PostListViewModel GetPostList();
         ResponseModel Create(Post post);
+        ResponseModel CreateList(List<Post> posts);
         ResponseModel Update(Post post);
         //PostViewModel Delete(string id, string userId);
         ResponseModel Delete(string id,string currentUserId);
