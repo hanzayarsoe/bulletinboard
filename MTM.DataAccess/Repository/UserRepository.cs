@@ -131,6 +131,7 @@ namespace MTM.DataAccess.Repository
                                  Address = data.Address,
                                  DOB = data.Dob,
                                  PhoneNumber = data.PhoneNumber,
+                                 ProfileImage = data.ProfileImage,
                                  Role = data.Role,
                                  RoleName = data.Role == 1 ? "admin" : "user",
                                  Email = data.Email,
@@ -188,6 +189,10 @@ namespace MTM.DataAccess.Repository
                         if (user.Dob.HasValue)
                         {
                             isExist.Dob = user.Dob;
+                        }
+                        if (!string.IsNullOrEmpty(user.ProfileImage))
+                        {
+                            isExist.ProfileImage = user.ProfileImage.ToLower();
                         }
                         if (user.Role.HasValue)
                         {

@@ -22,6 +22,7 @@ namespace MTM.Entities.Data
         public int? AccessFailedCount { get; set; }
         public string Address { get; set; }
         public DateTime? Dob { get; set; }
+        public string ProfileImage { get; set; }
         public int? Role { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }

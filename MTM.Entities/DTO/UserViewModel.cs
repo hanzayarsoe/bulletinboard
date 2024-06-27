@@ -39,6 +39,7 @@ namespace MTM.Entities.DTO
             this.Address = string.Empty;
             this.Role = null;
             this.DOB = null;
+            this.ProfileImage = string.Empty;
             this.IsActive = true;
             this.IsDeleted = false;
             this.CreatedDate = DateTime.Now;
@@ -91,6 +92,7 @@ namespace MTM.Entities.DTO
 		[DisplayName("Date Of Birth")]
 		[AdultPersonOnly(ErrorMessage = "The year must be greater than 2002.")]
 		public DateTime? DOB { get; set; }
+		public string? ProfileImage { get; set; }
 		[DisplayName("Role")]
         [ValidRole]
 		public int? Role { get; set; }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MTM.CommonLibrary;
 using MTM.Entities.DTO;
@@ -57,7 +58,7 @@ namespace MTM.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UserProfile(UserViewModel model)
+        public IActionResult UserProfile(UserViewModel model, IFormFile profile)
         {
             if (ModelState.IsValid)
             {
@@ -66,8 +67,44 @@ namespace MTM.Web.Controllers
                 var isExist = _userService.CheckEmail(model.Email);
                 ResponseModel response = _userService.GetIdByEmail(model.Email);
                 string? emailId = response.Data != null && response.Data.ContainsKey("Id") ? response.Data["Id"] : null;
+
                 if ((isExist && model.Id == emailId) || !isExist)
                 {
+                    if (profile != null)
+                    {
+                        var fileExtension = Path.GetExtension(profile.FileName)?.ToLower();
+                        var allowedExtensions = new[] { ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff" };
+
+                        if (string.IsNullOrEmpty(fileExtension) || !allowedExtensions.Contains(fileExtension))
+                        {
+                            return Json(new { success = false, message = Message.INVALID_FORMAT });
+                        }
+                        var images = Path.Combine(_env.WebRootPath, "images");
+                        if (!Directory.Exists(images))
+                        {
+                            Directory.CreateDirectory(images);
+                        }
+
+                        var filePath = Path.Combine(images, profile.FileName);
+                        if (System.IO.File.Exists(filePath))
+                        {
+                            filePath = Helpers.GetUniqueFileName(filePath, images);
+                        }
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            profile.CopyTo(fileStream);
+                        }
+
+                        string fileName = Path.GetFileName(filePath);
+                        model.ProfileImage = "/images/"+fileName;
+                    }
+                    AlertMessage(new ResponseModel
+                    {
+                        ResponseType = Message.FAILURE,
+                        ResponseMessage = string.Format(Message.NOT_FOUND,"Image")
+                    });
+
                     ResponseModel updateInfo = _userService.Update(model);
                     AlertMessage(updateInfo);
                 }
@@ -84,6 +121,7 @@ namespace MTM.Web.Controllers
 
             return View(model);
         }
+
         #endregion
 
         #region User Detail
@@ -272,7 +310,7 @@ namespace MTM.Web.Controllers
             }
 
             var fileExtension = Path.GetExtension(file.FileName);
-            if (fileExtension != ".csv" && fileExtension != ".xlsx")
+            if (fileExtension != ".xls" && fileExtension != ".xlsx")
             {
                 return Json(new { success = false, message = Message.INVALID_FORMAT });
             }
