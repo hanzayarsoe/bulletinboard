@@ -42,9 +42,9 @@ namespace MTM.DataAccess.Repository
         #endregion
 
         #region GetPostList
-        public PostListViewModel GetPostList()
+        public PostListViewModel GetPostList(User user)
         {
-
+            
             PostListViewModel list = new PostListViewModel();
             try
             {
@@ -53,7 +53,7 @@ namespace MTM.DataAccess.Repository
                     list.PostList = (from post in context.Posts
                                      join createdBy in context.Users
                                      on post.CreatedUserId equals createdBy.Id
-                                     where post.IsDeleted == false
+                                     where post.IsDeleted == false && (user.Role == 1 || post.CreatedUserId == user.Id)
                                      select new PostViewModel
                                      {
                                          Id = post.Id,

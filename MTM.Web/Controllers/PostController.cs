@@ -5,6 +5,7 @@ using MTM.Entities.DTO;
 using MTM.Services.IService;
 using OfficeOpenXml;
 using System.Security.Claims;
+using MTM.Entities.Data;
 
 namespace MTM.Web.Controllers
 {
@@ -26,22 +27,25 @@ namespace MTM.Web.Controllers
         {
             if (TempData["MessageType"] != null)
             {
-                int ResponseType = Convert.ToInt32(TempData["MessageType"]);
-                string ResponseMessage = Convert.ToString(TempData["Message"]) ?? string.Empty;
+                int responseType = Convert.ToInt32(TempData["MessageType"]);
+                string responseMessage = Convert.ToString(TempData["Message"]) ?? string.Empty;
                 AlertMessage(new ResponseModel
                 {
-                    ResponseType = ResponseType,
-                    ResponseMessage = ResponseMessage
+                    ResponseType = responseType,
+                    ResponseMessage = responseMessage
                 });
             }
             return View();
         }
+        #endregion
 
         #region GetPostList
         [HttpGet]
         public IActionResult GetPostList()
         {
-            PostListViewModel postList = _postService.GetPostList();
+            var currentUserId = GetLoginId();
+            var currentUser = _userService.GetUser(currentUserId);
+            PostListViewModel postList = _postService.GetPostList(currentUser);
             return Json(postList);
         }
         #endregion
@@ -102,8 +106,6 @@ namespace MTM.Web.Controllers
             }
             return View();
         }
-        #endregion
-
         #endregion
         
         #region Edit
@@ -249,7 +251,9 @@ namespace MTM.Web.Controllers
         #region Export
         public IActionResult Export()
         {
-            var posts = _postService.GetPostList().PostList;
+            var currentUserId = GetLoginId();
+            var currentUser = _userService.GetUser(currentUserId);
+            var posts = _postService.GetPostList(currentUser).PostList;
             var stream = new MemoryStream();
 
             using (var package = new ExcelPackage(stream))

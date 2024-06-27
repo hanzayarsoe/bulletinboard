@@ -19,9 +19,9 @@ namespace MTM.Services.Service
         {
             return this._postRepository.GetPost(id);
         }
-        public PostListViewModel GetPostList()
+        public PostListViewModel GetPostList(UserViewModel user)
         {
-            return this._postRepository.GetPostList();
+            return this._postRepository.GetPostList(this._mapper.Map<User>(user));
         }
         public ResponseModel Update(PostViewModel model)
         {
