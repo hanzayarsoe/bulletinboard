@@ -8,7 +8,6 @@ using System.Security.Claims;
 
 namespace MTM.Web.Controllers
 {
-
     public class AccountController : Controller
 	{
 		private readonly IUserService _userService;

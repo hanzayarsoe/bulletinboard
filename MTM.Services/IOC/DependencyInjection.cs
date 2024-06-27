@@ -25,8 +25,6 @@ namespace MTM.Services.IOC
 
             // Mail
             services.AddScoped<IMailService, MailService>();
-
-
         }
     }
 }
