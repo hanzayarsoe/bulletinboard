@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MTM.DataAccess.IRepository;
+using MTM.DataAccess.Repository;
 using MTM.Entities.Data;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
@@ -31,6 +32,12 @@ namespace MTM.Services.Service
         {
             return this._postRepository.Create(this._mapper.Map<Post>(model));
         }
+        public ResponseModel CreateList(PostListViewModel model)
+        {
+            var posts = model.PostList.Select(postViewModel => _mapper.Map<Post>(postViewModel)).ToList();
+            return _postRepository.CreateList(posts);
+        }
+
         public ResponseModel Delete(string id, string currentUserId)
         {
             return this._postRepository.Delete(id,currentUserId);

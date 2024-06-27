@@ -8,6 +8,7 @@ namespace MTM.Services.IService
         PostListViewModel GetPostList(UserViewModel user);
         ResponseModel Update(PostViewModel post);
         ResponseModel Create(PostViewModel model);
+        ResponseModel CreateList(PostListViewModel model);
         ResponseModel Delete(string id,string currentUserId);
     }
 }
