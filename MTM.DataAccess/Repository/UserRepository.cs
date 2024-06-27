@@ -326,6 +326,7 @@ namespace MTM.DataAccess.Repository
                         {
                             user.Role = context.Users.Count() == 0 ? 1 : 2;
                         }
+                        user.Email = user.Email.ToLower();
                         user.PasswordHash = Helpers.HashPassword(user.PasswordHash);
 						context.Users.Add(user);
 						context.SaveChanges();
@@ -371,7 +372,7 @@ namespace MTM.DataAccess.Repository
                         if (!Helpers.VerifyPassword(password, userData.PasswordHash))
                         {
                             response.ResponseType = Message.FAILURE;
-                            response.ResponseMessage = string.Format(Message.INCORRECT, "Email", "Password");
+                            response.ResponseMessage = string.Format(Message.INCORRECT, "email", "password");
                         }
                         else if (!userData.IsActive)
                         {
