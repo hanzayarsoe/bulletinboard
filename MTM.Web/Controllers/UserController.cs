@@ -35,7 +35,9 @@ namespace MTM.Web.Controllers
                     ResponseMessage = ResponseMessage
                 });
             }
-            return View();
+            string CurrentUserId = GetLoginId();
+            UserViewModel user = _userService.GetUser(CurrentUserId);
+            return View(user);
         }
 
         public ActionResult GetList()
@@ -146,8 +148,12 @@ namespace MTM.Web.Controllers
         #endregion
 
         #region Create
-        public IActionResult Create(string id)
+        public IActionResult Create()
         {
+            if (!Auth(string.Empty, 1))
+            {
+                return NotFound();
+            }
             return View();
         }
 
@@ -195,25 +201,23 @@ namespace MTM.Web.Controllers
         #region Delete
         public IActionResult Delete(string id)
         {
+            ResponseModel response = new ResponseModel();
+            if(!Auth(id, 2))
+            {
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = String.Format(Message.FAIL_AUTHORIZE, "delete");
+                return Json(response);
+            }
             string LoginId = GetLoginId();
-            ResponseModel response = _userService.Delete(id, LoginId);
+            response = _userService.Delete(id, LoginId);
             return Json(response);
-        }
-        #endregion
-
-        #region Import User
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Import()
-        {
-            return View();
         }
         #endregion
 
         #region Edit
         public IActionResult Edit(string id)
         {
-            if (id == null)
+            if (id == null || !Auth(id, 2))
             {
                 return NotFound();
             }
@@ -226,10 +230,11 @@ namespace MTM.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(UserViewModel model)
         {
-            if(model == null)
+            if(model == null || !Auth(model.Id, 2))
             {
                 return NotFound();
             }
+
             if (ModelState.IsValid)
             {
                 var currentUserId = GetLoginId();
@@ -263,6 +268,10 @@ namespace MTM.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Upload(IFormFile file)
         {
+            if (!Auth(string.Empty, 1))
+            {
+               return Json(new { success = false, message = string.Format(Message.FAIL_AUTHORIZE, "import") });
+            }
             var errorMessages = new List<string>();
             var users = new List<UserViewModel>();
 
@@ -466,6 +475,33 @@ namespace MTM.Web.Controllers
                 default:
                     break;
             }
+        }
+        #endregion
+
+        #region Authorization
+        private bool Auth(string catId, int status)
+        {
+            // 1 ==> Admin Only
+            // 2 ==> Admin and Cat Owner User  Only
+            string LoginId = GetLoginId();
+            UserViewModel LoginInfo = _userService.GetUser(LoginId);
+            if (LoginInfo == null) return false ;
+            switch (status)
+            {
+                case 1:
+                    if (LoginInfo.Role == 1)
+                    {
+                        return true;
+                    }; break;
+                case 2:
+                    if (LoginInfo.Role == 1 || catId == LoginId) 
+                    { 
+                        return true;
+                    }; break;
+                default: 
+                    return false;
+            }
+            return false;
         }
         #endregion
     }
