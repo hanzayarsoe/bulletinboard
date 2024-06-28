@@ -62,11 +62,11 @@ namespace MTM.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult UserProfile(UserViewModel model, IFormFile? profile)
         {
+            model.Id = GetLoginId();
+            model.UpdatedUserId = model.Id;
+            var currentuser = _userService.GetUser(GetLoginId());
             if (ModelState.IsValid)
             {
-                model.Id = GetLoginId();
-                model.UpdatedUserId = model.Id;
-                var currentuser = _userService.GetUser(GetLoginId());
                 var isExist = _userService.CheckEmail(model.Email);
                 ResponseModel response = _userService.GetIdByEmail(model.Email);
                 string? emailId = response.Data != null && response.Data.ContainsKey("Id") ? response.Data["Id"] : null;
@@ -120,6 +120,8 @@ namespace MTM.Web.Controllers
                     return View(model);
                 }
             }
+
+            model.ProfileImage = currentuser.ProfileImage;
             return View(model);
         }
 
