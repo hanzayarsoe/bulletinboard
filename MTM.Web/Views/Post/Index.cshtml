@@ -1,5 +1,205 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Post List";
+}
+<div class="container">
+    <h2>Post List</h2>
+    <partial name="_Notify" />
+    <div class="btn-container">
+        <a class="btn btn-outline-primary" asp-action="Create" asp-controller="Post" tabindex="1"> Create New Post </a>
+        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
+        <button class="btn btn-outline-secondary" id="export" data-bs-toggle="modal" tabindex="3" data-id="POST">Export</button>
+    </div>
+    <table class="table table-striped no-wrap datatable" style="width:100%" id="postTable">
+        <thead>
+            <tr>
+                <th class="text-center">No</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Created By</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <!-- Import Modal -->
+    <div class="modal fade" id="import-modal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">Import Posts</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="uploadForm" method="post" enctype="multipart/form-data" data-id="Post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="formFile" class="form-label">Please import file here</label>
+                            <input class="form-control" type="file" id="formFile" name="file" accept=".xlsx, .xls">
+                            <div class="form-text text-danger mt-1">* Allowed file types: xlsx, xls.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!--Detail Modal -->
+    <div class="modal fade" id="detail-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Post Detail</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-responsive">
+                        <tr>
+                            <th>Title</th>
+                            <td id="d-title"></td>
+                        </tr>
+                        <tr>
+                            <th>Description</th>
+                            <td id="d-description" class="text-break"></td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                <span id="d-status" class="badge"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Created Date</th>
+                            <td id="d-created-date" class="dayjs" data-type="dmy" data-datetime=""></td>
+                        </tr>
+                        <tr>
+                            <th>Created By</th>
+                            <td id="d-created-by"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let dataTable = $('#postTable').dataTable({
+                responsive: true,
+                ajax: {
+                    url: '@Url.Action("GetPostList", "Post")',
+                    type: 'GET',
+                    dataSrc: function (json) {
+                        return json.postList || [];
+                    },
+                    error: function (xhr, error, thrown) {
+                        console.error('Error in AJAX request:', error);
+                    }
+                },
+                columns: [
+                    {
+                        data: 'id',
+                        render: function (data, type, row, meta) {
+                            return meta.row + 1;
+                        }
+                    },
+                    {
+                        data: 'title',
+                        render: function (data, type, row) {
+                            if (type === 'display' && data.length > 20) {
+                                return data.substr(0, 20) + '...';
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'description',
+                        render: function(data, type, row) {
+                            if (type === 'display' && data.length > 20) {
+                                return data.substr(0, 20) + '...';
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'isPublished',
+                        render: function (data, type, row) {
+                            console.log(data, type, row);
+                            return '<span class="badge ' + (row.isPublished ? 'bg-primary' : 'bg-success') + '">' + (row.isPublished ? 'Published' : 'Not published') + '</span>';
+                        }
+                    },
+                    {
+                        data: 'createdDate',
+                        render: function (data) {
+                            return dayjs(data).format('DD-MM-YYYY');
+                        }
+                    },
+                    {
+                        data: 'createdFullName'
+                    },
+                    {
+                        data: 'id',
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            return `
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="actionDropDown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                     Action
+                                                 </button>
+                                                 <div class="dropdown-menu" aria-labelledby="actionDropDown">
+                                                     <button class="dropdown-item text-success view-detail" data-id="${data}">View</button>
+                                                          <a class="dropdown-item text-primary" href="/POST/Edit/${data}">Edit</a>
+                                                     <button class="dropdown-item text-danger btn-delete" data-id="${data}">Delete</button>
+                                                 </div>
+                                            </div>
+                                     `;
+                        }
+                    }
+                ],
+            });
+            $("#postTable").on("click", ".view-detail", function (e) {
+                let detailId = $(this).data('id');
+                $.ajax({
+                    url: '@Url.Action("PostDetail", "Post")',
+                    type: 'GET',
+                    data: { id: detailId },
+                    success: function (result) {
+                        $("#d-title").text(result.title);
+                        $("#d-description").text(result.description);
+                        // Status
+                        if (result.isPublished) {
+                            $("#d-status").removeClass("bg-success").addClass("bg-primary").text("Published");
+                        } else {
+                            $("#d-status").removeClass("bg-primary").addClass("bg-success").text("Not published");
+                        }
+                        $("#d-created-date").data('datetime', result.createdDate);
+                        $("#d-created-date").text(dayjs(result.createdDate).format('DD-MM-YYYY'));
+                        $("#d-created-by").text(result.createdFullName);
+                        $('#detail-modal').modal('show');
+                    },
+                    error: function (err) {
+                        console.error('Error fetching user details:', err);
+                    }
+                });
+            })
+            $("#postTable").on("click", ".btn-delete", function (e) {
+                e.preventDefault();
+                let deleteId = $(this).data('id');
+                let url = '@Url.Action("Delete", "Post")';
+                swalDelete(url, deleteId, (status) => {
+                    if (status) {
+                        dataTable.api().ajax.reload(null, false);
+                    }
+                });
+            });
+        });
+    </script>
 }

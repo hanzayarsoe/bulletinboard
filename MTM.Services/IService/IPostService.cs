@@ -1,11 +1,14 @@
-﻿namespace MTM.Services.IService
+﻿using MTM.Entities.DTO;
+
+namespace MTM.Services.IService
 {
     public interface IPostService
     {
-        //PostListViewModel Data();
-        //PostViewModel Create(PostViewModel model);
-        //PostViewModel GetCategory(string id);
-        //PostViewModel Update(PostViewModel category);
-        //PostViewModel Delete(string id, string userId);
+        PostViewModel GetPost(string id);
+        PostListViewModel GetPostList(UserViewModel user);
+        ResponseModel Update(PostViewModel post);
+        ResponseModel Create(PostViewModel model);
+        ResponseModel CreateList(PostListViewModel model);
+        ResponseModel Delete(string id,string currentUserId);
     }
 }

@@ -230,6 +230,7 @@ namespace MTM.Web.Controllers
 				{
 					string Id = response.Data["Id"];
 					string Email = response.Data["Email"];
+					string Role = response.Data["Role"];
 					List<Claim> Claims = new List<Claim>
 					{
 					new Claim(ClaimTypes.Name, Email),

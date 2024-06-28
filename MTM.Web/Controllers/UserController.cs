@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MTM.CommonLibrary;
 using MTM.Entities.DTO;
@@ -16,11 +15,11 @@ namespace MTM.Web.Controllers
         private readonly IUserService _userService;
         private readonly IWebHostEnvironment _env;
 
-		public UserController(IUserService userService, IWebHostEnvironment env)
+        public UserController(IUserService userService, IWebHostEnvironment env)
         {
-			this._userService = userService;
+            this._userService = userService;
             this._env = env;
-		}
+        }
 
         #region User List
         [HttpGet]
@@ -132,9 +131,9 @@ namespace MTM.Web.Controllers
             UserViewModel user = _userService.GetUser(Id);
             if (user != null)
             {
-                return Json(user); 
+                return Json(user);
             }
-            return NotFound(); 
+            return NotFound();
         }
         #endregion
 
@@ -155,8 +154,8 @@ namespace MTM.Web.Controllers
                 string OldPassword = model.oldPassword ?? string.Empty;
                 string NewPassword = model.password ?? string.Empty;
                 string ConfirmPassword = model.confirmPassword ?? string.Empty;
-               
-                if(NewPassword != ConfirmPassword)
+
+                if (NewPassword != ConfirmPassword)
                 {
                     AlertMessage(new ResponseModel
                     {
@@ -175,7 +174,7 @@ namespace MTM.Web.Controllers
                     });
                     return View(model);
                 }
- 
+
                 ResponseModel response = this._userService.UpdatePassword(LoginUserId, OldPassword, NewPassword);
                 AlertMessage(response);
                 return View(model);
@@ -221,7 +220,7 @@ namespace MTM.Web.Controllers
                 model.CreatedDate = DateTime.Now;
                 ResponseModel response = _userService.Register(model);
                 AlertMessage(response);
-                if(response.ResponseType == Message.SUCCESS)
+                if (response.ResponseType == Message.SUCCESS)
                 {
                     TempData["MessageType"] = Message.SUCCESS;
                     TempData["Message"] = string.Format(Message.SAVE_SUCCESS, "User", "Created");
@@ -341,13 +340,13 @@ namespace MTM.Web.Controllers
                     var worksheet = package.Workbook.Worksheets.FirstOrDefault();
                     if (worksheet == null)
                     {
-                        return Json(new { success = false, message = string.Format(Message.NOT_FOUND,"WorkSheet") });
+                        return Json(new { success = false, message = string.Format(Message.NOT_FOUND, "WorkSheet") });
                     }
 
                     int rowCount = worksheet.Dimension?.Rows ?? 0;
                     if (rowCount < 2)
                     {
-                        return Json(new { success = false, message = string.Format(Message.NOT_FOUND,"No data") });
+                        return Json(new { success = false, message = string.Format(Message.NOT_FOUND, "No data") });
                     }
 
                     for (int row = 2; row <= rowCount; row++)
@@ -364,20 +363,20 @@ namespace MTM.Web.Controllers
 
                         if (string.IsNullOrEmpty(firstName))
                         {
-                            errorMessages.Add(string.Format(Message.REQUIRED_NAME,row));
+                            errorMessages.Add(string.Format(Message.REQUIRED_NAME, row));
                             continue;
                         }
 
                         var isEmailExist = _userService.CheckEmail(email);
                         if (isEmailExist)
                         {
-                            errorMessages.Add(string.Format(Message.EMAIL_EXIST,row,email));
+                            errorMessages.Add(string.Format(Message.EMAIL_EXIST, row, email));
                             continue;
                         }
 
                         if (password != confirmPassword)
                         {
-                            errorMessages.Add(string.Format(Message.NOT_MATCH,"Row " + row + " your password"));
+                            errorMessages.Add(string.Format(Message.NOT_MATCH, "Row " + row + " your password"));
                             continue;
                         }
 
@@ -386,7 +385,7 @@ namespace MTM.Web.Controllers
                         {
                             if (!DateTime.TryParseExact(dobString, "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDob))
                             {
-                                errorMessages.Add(string.Format(Message.DATE_ERROR,row));
+                                errorMessages.Add(string.Format(Message.DATE_ERROR, row));
                                 continue;
                             }
                             dob = parsedDob;
@@ -414,7 +413,7 @@ namespace MTM.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = string.Format(Message.ERROR_OCCURED,ex.Message)});
+                return Json(new { success = false, message = string.Format(Message.ERROR_OCCURED, ex.Message) });
             }
 
             if (errorMessages.Any())
@@ -440,7 +439,7 @@ namespace MTM.Web.Controllers
                 return Json(new { success = false, message = errorMessageHtml, errors = errorMessages });
             }
 
-            return Json(new { success = true, message = string.Format(Message.CREATE_SUCCESS,"All users")});
+            return Json(new { success = true, message = string.Format(Message.CREATE_SUCCESS, "All users") });
         }
         #endregion
 
