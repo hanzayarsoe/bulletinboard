@@ -209,7 +209,7 @@ namespace MTM.Web.Controllers
                             continue;
                         }
                        
-                        if(IsPublished != "1" && IsPublished != "0"){
+                        if(IsPublished != "publish" && IsPublished != "unpublish"){
                             errorMessages.Add(string.Format(Message.INPUT_DATA_INCORRECT, row));
                             continue;
                         }
@@ -219,7 +219,7 @@ namespace MTM.Web.Controllers
                             Id = Guid.NewGuid().ToString(),
                             Title = Title,
                             Description = Description,
-                            IsPublished = (IsPublished == "1") ? true : false,
+                            IsPublished = (IsPublished == "publish") ? true : false,
                             CreatedDate = DateTime.Now,
                             CreatedUserId = GetLoginId()
                         };
