@@ -5,21 +5,12 @@
 <div class="container">
     <h2>User List</h2>
     <partial name="_Notify" />
-    <div class="btn-container">
-        @if (Model.Role == 1)
-        {
-            <a class="btn btn-primary" asp-action="Create" asp-controller="User" tabindex="1" > Create New User </a>
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
-        }
-            <button class="btn btn-secondary" id="export" data-bs-toggle="modal" tabindex="3" data-id="User">Export</button>
-            </div>
-        
      @if (Model.Role == 1)
     {
         <div class="btn-container">
                 <a class="btn btn-primary" asp-action="Create" asp-controller="User" tabindex="1" > Create New User </a>
                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
-                <button class="btn btn-secondary" id="export" data-bs-toggle="modal" tabindex="3">Export</button>
+                <button class="btn btn-secondary" id="export" data-bs-toggle="modal" tabindex="3" data-id="User">Export</button>
         </div>
     }
     <table class="table table-striped no-wrap datatable" style="width:100%" id="userTable">

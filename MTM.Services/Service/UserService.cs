@@ -18,8 +18,7 @@ namespace MTM.Services.Service
         }
         public ResponseModel Create(UserListViewModel model)
         {
-            var users = model.UserList.Select(userViewModel => _mapper.Map<User>(userViewModel)).ToList();
-            return _userRepository.Create(users);
+            return _userRepository.Create(this._mapper.Map<List<UserViewModel>,List<User>>(model.UserList));
         }
         public UserListViewModel GetUserListData()
         {
