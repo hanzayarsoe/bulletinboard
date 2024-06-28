@@ -16,9 +16,9 @@ namespace MTM.Services.Service
             this._userRepository = userRepository;
             this._mapper = mapper;
         }
-        public ResponseModel Create(UserViewModel model)
+        public ResponseModel Create(UserListViewModel model)
         {
-            return this._userRepository.Create(this._mapper.Map<User>(model));
+            return _userRepository.Create(this._mapper.Map<List<UserViewModel>,List<User>>(model.UserList));
         }
         public UserListViewModel GetUserListData()
         {

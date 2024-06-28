@@ -1,4 +1,7 @@
 ﻿@model MTM.Entities.DTO.UserViewModel
+@{
+ViewData["Title"] = "Edit";
+}
 <div class="container mt-5">
     <h2>Edit User</h2>
     <partial name="_Notify" />
@@ -6,7 +9,7 @@
                 <div class="row mb-3">
                     <div class="form-floating col-md-6">
                         <input asp-for="Id" hidden/>
-                        <input asp-for="FirstName" tabindex="1" type="text" class="form-control" id="firstName" placeholder="First Name" required>
+                        <input asp-for="FirstName" tabindex="1" type="text" class="form-control mb-3" id="firstName" placeholder="First Name" required>
                         <label asp-for="FirstName" >First Name</label>
                         <span asp-validation-for="FirstName"></span>
                     </div>
@@ -18,7 +21,7 @@
                 </div>
                 <div class="row mb-3">
                     <div class="form-floating col-md-6">
-                        <input asp-for="Email" tabindex="3" type="email" class="form-control" id="email" placeholder="Email" required>
+                        <input asp-for="Email" tabindex="3" type="email" class="form-control mb-3" id="email" placeholder="Email" required>
                         <label asp-for="Email" >Email</label>
                         <span asp-validation-for="Email" class="text-danger input-err"></span>
                     </div>
@@ -30,7 +33,7 @@
                 </div>
                 <div class="row mb-3">
                     <div class="form-floating col-md-6">
-                <select asp-for="Role" tabindex="5" class="form-control" id="role">
+                <select asp-for="Role" tabindex="5" class="form-control mb-3" id="role">
                             <option value="">Select Role</option>
                             <option value="1">Admin</option>
                             <option value="2">User</option>
@@ -50,8 +53,8 @@
                     <span asp-validation-for="Address" class="text-danger input-err"></span>
                 </div>
                 <div class="text-md-center mb-3">
-                    <button type="button" tabindex="8" onclick="location.href='@Url.Action("index","User")'" class="btn btn-outline-danger col-md-2">Cancel</button>
-                    <button type="submit" tabindex="9" class="btn btn-outline-success col-md-2">Update</button>
+                    <button type="button" tabindex="8" onclick="location.href='@Url.Action("index","User")'" class="btn btn-outline-danger col-sm-2 col-md-2">Cancel</button>
+                    <button type="submit" tabindex="9" class="btn btn-outline-success col-sm-2 col-md-2">Update</button>
                 </div>
             </form>
 </div>

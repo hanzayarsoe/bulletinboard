@@ -1,15 +1,18 @@
-﻿
+﻿@model MTM.Entities.DTO.UserViewModel
 @{
     ViewData["Title"] = "User List";
 }
 <div class="container">
     <h2>User List</h2>
     <partial name="_Notify" />
-    <div class="btn-container">
-        <a class="btn btn-primary" asp-action="Create" asp-controller="User" tabindex="1" > Create New User </a>
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
-        <button class="btn btn-secondary" id="export" data-bs-toggle="modal" tabindex="3">Export</button>
-    </div>
+     @if (Model.Role == 1)
+    {
+        <div class="btn-container">
+                <a class="btn btn-primary" asp-action="Create" asp-controller="User" tabindex="1" > Create New User </a>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
+                <button class="btn btn-secondary" id="export" data-bs-toggle="modal" tabindex="3" data-id="User">Export</button>
+        </div>
+    }
     <table class="table table-striped no-wrap datatable" style="width:100%" id="userTable">
     <thead>
         <tr class="tbl-cell-center">
@@ -32,7 +35,7 @@
                     <h5 class="modal-title" id="importModalLabel">Import User</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="uploadForm" method="post" enctype="multipart/form-data">
+                <form id="uploadForm" method="post" enctype="multipart/form-data" data-id="User">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="formFile" class="form-label">Please import file here</label>
@@ -48,17 +51,13 @@
             </div>
         </div>
     </div>
-
-
     <!--Detail Modal -->
     <div class="modal fade" id="detail-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">User Detail</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                      <table class="table">
@@ -104,7 +103,6 @@
             </div>
         </div>
     </div>
-
 <!--Export Modal -->
 <div class="modal fade" id="export-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -132,12 +130,9 @@
         </div>
     </div>
 </div>
-
 </div>
-
 @section Scripts {
     <script>
-
         $(document).ready(function () {
             var dataTable = $('#userTable').dataTable({
                 responsive: true,
@@ -181,28 +176,37 @@
                         data: 'createdFullName' 
                     },
                     {
-                        data: 'id', 
+                        data: 'id',
+                        orderable: false,
+                        searchable: false,
                         render: function (data, type, row) {
-                            return `
-                                    <div class="dropdown">
-                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="actionDropDown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                             Action
-                                         </button>
-                                         <div class="dropdown-menu" aria-labelledby="actionDropDown">
-                                             <button class="dropdown-item text-success view-detail" data-id="${data}">View</button>
-                                                  <a class="dropdown-item text-primary" href="/User/Edit/${data}">Edit</a>
-                                             <button class="dropdown-item text-danger btn-delete" data-id="${data}">Delete</button>
-                                         </div>
-                                    </div>
-                             `;
+                            var AdminButton = `
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="actionDropDown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Action
+                                                </button>
+                                                <div class="dropdown-menu" aria-labelledby="actionDropDown">
+                                                    <button class="dropdown-item text-success view-detail" data-id="${data}">View</button>
+                                                    <a class="dropdown-item text-primary" href="/User/Edit/${data}">Edit</a>
+                                                    <button class="dropdown-item text-danger btn-delete" data-id="${data}">Delete</button>
+                                                </div>
+                                            </div>
+                                        `;
+                            var UserButton = `
+                                           <button class="btn btn-secondary view-detail" data-id="${data}">View</button>
+                                                `;
+                            if (@Model.Role == 1) {
+                                return AdminButton;
+                            } else {
+                                return UserButton;
+                            }
+                           
                         }
                     }
                 ],
             });
-
             $("#userTable").on("click",".view-detail", function (e) {
                 let detailId = $(this).data('id');
-
                 $.ajax({
                     url: '@Url.Action("UserDetail", "User")',
                     type: 'GET',
@@ -220,7 +224,6 @@
                             $("#d-role").addClass("bg-success");
                         }
                         $("#d-role").text(result.roleName);
-
                         $("#d-email").text(result.email);
                         $("#d-phone").text(result.phoneNumber);
                         // date of birth
@@ -230,12 +233,9 @@
                         } else {
                             $("#d-dob").text('');
                         }
-
                         $("#d-address").text(result.address);
-
                         $("#d-created-date").data('datetime', result.createdDate);
                         $("#d-created-date").text(dayjs(result.createdDate).format('DD-MM-YYYY'));
-
                         $("#d-created-by").text(result.createdFullName);
                         $('#detail-modal').modal('show');
                     },
@@ -244,61 +244,16 @@
                     }
                 });
             })
-
             $("#userTable").on("click",".btn-delete", function (e) {
                 e.preventDefault();
                 let deleteId = $(this).data('id');
-
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "You won't be able to recover this!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#3085d6",
-                    cancelButtonColor: "#d33",
-                    confirmButtonText: "Yes, delete it!"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: '@Url.Action("Delete", "User")',
-                            type: 'GET',
-                            data: { id: deleteId },
-                            success: function (result) {
-                                console.log("result", result)
-                                if (result.responseType == 1) {
-                                    Swal.fire({
-                                        title: "Deleted!",
-                                        text: result.responseMessage,
-                                        icon: "success"
-                                    }).then(() => {
-                                        dataTable.api().ajax.reload(null, false);
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        title: "Can't Deleted!",
-                                        text: result.responseMessage,
-                                        icon: "fail"
-                                    }).then(() => {
-                                        dataTable.api().ajax.reload(null,false);
-                                    });
-                                }
-                            },
-                            error: function (err) {
-                                console.error('Error deleting user:', err);
-                                Swal.fire({
-                                    title: "Error!",
-                                    text: "An error occurred while deleting.",
-                                    icon: "error"
-                                });
-                            }
-                        });
+                let url = '@Url.Action("Delete", "User")';
+                swalDelete(url, deleteId, (status) => {
+                    if(status){
+                        dataTable.api().ajax.reload(null, false);
                     }
                 });
             });
-
         });
-
     </script>
 }
-
-    

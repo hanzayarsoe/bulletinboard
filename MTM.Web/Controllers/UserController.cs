@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MTM.CommonLibrary;
-using MTM.Entities.Data;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
 using OfficeOpenXml;
-using System.Diagnostics;
 using System.Globalization;
 using System.Security.Claims;
 
@@ -38,7 +36,9 @@ namespace MTM.Web.Controllers
                     ResponseMessage = ResponseMessage
                 });
             }
-            return View();
+            string CurrentUserId = GetLoginId();
+            UserViewModel user = _userService.GetUser(CurrentUserId);
+            return View(user);
         }
 
         public ActionResult GetList()
@@ -60,17 +60,53 @@ namespace MTM.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UserProfile(UserViewModel model)
+        public IActionResult UserProfile(UserViewModel model, IFormFile? profile)
         {
             if (ModelState.IsValid)
             {
                 model.Id = GetLoginId();
                 model.UpdatedUserId = model.Id;
+                var currentuser = _userService.GetUser(GetLoginId());
                 var isExist = _userService.CheckEmail(model.Email);
                 ResponseModel response = _userService.GetIdByEmail(model.Email);
                 string? emailId = response.Data != null && response.Data.ContainsKey("Id") ? response.Data["Id"] : null;
+
                 if ((isExist && model.Id == emailId) || !isExist)
                 {
+                    if (profile != null)
+                    {
+                        var fileExtension = Path.GetExtension(profile.FileName)?.ToLower();
+                        var allowedExtensions = new[] { ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff" };
+
+                        if (string.IsNullOrEmpty(fileExtension) || !allowedExtensions.Contains(fileExtension))
+                        {
+                            return Json(new { success = false, message = Message.INVALID_FORMAT });
+                        }
+                        var images = Path.Combine(_env.WebRootPath, "images");
+                        if (!Directory.Exists(images))
+                        {
+                            Directory.CreateDirectory(images);
+                        }
+
+                        var filePath = Path.Combine(images, profile.FileName);
+                        if (System.IO.File.Exists(filePath))
+                        {
+                            filePath = Helpers.GetUniqueFileName(filePath, images);
+                        }
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            profile.CopyTo(fileStream);
+                        }
+
+                        string fileName = Path.GetFileName(filePath);
+                        model.ProfileImage = "/images/"+fileName;
+                    }
+                    else
+                    {
+                        model.ProfileImage = currentuser.ProfileImage;
+                    }
+
                     ResponseModel updateInfo = _userService.Update(model);
                     AlertMessage(updateInfo);
                 }
@@ -84,9 +120,9 @@ namespace MTM.Web.Controllers
                     return View(model);
                 }
             }
-
             return View(model);
         }
+
         #endregion
 
         #region User Detail
@@ -149,8 +185,9 @@ namespace MTM.Web.Controllers
         #endregion
 
         #region Create
-        public IActionResult Create(string id)
+        public IActionResult Create()
         {
+            if (!Auth(string.Empty, 1)) return NotFound();
             return View();
         }
 
@@ -158,6 +195,7 @@ namespace MTM.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(UserViewModel model)
         {
+            if (!Auth(string.Empty, 1)) return NotFound();
             if (ModelState.IsValid)
             {
                 if (model.PasswordHash != model.PasswordConfirm)
@@ -198,25 +236,23 @@ namespace MTM.Web.Controllers
         #region Delete
         public IActionResult Delete(string id)
         {
+            ResponseModel response = new ResponseModel();
+            if(!Auth(id, 2))
+            {
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = String.Format(Message.FAIL_AUTHORIZE, "delete");
+                return Json(response);
+            }
             string LoginId = GetLoginId();
-            ResponseModel response = _userService.Delete(id, LoginId);
+            response = _userService.Delete(id, LoginId);
             return Json(response);
-        }
-        #endregion
-
-        #region Import User
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Import()
-        {
-            return View();
         }
         #endregion
 
         #region Edit
         public IActionResult Edit(string id)
         {
-            if (id == null)
+            if (id == null || !Auth(id, 2))
             {
                 return NotFound();
             }
@@ -229,10 +265,7 @@ namespace MTM.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(UserViewModel model)
         {
-            if(model == null)
-            {
-                return NotFound();
-            }
+            if(model == null || !Auth(model.Id, 2)) return NotFound();
             if (ModelState.IsValid)
             {
                 var currentUserId = GetLoginId();
@@ -266,18 +299,22 @@ namespace MTM.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Upload(IFormFile file)
         {
+            if (!Auth(string.Empty, 1))
+            {
+               return Json(new { success = false, message = string.Format(Message.FAIL_AUTHORIZE, "import") });
+            }
             var errorMessages = new List<string>();
             var users = new List<UserViewModel>();
 
             if (file == null || file.Length == 0)
             {
-                return Json(new { success = false, message = "File is not selected" });
+                return Json(new { success = false, message = Message.NOT_SELECTED });
             }
 
             var fileExtension = Path.GetExtension(file.FileName);
-            if (fileExtension != ".csv" && fileExtension != ".xlsx")
+            if (fileExtension != ".xls" && fileExtension != ".xlsx")
             {
-                return Json(new { success = false, message = "Invalid file format" });
+                return Json(new { success = false, message = Message.INVALID_FORMAT });
             }
 
             var uploads = Path.Combine(_env.WebRootPath, "Uploads");
@@ -289,7 +326,7 @@ namespace MTM.Web.Controllers
             var filePath = Path.Combine(uploads, file.FileName);
             if (System.IO.File.Exists(filePath))
             {
-                filePath = GetUniqueFileName(filePath, uploads);
+                filePath = Helpers.GetUniqueFileName(filePath, uploads);
             }
 
             using (var fileStream = new FileStream(filePath, FileMode.Create))
@@ -304,13 +341,13 @@ namespace MTM.Web.Controllers
                     var worksheet = package.Workbook.Worksheets.FirstOrDefault();
                     if (worksheet == null)
                     {
-                        return Json(new { success = false, message = "Worksheet not found or the Excel file is empty." });
+                        return Json(new { success = false, message = string.Format(Message.NOT_FOUND,"WorkSheet") });
                     }
 
                     int rowCount = worksheet.Dimension?.Rows ?? 0;
                     if (rowCount < 2)
                     {
-                        return Json(new { success = false, message = "The Excel file does not contain any data." });
+                        return Json(new { success = false, message = string.Format(Message.NOT_FOUND,"No data") });
                     }
 
                     for (int row = 2; row <= rowCount; row++)
@@ -327,20 +364,20 @@ namespace MTM.Web.Controllers
 
                         if (string.IsNullOrEmpty(firstName))
                         {
-                            errorMessages.Add($"Row {row}: First Name is required");
+                            errorMessages.Add(string.Format(Message.REQUIRED_NAME,row));
                             continue;
                         }
 
                         var isEmailExist = _userService.CheckEmail(email);
                         if (isEmailExist)
                         {
-                            errorMessages.Add($"Row {row}: Email {email} already exists");
+                            errorMessages.Add(string.Format(Message.EMAIL_EXIST,row,email));
                             continue;
                         }
 
                         if (password != confirmPassword)
                         {
-                            errorMessages.Add($"Row {row}: Password and Confirm Password do not match");
+                            errorMessages.Add(string.Format(Message.NOT_MATCH,"Row " + row + " your password"));
                             continue;
                         }
 
@@ -349,7 +386,7 @@ namespace MTM.Web.Controllers
                         {
                             if (!DateTime.TryParseExact(dobString, "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDob))
                             {
-                                errorMessages.Add($"Row {row}: Invalid date of birth format. Use d/M/yyyy format.");
+                                errorMessages.Add(string.Format(Message.DATE_ERROR,row));
                                 continue;
                             }
                             dob = parsedDob;
@@ -377,7 +414,7 @@ namespace MTM.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = $"An error occurred while processing the file. Details: {ex.Message}" });
+                return Json(new { success = false, message = string.Format(Message.ERROR_OCCURED,ex.Message)});
             }
 
             if (errorMessages.Any())
@@ -386,41 +423,25 @@ namespace MTM.Web.Controllers
                 return Json(new { success = false, message = errorMessageHtml, errors = errorMessages });
             }
 
-            foreach (var user in users)
+            var userListViewModel = new UserListViewModel
             {
-                var response = _userService.Register(user);
-                if (response.ResponseType != Message.SUCCESS)
-                {
-                    errorMessages.Add($"Error at row corresponding to {user.Email}: {response.ResponseMessage}");
-                }
-            }
+                UserList = users
+            };
 
+            ResponseModel response = _userService.Create(userListViewModel);
+            if (response.ResponseType != Message.SUCCESS)
+            {
+                return Json(new { success = false, message = response.ResponseMessage });
+            }
+            
             if (errorMessages.Any())
             {
                 var errorMessageHtml = $"<ul style='font-size:small; list-style-type:none;'>{string.Join("", errorMessages.Select(e => $"<li>{e}</li>"))}</ul>";
                 return Json(new { success = false, message = errorMessageHtml, errors = errorMessages });
             }
 
-            return Json(new { success = true, message = "All users have been created successfully." });
+            return Json(new { success = true, message = string.Format(Message.CREATE_SUCCESS,"All users")});
         }
-
-
-        private string GetUniqueFileName(string filePath, string uploads)
-        {
-            int count = 1;
-            string fileNameOnly = Path.GetFileNameWithoutExtension(filePath);
-            string extension = Path.GetExtension(filePath);
-            string newFullPath = filePath;
-
-            while (System.IO.File.Exists(newFullPath))
-            {
-                string tempFileName = $"{fileNameOnly} ({count++})";
-                newFullPath = Path.Combine(uploads, tempFileName + extension);
-            }
-
-            return newFullPath;
-        }
-
         #endregion
 
         #region Export
@@ -489,6 +510,30 @@ namespace MTM.Web.Controllers
             }
         }
         #endregion
+
+        #region Authorization
+        private bool Auth(string catId, int status)
+        {
+            string LoginId = GetLoginId();
+            UserViewModel LoginInfo = _userService.GetUser(LoginId);
+            if (LoginInfo == null) return false ;
+            switch (status)
+            {
+                case 1:  // 1 ==> Admin Only
+                    if (LoginInfo.Role == 1)
+                    {
+                        return true;
+                    }; break;
+                case 2: // 2 ==> Admin and Cat Owner User  Only
+                    if (LoginInfo.Role == 1 || catId == LoginId) 
+                    { 
+                        return true;
+                    }; break;
+                default: 
+                    return false;
+            }
+            return false;
+        }
+        #endregion
     }
 }
-    

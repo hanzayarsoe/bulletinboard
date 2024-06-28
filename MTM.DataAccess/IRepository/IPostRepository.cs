@@ -1,7 +1,4 @@
-﻿using MTM.Entities.Data;
-using MTM.Entities.DTO;
-
-namespace MTM.DataAccess.IRepository
+﻿namespace MTM.DataAccess.IRepository
 {
     public interface IPostRepository
     {

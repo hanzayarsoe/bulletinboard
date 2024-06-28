@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 
-
 namespace MTM.CommonLibrary
 {
     public static class Helpers
@@ -42,6 +41,24 @@ namespace MTM.CommonLibrary
                 default:
                     return null;
             }
+        }
+        #endregion
+
+        #region GetUniqueFileName
+        public static string GetUniqueFileName(string filePath, string uploads)
+        {
+            int count = 1;
+            string fileNameOnly = Path.GetFileNameWithoutExtension(filePath);
+            string extension = Path.GetExtension(filePath);
+            string newFullPath = filePath;
+
+            while (System.IO.File.Exists(newFullPath))
+            {
+                string tempFileName = $"{fileNameOnly} ({count++})";
+                newFullPath = Path.Combine(uploads, tempFileName + extension);
+            }
+
+            return newFullPath;
         }
         #endregion
     }
