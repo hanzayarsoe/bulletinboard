@@ -34,10 +34,8 @@ namespace MTM.Services.Service
         }
         public ResponseModel CreateList(PostListViewModel model)
         {
-            var posts = model.PostList.Select(postViewModel => _mapper.Map<Post>(postViewModel)).ToList();
-            return _postRepository.CreateList(posts);
+            return this._postRepository.CreateList(this._mapper.Map<List<PostViewModel>, List<Post>>(model.PostList));
         }
-
         public ResponseModel Delete(string id, string currentUserId)
         {
             return this._postRepository.Delete(id,currentUserId);

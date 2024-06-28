@@ -19,9 +19,30 @@ function DateFormatChange() {
             default: dateSelector.text(dayjs(datetime).format("DD-MM-YYYY")); break;
         }
 }
+// For Password Hide/Show 
+$('.eye-icon').on('click', function () {
+    var input = $($(this).attr('data-toggle'));
+    var type = input.attr('type') === 'password' ? 'text' : 'password';
+    input.attr('type', type);
+    $(this).text(type === 'password' ? '👁️' : '🙈');
+});
 
-// For Delete Process - Uses - Post, User
-let swalDelete = (url, deleteId, callback ) => {
+// auto resize input box and text area 
+function autoResize(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+}
+$('.auto-resize-input').on("input", function () {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+})
+
+// For Swal Alert For Delete
+const showSwal = (title, text, icon, callback) => {
+    Swal.fire({ title, text, icon }).then(callback);
+};
+
+let swalDelete = (url, deleteId, callback) => {
     Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to recover this!",
@@ -30,77 +51,18 @@ let swalDelete = (url, deleteId, callback ) => {
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
         confirmButtonText: "Yes, delete it!"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: url,
-                type: 'GET',
-                data: { id: deleteId },
-                success: function (result) {
-                    console.log("result", result)
-                    if (result.responseType == 1) {
-                        Swal.fire({
-                            title: "Deleted!",
-                            text: result.responseMessage,
-                            icon: "success"
-                        }).then(() => {
-                            callback(true);
-                        });
-                    } else {
-                        Swal.fire({
-                            title: "Can't Deleted!",
-                            text: result.responseMessage,
-                            icon: "fail"
-                        }).then(() => {
-                            callback(false);
-                        });
-                    }
-                },
-                error: function (err) {
-                    console.error('Error deleting user:', err);
-                    Swal.fire({
-                        title: "Error!",
-                        text: "An error occurred while deleting.",
-                        icon: "error"
-                    }).then(() => {
-                        callback(false);
-                    });
-                }
+    }).then(result => {
+        if (!result.isConfirmed) return;
+        $.get(url, { id: deleteId })
+            .done(result => {
+                const success = result.responseType == 1;
+                showSwal(success ? "Deleted!" : "Can't Delete!", result.responseMessage, success ? "success" : "error", () => callback(success));
+            })
+            .fail(err => {
+                showSwal("Error!", "An error occurred while deleting.", "error", () => callback(false));
             });
-        }
     });
-}
-
-// For Password Hide/Show 
-    $('.eye-icon').on('click', function () {
-        var input = $($(this).attr('data-toggle'));
-        var type = input.attr('type') === 'password' ? 'text' : 'password';
-        input.attr('type', type);
-        $(this).text(type === 'password' ? '👁️' : '🙈');
-    });
-
-// For Moment Usage
-
-// For SwalAlert
-function showAlert(type, message, callback) {
-    Swal.fire({
-        icon: type,
-        title: message
-    }).then(function () {
-        if (typeof callback === 'function') {
-            callback();
-        }
-    });
-}
-// auto resize input box and text area 
-function autoResize(textarea) {
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
-}
-$('.auto-resize-input').on("input",function () {
-    this.style.height = 'auto';
-    this.style.height = this.scrollHeight + 'px';
-})
+};
 
 $(function () {
     $('#uploadForm').on('submit', function (event) {
@@ -114,16 +76,17 @@ $(function () {
             processData: false,
             contentType: false,
             success: function (response) {
+                console.log("Response Success", response.success);
                 if (response.success) {
-                    showAlert('success', response.message, function () {
+                    showSwal(response.message, "", 'success', function () {
                         window.location.reload();
-                    });
+                    })
                 } else {
-                    showAlert('error', response.message);
+                    showSwal(response.message, "", 'error');
                 }
             },
             error: function () {
-                showAlert('error', 'An error occurred while processing the request.');
+                showSwal('An error occurred while processing the request.', "", 'error');
             }
         });
     });

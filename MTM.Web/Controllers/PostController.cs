@@ -4,7 +4,6 @@ using MTM.CommonLibrary;
 using MTM.Entities.DTO;
 using MTM.Services.IService;
 using OfficeOpenXml;
-using System.Diagnostics;
 using System.Security.Claims;
 
 namespace MTM.Web.Controllers
@@ -66,6 +65,12 @@ namespace MTM.Web.Controllers
         public IActionResult Delete(string id)
         {
             var response = new ResponseModel();
+            if (!Auth(id, 2))
+            {
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = String.Format(Message.FAIL_AUTHORIZE, "delete");
+                return Json(response);
+            }
             string currentUserId = GetLoginId();
             UserViewModel currentUser = _userService.GetUser(currentUserId);
             PostViewModel post = _postService.GetPost(id);
@@ -110,13 +115,13 @@ namespace MTM.Web.Controllers
         #region Edit
         public ActionResult Edit(string id)
         {
+            if (id == null || !Auth(id, 2)) return NotFound();
             string LoginId = GetLoginId();
             UserViewModel loginUser = _userService.GetUser(LoginId);
             if (id == null)
             {
                 return NotFound();
             }
-
             PostViewModel post = _postService.GetPost(id);
             if (loginUser.Role != 1 && LoginId != post.CreatedUserId )
             {
@@ -130,6 +135,7 @@ namespace MTM.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(PostViewModel model)
         {
+            if (model.Id == null || !Auth(model.Id, 2)) return NotFound();
             if (ModelState.IsValid)
             {
                 string LoginId = GetLoginId();
@@ -151,7 +157,6 @@ namespace MTM.Web.Controllers
         {
             var errorMessages = new List<string>();
             var posts = new List<PostViewModel>();
-
 
             if (file == null || file.Length == 0)
             {
@@ -201,14 +206,13 @@ namespace MTM.Web.Controllers
                     {
                         string Title = worksheet.Cells[row, 1].Text;
                         string Description = worksheet.Cells[row, 2].Text;
-                        string IsPublished = worksheet.Cells[row, 3].Text;
+                        string IsPublished = worksheet.Cells[row, 3].Text.ToLower();
 
                         if (string.IsNullOrEmpty(Title) || string.IsNullOrEmpty(Description) || string.IsNullOrEmpty(IsPublished))
                         {
                             errorMessages.Add(string.Format(Message.REQUIRED, row));
                             continue;
                         }
-                       
                         if(IsPublished != "publish" && IsPublished != "unpublish"){
                             errorMessages.Add(string.Format(Message.INPUT_DATA_INCORRECT, row));
                             continue;
@@ -254,7 +258,6 @@ namespace MTM.Web.Controllers
                 var errorMessageHtml = $"<ul style='font-size:small; list-style-type:none;'>{string.Join("", errorMessages.Select(e => $"<li>{e}</li>"))}</ul>";
                 return Json(new { success = false, message = errorMessageHtml, errors = errorMessages });
             }
-
             return Json(new { success = true, message = string.Format(Message.CREATE_SUCCESS, "All Posts") });
         }
         #endregion
@@ -289,7 +292,6 @@ namespace MTM.Web.Controllers
                     worksheet.Cells[row, 3].Value = post.IsPublished;
                     row++;
                 }
-
                 package.Save();
             }
             stream.Position = 0;
@@ -322,5 +324,30 @@ namespace MTM.Web.Controllers
             }
         }
         #endregion
+        #region Authorization
+        private bool Auth(string catId, int status)
+        {
+            string LoginId = GetLoginId();
+            UserViewModel LoginInfo = _userService.GetUser(LoginId);
+            PostViewModel PostInfo = _postService.GetPost(catId);
+            switch (status)
+            {
+                case 1:  // 1 ==> Admin Only
+                    if (LoginInfo.Role == 1)
+                    {
+                        return true;
+                    }; break;
+                case 2: // 2 ==> Admin and Cat Owner User  Only
+                    if (LoginInfo.Role == 1 || PostInfo.CreatedUserId == LoginId)
+                    {
+                        return true;
+                    }; break;
+                default:
+                    return false;
+            }
+            return false;
+        }
+        #endregion
+
     }
 }
