@@ -36,6 +36,5 @@ namespace MTM.Entities.Data
         public string UpdatedUserId { get; set; }
         public DateTime? DeletedDate { get; set; }
         public string DeletedUserId { get; set; }
-        public string ProfileImage { get; set; }
     }
 }
