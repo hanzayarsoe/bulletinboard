@@ -1,15 +1,18 @@
-﻿
+﻿@model MTM.Entities.DTO.UserViewModel
 @{
     ViewData["Title"] = "User List";
 }
 <div class="container">
     <h2>User List</h2>
     <partial name="_Notify" />
-    <div class="btn-container">
-        <a class="btn btn-outline-primary" asp-action="Create" asp-controller="User" tabindex="1" > Create New User </a>
-        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
-        <button class="btn btn-outline-secondary" id="export" data-bs-toggle="modal" tabindex="3" data-id="User">Export</button>
-    </div>
+     @if (Model.Role == 1)
+    {
+        <div class="btn-container">
+                <a class="btn btn-primary" asp-action="Create" asp-controller="User" tabindex="1" > Create New User </a>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#import-modal" tabindex="2"> Import </button>
+                <button class="btn btn-secondary" id="export" data-bs-toggle="modal" tabindex="3" data-id="User">Export</button>
+        </div>
+    }
     <table class="table table-striped no-wrap datatable" style="width:100%" id="userTable">
     <thead>
         <tr>
@@ -177,18 +180,27 @@
                         orderable: false,
                         searchable: false,
                         render: function (data, type, row) {
-                            return `
-                                    <div class="dropdown">
-                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="actionDropDown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                             Action
-                                         </button>
-                                         <div class="dropdown-menu" aria-labelledby="actionDropDown">
-                                             <button class="dropdown-item text-success view-detail" data-id="${data}">View</button>
-                                                  <a class="dropdown-item text-primary" href="/User/Edit/${data}">Edit</a>
-                                             <button class="dropdown-item text-danger btn-delete" data-id="${data}">Delete</button>
-                                         </div>
-                                    </div>
-                             `;
+                            var AdminButton = `
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="actionDropDown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Action
+                                                </button>
+                                                <div class="dropdown-menu" aria-labelledby="actionDropDown">
+                                                    <button class="dropdown-item text-success view-detail" data-id="${data}">View</button>
+                                                    <a class="dropdown-item text-primary" href="/User/Edit/${data}">Edit</a>
+                                                    <button class="dropdown-item text-danger btn-delete" data-id="${data}">Delete</button>
+                                                </div>
+                                            </div>
+                                        `;
+                            var UserButton = `
+                                           <button class="btn btn-secondary view-detail" data-id="${data}">View</button>
+                                                `;
+                            if (@Model.Role == 1) {
+                                return AdminButton;
+                            } else {
+                                return UserButton;
+                            }
+                           
                         }
                     }
                 ],
@@ -238,7 +250,7 @@
                 let url = '@Url.Action("Delete", "User")';
                 swalDelete(url, deleteId, (status) => {
                     if(status){
-                       dataTable.api().ajax.reload(null, false);
+                        dataTable.api().ajax.reload(null, false);
                     }
                 });
             });

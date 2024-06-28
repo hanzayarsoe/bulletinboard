@@ -35,7 +35,9 @@ namespace MTM.Web.Controllers
                     ResponseMessage = ResponseMessage
                 });
             }
-            return View();
+            string CurrentUserId = GetLoginId();
+            UserViewModel user = _userService.GetUser(CurrentUserId);
+            return View(user);
         }
 
         public ActionResult GetList()
@@ -57,17 +59,53 @@ namespace MTM.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UserProfile(UserViewModel model)
+        public IActionResult UserProfile(UserViewModel model, IFormFile? profile)
         {
             if (ModelState.IsValid)
             {
                 model.Id = GetLoginId();
                 model.UpdatedUserId = model.Id;
+                var currentuser = _userService.GetUser(GetLoginId());
                 var isExist = _userService.CheckEmail(model.Email);
                 ResponseModel response = _userService.GetIdByEmail(model.Email);
                 string? emailId = response.Data != null && response.Data.ContainsKey("Id") ? response.Data["Id"] : null;
+
                 if ((isExist && model.Id == emailId) || !isExist)
                 {
+                    if (profile != null)
+                    {
+                        var fileExtension = Path.GetExtension(profile.FileName)?.ToLower();
+                        var allowedExtensions = new[] { ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff" };
+
+                        if (string.IsNullOrEmpty(fileExtension) || !allowedExtensions.Contains(fileExtension))
+                        {
+                            return Json(new { success = false, message = Message.INVALID_FORMAT });
+                        }
+                        var images = Path.Combine(_env.WebRootPath, "images");
+                        if (!Directory.Exists(images))
+                        {
+                            Directory.CreateDirectory(images);
+                        }
+
+                        var filePath = Path.Combine(images, profile.FileName);
+                        if (System.IO.File.Exists(filePath))
+                        {
+                            filePath = Helpers.GetUniqueFileName(filePath, images);
+                        }
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            profile.CopyTo(fileStream);
+                        }
+
+                        string fileName = Path.GetFileName(filePath);
+                        model.ProfileImage = "/images/"+fileName;
+                    }
+                    else
+                    {
+                        model.ProfileImage = currentuser.ProfileImage;
+                    }
+
                     ResponseModel updateInfo = _userService.Update(model);
                     AlertMessage(updateInfo);
                 }
@@ -81,13 +119,13 @@ namespace MTM.Web.Controllers
                     return View(model);
                 }
             }
-
             return View(model);
         }
+
         #endregion
 
         #region User Detail
-
+  
         public IActionResult UserDetail(string Id)
         {
             UserViewModel user = _userService.GetUser(Id);
@@ -146,8 +184,9 @@ namespace MTM.Web.Controllers
         #endregion
 
         #region Create
-        public IActionResult Create(string id)
+        public IActionResult Create()
         {
+            if (!Auth(string.Empty, 1)) return NotFound();
             return View();
         }
 
@@ -155,6 +194,7 @@ namespace MTM.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(UserViewModel model)
         {
+            if (!Auth(string.Empty, 1)) return NotFound();
             if (ModelState.IsValid)
             {
                 if (model.PasswordHash != model.PasswordConfirm)
@@ -186,7 +226,7 @@ namespace MTM.Web.Controllers
                     TempData["Message"] = string.Format(Message.SAVE_SUCCESS, "User", "Created");
                     return RedirectToAction("Index");
                 }
-
+              
             }
             return View(model);
         }
@@ -195,25 +235,23 @@ namespace MTM.Web.Controllers
         #region Delete
         public IActionResult Delete(string id)
         {
+            ResponseModel response = new ResponseModel();
+            if(!Auth(id, 2))
+            {
+                response.ResponseType = Message.FAILURE;
+                response.ResponseMessage = String.Format(Message.FAIL_AUTHORIZE, "delete");
+                return Json(response);
+            }
             string LoginId = GetLoginId();
-            ResponseModel response = _userService.Delete(id, LoginId);
+            response = _userService.Delete(id, LoginId);
             return Json(response);
-        }
-        #endregion
-
-        #region Import User
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Import()
-        {
-            return View();
         }
         #endregion
 
         #region Edit
         public IActionResult Edit(string id)
         {
-            if (id == null)
+            if (id == null || !Auth(id, 2))
             {
                 return NotFound();
             }
@@ -226,10 +264,7 @@ namespace MTM.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(UserViewModel model)
         {
-            if (model == null)
-            {
-                return NotFound();
-            }
+            if(model == null || !Auth(model.Id, 2)) return NotFound();
             if (ModelState.IsValid)
             {
                 var currentUserId = GetLoginId();
@@ -252,7 +287,7 @@ namespace MTM.Web.Controllers
                     });
                     return View(model);
                 }
-
+                
             }
             return View(model);
         }
@@ -263,6 +298,10 @@ namespace MTM.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Upload(IFormFile file)
         {
+            if (!Auth(string.Empty, 1))
+            {
+               return Json(new { success = false, message = string.Format(Message.FAIL_AUTHORIZE, "import") });
+            }
             var errorMessages = new List<string>();
             var users = new List<UserViewModel>();
 
@@ -272,7 +311,7 @@ namespace MTM.Web.Controllers
             }
 
             var fileExtension = Path.GetExtension(file.FileName);
-            if (fileExtension != ".csv" && fileExtension != ".xlsx")
+            if (fileExtension != ".xls" && fileExtension != ".xlsx")
             {
                 return Json(new { success = false, message = Message.INVALID_FORMAT });
             }
@@ -360,7 +399,7 @@ namespace MTM.Web.Controllers
                             LastName = lastName,
                             Email = email,
                             PhoneNumber = phone,
-                            PasswordHash = password,
+                            PasswordHash = Helpers.HashPassword(password),
                             Role = role,
                             DOB = dob,
                             Address = address,
@@ -383,15 +422,17 @@ namespace MTM.Web.Controllers
                 return Json(new { success = false, message = errorMessageHtml, errors = errorMessages });
             }
 
-            foreach (var user in users)
+            var userListViewModel = new UserListViewModel
             {
-                var response = _userService.Register(user);
-                if (response.ResponseType != Message.SUCCESS)
-                {
-                    errorMessages.Add(string.Format(Message.CORRESPONSE_ERROR, user.Email, response.ResponseMessage));
-                }
-            }
+                UserList = users
+            };
 
+            ResponseModel response = _userService.Create(userListViewModel);
+            if (response.ResponseType != Message.SUCCESS)
+            {
+                return Json(new { success = false, message = response.ResponseMessage });
+            }
+            
             if (errorMessages.Any())
             {
                 var errorMessageHtml = $"<ul style='font-size:small; list-style-type:none;'>{string.Join("", errorMessages.Select(e => $"<li>{e}</li>"))}</ul>";
@@ -466,6 +507,31 @@ namespace MTM.Web.Controllers
                 default:
                     break;
             }
+        }
+        #endregion
+
+        #region Authorization
+        private bool Auth(string catId, int status)
+        {
+            string LoginId = GetLoginId();
+            UserViewModel LoginInfo = _userService.GetUser(LoginId);
+            if (LoginInfo == null) return false ;
+            switch (status)
+            {
+                case 1:  // 1 ==> Admin Only
+                    if (LoginInfo.Role == 1)
+                    {
+                        return true;
+                    }; break;
+                case 2: // 2 ==> Admin and Cat Owner User  Only
+                    if (LoginInfo.Role == 1 || catId == LoginId) 
+                    { 
+                        return true;
+                    }; break;
+                default: 
+                    return false;
+            }
+            return false;
         }
         #endregion
     }

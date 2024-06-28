@@ -77,26 +77,25 @@ namespace MTM.DataAccess.Repository
         #endregion
 
         #region Create
-        public ResponseModel Create(User user)
+        public ResponseModel Create(List<User> users)
         {
             ResponseModel response = new ResponseModel();
             try
             {
-                using (var context = new MTMContext())
+                if (users != null)
                 {
-                    var checkExist = context.Users.FirstOrDefault(c => c.Email == user.Email);
-                    if (checkExist != null)
+                    using (var context = new MTMContext())
                     {
-                        response.ResponseType = Message.EXIST;
-                        response.ResponseMessage = string.Format(Message.ALREADY_EXIST, user.Email);
-                    }
-                    else
-                    {
-                        context.Users.Add(user);
+                        context.Users.AddRange(users);
                         context.SaveChanges();
                         response.ResponseType = Message.SUCCESS;
-                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, user.FirstName, "created");
+                        response.ResponseMessage = string.Format(Message.SAVE_SUCCESS, "Import", "completed");
                     }
+                }
+                else
+                {
+                    response.ResponseType = Message.FAILURE;
+                    response.ResponseMessage = string.Format(Message.FAIL, "Import");
                 }
             }
             catch (Exception ex)
@@ -132,6 +131,7 @@ namespace MTM.DataAccess.Repository
                                  Address = data.Address,
                                  DOB = data.Dob,
                                  PhoneNumber = data.PhoneNumber,
+                                 ProfileImage = data.ProfileImage,
                                  Role = data.Role,
                                  RoleName = data.Role == 1 ? "admin" : "user",
                                  Email = data.Email,
@@ -189,6 +189,10 @@ namespace MTM.DataAccess.Repository
                         if (user.Dob.HasValue)
                         {
                             isExist.Dob = user.Dob;
+                        }
+                        if (!string.IsNullOrEmpty(user.ProfileImage))
+                        {
+                            isExist.ProfileImage = user.ProfileImage.ToLower();
                         }
                         if (user.Role.HasValue)
                         {
@@ -482,6 +486,3 @@ namespace MTM.DataAccess.Repository
         #endregion
     }
 }
-
-
-				

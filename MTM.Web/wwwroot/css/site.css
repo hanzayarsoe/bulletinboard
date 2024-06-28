@@ -65,6 +65,11 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
+/*image*/
+#profileImagePreview {
+    max-width: 300px;
+    max-height: 300px;
+}
 .auto-resize-input {
     box-sizing: border-box;
     width: 100%;
