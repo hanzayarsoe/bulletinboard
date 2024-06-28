@@ -60,12 +60,13 @@ namespace MTM.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UserProfile(UserViewModel model, IFormFile profile)
+        public IActionResult UserProfile(UserViewModel model, IFormFile? profile)
         {
             if (ModelState.IsValid)
             {
                 model.Id = GetLoginId();
                 model.UpdatedUserId = model.Id;
+                var currentuser = _userService.GetUser(GetLoginId());
                 var isExist = _userService.CheckEmail(model.Email);
                 ResponseModel response = _userService.GetIdByEmail(model.Email);
                 string? emailId = response.Data != null && response.Data.ContainsKey("Id") ? response.Data["Id"] : null;
@@ -101,11 +102,10 @@ namespace MTM.Web.Controllers
                         string fileName = Path.GetFileName(filePath);
                         model.ProfileImage = "/images/"+fileName;
                     }
-                    AlertMessage(new ResponseModel
+                    else
                     {
-                        ResponseType = Message.FAILURE,
-                        ResponseMessage = string.Format(Message.NOT_FOUND,"Image")
-                    });
+                        model.ProfileImage = currentuser.ProfileImage;
+                    }
 
                     ResponseModel updateInfo = _userService.Update(model);
                     AlertMessage(updateInfo);
@@ -120,7 +120,6 @@ namespace MTM.Web.Controllers
                     return View(model);
                 }
             }
-
             return View(model);
         }
 

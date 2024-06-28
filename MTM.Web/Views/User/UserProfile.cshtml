@@ -13,7 +13,7 @@ string defaultImage = "/img/user_profile.png";
                          src="@(!string.IsNullOrEmpty(Model.ProfileImage) ? Model.ProfileImage : defaultImage)"
                          class="rounded-circle border mb-3 w-75"
                          alt="User Image" />
-                    <input type="file" id="profileImageInput" class="d-none form-control" name="profile" accept="image/*" />
+                    <input type="file" id="profileImageInput" asp-for="ProfileImage" class="d-none form-control" name="profile" accept="image/*" />
                     <label for="profileImageInput" class="btn btn-outline-info btn-sm">Choose Profile Image</label>
                 </div>
             </div>

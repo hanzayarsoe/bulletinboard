@@ -92,6 +92,7 @@ namespace MTM.Entities.DTO
 		[DisplayName("Date Of Birth")]
 		[AdultPersonOnly(ErrorMessage = "The year must be greater than 2002.")]
 		public DateTime? DOB { get; set; }
+		[DisplayName("Profile Image")]
 		public string? ProfileImage { get; set; }
 		[DisplayName("Role")]
         [ValidRole]
