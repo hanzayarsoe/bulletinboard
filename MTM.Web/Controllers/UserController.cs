@@ -187,10 +187,7 @@ namespace MTM.Web.Controllers
         #region Create
         public IActionResult Create()
         {
-            if (!Auth(string.Empty, 1))
-            {
-                return NotFound();
-            }
+            if (!Auth(string.Empty, 1)) return NotFound();
             return View();
         }
 
@@ -198,6 +195,7 @@ namespace MTM.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(UserViewModel model)
         {
+            if (!Auth(string.Empty, 1)) return NotFound();
             if (ModelState.IsValid)
             {
                 if (model.PasswordHash != model.PasswordConfirm)
@@ -267,11 +265,7 @@ namespace MTM.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(UserViewModel model)
         {
-            if(model == null || !Auth(model.Id, 2))
-            {
-                return NotFound();
-            }
-
+            if(model == null || !Auth(model.Id, 2)) return NotFound();
             if (ModelState.IsValid)
             {
                 var currentUserId = GetLoginId();
@@ -520,19 +514,17 @@ namespace MTM.Web.Controllers
         #region Authorization
         private bool Auth(string catId, int status)
         {
-            // 1 ==> Admin Only
-            // 2 ==> Admin and Cat Owner User  Only
             string LoginId = GetLoginId();
             UserViewModel LoginInfo = _userService.GetUser(LoginId);
             if (LoginInfo == null) return false ;
             switch (status)
             {
-                case 1:
+                case 1:  // 1 ==> Admin Only
                     if (LoginInfo.Role == 1)
                     {
                         return true;
                     }; break;
-                case 2:
+                case 2: // 2 ==> Admin and Cat Owner User  Only
                     if (LoginInfo.Role == 1 || catId == LoginId) 
                     { 
                         return true;
