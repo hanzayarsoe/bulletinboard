@@ -1,32 +1,37 @@
 # BulletinBoardCore
 
+Documentation for a planned **ASP.NET Core MVC** bulletin board application.
 
+This repository currently contains only this README. It describes the intended structure and features of a simple bulletin board (posts, users, and authentication) built with ASP.NET Core and C#. Application source code has not been added to the repository yet.
 
-# ASP.NET Core Bulletin Board Structure
+## Intended Features
 
-A simple bulletinboard app using the ASP.NET Core MVC framework.
+Based on the project plan documented here:
 
-## Current Features
-
-- Post - CRUD
-- User - CRUD
+- Post management (CRUD)
+- User management (CRUD)
 - Authentication
 
+## Tech Stack (Planned)
 
-## Tech Stack
+- **Server:** ASP.NET Core, C#
+- **Client UI:** Bootstrap or Tailwind CSS
 
-**Client:** Bootstrap or Tailwind
-
-**Server:** ASP.NET Core, C#
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## Project Structure
 
 ```
-cd existing_repo
-git remote add origin http://150.95.31.75/dev02-ojt/interngroup/bulletinboardcore.git
-git branch -M main
-git push -uf origin main
+.
+└── README.md    # Project overview and planned features
 ```
+
+## Getting Started
+
+There is no runnable application in this repository yet. When source code is added, typical ASP.NET Core setup would include restoring NuGet packages and running the web project with the .NET SDK.
+
+```bash
+# After application code is added
+dotnet restore
+dotnet run
+```
+
+Until then, this file serves as the project brief for BulletinBoardCore.
